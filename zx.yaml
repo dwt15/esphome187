@@ -1,6 +1,6 @@
 esphome:
   name: zx
-  friendly_name: zx
+  friendly_name: zx001k
 
 esp32:
   board: esp32-s3-devkitm-1
