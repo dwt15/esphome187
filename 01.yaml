@@ -7,7 +7,6 @@ esp32:
   framework:
     type: esp-idf
 
-# Enable logging
 # Enable logging cccc
 logger:
 
