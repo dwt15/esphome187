@@ -1,4 +1,4 @@
- #set: esphome, esp32, psram, loger, api, ota, wifi 000001
+ #set: esphome, esp32, psram, loger, api, ota, wifi 000002
   esphome:
     name: display4880m
     comment: "serg 480x800" 
