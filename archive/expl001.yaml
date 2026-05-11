@@ -1,0 +1,32 @@
+esphome:
+  name: expl001
+  friendly_name: expl001
+
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "fxky8LKAtykzia5TM+7EJhitxNgNL7RxnMKBRVey1js="
+
+ota:
+  - platform: esphome
+    password: "5814309eb1a88030615f3615ead77983"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Expl001 Fallback Hotspot"
+    password: "brMvkWLTPI3H"
+
+captive_portal:
+    

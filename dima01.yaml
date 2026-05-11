@@ -1,0 +1,463 @@
+substitutions:  
+  tmpt00: "0x57094def0264ff28" #0 
+  tmpt01: "0x453ce1e381312c28" #1 0x453ce1e381312c28 (DS18B20)
+  tmpt02: "0x15e260e808646128" #2 0x15e260e808646128 (DS18B20)
+  tmpt03: "0x357014e808646128" #3 0x357014e808646128 (DS18B20)
+  tmpt04: "0xbc6f17e808646128" #4 0xbc6f17e808646128 (DS18B20)
+  tmpt05: "0x237b1eee08646128" #5 0x237b1eee08646128 (DS18B20)
+  tmpt06: "0x3373a8e908646128" #6 0x3373a8e908646128 (DS18B20)
+  tmpt07: "0xf2b36fef08646128" #7 0xf2b36fef08646128 (DS18B20)
+  tmpt08: "0x413ce1e38165f128" #8 0x413ce1e38165f128 (DS18B20)
+  tmpt09: "0x7620320c3dbec528" #9 0x7620320c3dbec528 (DS18B20)
+          
+      
+esphome:
+  name: dima01
+  friendly_name: Dima01
+  on_boot:
+    priority: 600
+    then:
+      - output.turn_on: led_tft # подсветка экрана
+      - output.turn_on: led_r   # светодиод на плате красный
+      - output.turn_on: led_g   # светодиод на плате зеленый
+      - output.turn_on: led_b   # светодиод на плате синий
+
+
+
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "ivVRpQiOo2EHZLap9YPam4IpM+mXV1teD4qhoxj36vI="
+
+ota:
+  - platform: esphome
+    password: "fba0e5ba4954e71e2ff0625152a05fef"
+
+wifi: 
+  networks:
+#    - ssid: dwt15
+#      password: 0934876536     
+    - ssid: AndroidAP3E21
+      password: ifpw4803 
+    - ssid: "MERCUSYS_0BFF"
+      password: "66674818"
+    - ssid: !secret wifi_ssid
+      password: !secret wifi_password
+
+captive_portal:
+#________________________________________________
+
+mqtt:
+  broker:  109.95.32.19
+  port: 1883
+  username: "mqtt"
+  password: "mqtt"
+  discovery: true
+  discovery_prefix: homeassistant 
+
+time:
+  - platform: sntp
+    id: sntp_time
+    timezone: "Europe/Kyiv"
+    servers:
+      - 0.pool.ntp.org
+      - 1.pool.ntp.org
+      - 2.pool.ntp.org
+    update_interval: 6000s
+
+
+one_wire: # dallas
+  - platform: gpio
+    pin: 27
+
+output: 
+ # объявляем пины на отдачу
+  - platform: ledc  # подсветка экрана 
+    pin: 21
+    id: led_tft 
+  - platform: ledc  # светодиод на плате синий 
+    pin: 17
+    id: led_b   
+  - platform: ledc  # светодиод на плате зеленый 
+    pin: 16
+    id: led_g      
+  - platform: ledc  # светодиод на плате красный 
+    pin: 4 
+    id: led_r 
+
+sensor:
+  - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
+    name: "WiFi Signal dB"
+    id: wifi_signal_db
+    update_interval: 30s
+    entity_category: "diagnostic"
+
+
+ # light sensor 
+  - platform: adc  #
+    id: light_value
+    name: svet
+    pin: 34
+    update_interval: 2s
+    on_value:
+      then:
+        - lambda: |-                
+            if( id(light_value).state <0.1 ){ id(led_tft).set_level(0.7);}
+            else{ id(led_tft).set_level(0.1);}
+
+ # Свои показания температуры 
+
+  - platform: dallas_temp
+    address: $tmpt00 #0xabdf8be908646128
+    name: tmpt00
+    id: tmpt00
+    update_interval: 10s
+
+  - platform: dallas_temp     
+    address: $tmpt01
+    name: tmpt01
+    id: tmpt01
+    update_interval: 20s
+
+  - platform: dallas_temp  
+    address: $tmpt02 
+    name: tmpt02 
+    id: tmpt02
+    update_interval: 20s
+
+  - platform: dallas_temp    
+    address: $tmpt03
+    name: tmpt03
+    id: tmpt03
+    update_interval: 20s
+
+  - platform: dallas_temp
+    address: $tmpt04 
+    name: tmpt04
+    id: tmpt04
+    update_interval: 20s
+
+  - platform: dallas_temp   
+    address: $tmpt05
+    name: tmpt05
+    id: tmpt05
+    update_interval: 20s
+
+  - platform: dallas_temp   
+    address: $tmpt06 
+    name: tmpt06
+    id: tmpt06
+    update_interval: 20s
+
+  - platform: dallas_temp
+    address: $tmpt07
+    name: tmpt07
+    id: tmpt07
+    update_interval: 20s
+
+  - platform: dallas_temp     
+    address: $tmpt08 
+    name: tmpt08
+    id: tmpt08
+    update_interval: 20s
+
+  - platform: dallas_temp     
+    address: $tmpt09 
+    name: tmpt09
+    id: tmpt09
+    update_interval: 20s
+   
+ # EDIT input dp_1..dp_5 r1g1b1 r2g2b2 
+  - platform: homeassistant # dp   
+    id: dp
+    entity_id: counter.dp
+  - platform: homeassistant # dp_1 
+    id: dp_1
+    entity_id: input_number.dp1
+  - platform: homeassistant # dp_2 
+    id: dp_2
+    entity_id: input_number.dp2
+  - platform: homeassistant # dp_3 
+    id: dp_3
+    entity_id: input_number.dp3
+  - platform: homeassistant # dp_4 
+    id: dp_4
+    entity_id: input_number.dp4
+  - platform: homeassistant # dp_5 
+    id: dp_5
+    entity_id: input_number.dp5
+  - platform: homeassistant # r1 
+    id: r1 
+    internal: true
+    entity_id: input_number.r1
+  - platform: homeassistant # g1 
+    id: g1 
+    entity_id: input_number.g1
+  - platform: homeassistant # b1 
+    id: b1 
+    entity_id: input_number.b1
+  - platform: homeassistant # r2 
+    id: r2 
+    entity_id: input_number.r2
+  - platform: homeassistant # g2 
+    id: g2
+    entity_id: input_number.g2
+  - platform: homeassistant # b2 
+    id: b2 
+    entity_id: input_number.b2 
+
+binary_sensor:
+  - platform: homeassistant
+    id: ava_display4880m_presence
+    entity_id: binary_sensor.ava_display4880m_presence
+
+text_sensor:
+  - platform: wifi_info
+    ssid:
+      name: ESP Connected SSID
+      id: name_wifi
+ 
+font: 
+ # 17 
+  - file: "gfonts://Roboto"
+    id: roboto_17   # my_font4
+    size: 17
+    glyphs: ["1","2","3","4","5","6","7","8","9","0","+","-"," ","°",".","_",":",
+     A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,
+     a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,
+     А,Б,В,Г,Д,Е,Ё,Ж,З,И,Й,К,Л,М,Н,О,П,Р,С,Т,У,Ф,Х,Ч,Ш,Щ,Ь,Ъ,Э,Ю,Я,
+     а,б,в,г,д,е,ё,ж,з,и,й,к,л,м,н,о,п,р,с,т,у,ф,х,ч,ш,щ,ь,ъ,э,ю,я]
+ # 25 
+  - file: "gfonts://Roboto"
+    id: roboto_25  # my_font1a
+    size: 25
+    glyphs: [" ",".","-","=","1","2","3","4","5","6","7","8","9","0",":",
+             a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,q,t,u,v,w,x,y,z,
+             A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z]
+ # 25 
+  - file: "gfonts://Bebas Neue@400" # "gfonts://Rubik@400" # "gfonts://Roboto" # "gfonts://Oswald@600" #   
+    id: bebasneue400_25            # my_font2_b
+    size: 25
+    glyphs: [" ",".","-","°",":","1","2","3","4","5","6","7","8","9","0",a,d,i,n,o,s]
+ # 45 
+  - file: "gfonts://Bebas Neue@400" # "gfonts://Rubik@400" # "gfonts://Roboto" # "gfonts://Oswald@600" #   
+    id: bebasneue400_45            # my_font2_b
+    size: 45
+    glyphs: [" ",".","-","°",":","1","2","3","4","5","6","7","8","9","0",a,d,i,n,o,s] 
+ 
+ # 50 
+  - file: "gfonts://Bebas Neue@400" # "gfonts://Rubik@400" # "gfonts://Roboto" # "gfonts://Oswald@600" #   
+    id: bebasneue400_50            # my_font2_b
+    size: 50
+    glyphs: [" ",".","-","°",":","1","2","3","4","5","6","7","8","9","0",a,d,i,n,o,s]
+
+  - file: "fonts/materialdesignicons-webfont.ttf"
+    id: icon_20      
+    size: 20
+    glyphs: [
+          "\U000F02D1", # mdi-heart
+          "\U000F05D4", # mdi-airplane-landing
+          "\U000F0D9B", # mdi-solar-panel
+          "\U000F192C", # mdi-transmission-tower-export
+          "\U000F010C", # mdi-car-battery
+          "\U000F0241", # mdi-flash          
+          "\U000F03C8", # mdi:coolant-temperature  
+          ]
+
+image:
+ #  БОЛЬШИЕ ИКОНКИ ДЛЯ КНОПОЧНОЙ ФОРМЫ
+  #- file: mdi:tools           # tools 
+  #  id: tools
+  #  resize: 80x70
+  #- file: mdi:logout          # EXIT   
+  #  id: logout
+  #  resize: 80x70
+  #- file: mdi:car-hatchback   # ГАРАЖ3 машинка 
+  #  id: car_hatchback
+  #  resize: 80x70
+  #- file: mdi:download        # ПОГРЕБ2        
+  #  id: download
+  #  resize: 80x70  
+  #- file: mdi:coach-lamp      # свет сарай     
+  #  id: coach_lamp
+  #  resize: 80x70 
+  #- file: mdi:home-floor-2    # вход 2         
+  #  id: home_floor_2
+  #  resize: 80x70
+  #- file: mdi:fire            # огонь  котел       
+  #  id: fire_30x40
+  #  resize: 30x40
+  #- file: mdi:fan-speed-1     # мотрчик 1        
+  #  id: fan_speed_1
+  #  resize: 80x70 
+  #- file: mdi:fan-speed-2     # моторчик 2          
+  #  id: fan_speed_2
+  #  resize: 80x70 
+
+#-------------- 
+spi:
+  - id: spi0 # 
+    clk_pin: 14
+    mosi_pin: 13
+  #    miso_pin: 12
+  - id: spi1 #
+    clk_pin: 25
+    mosi_pin: 32
+    miso_pin: 39
+#--------------
+touchscreen:
+  platform: xpt2046
+  id: my_touchscreen
+  spi_id: spi1
+  cs_pin: 33
+  calibration:
+    x_min: 200  # L:200    R:200 
+    x_max: 3830  # L:3830  R:3830 
+    y_min: 170  # L:170    R:170
+    y_max: 3780 # L:3780   R:3780
+  transform:
+    swap_xy: true #  L:true  R:true
+    mirror_x: true # L:true  R:false
+    mirror_y: true # L:true  R:false
+  on_touch:
+       - lambda: |-
+           ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
+               touch.x,
+               touch.y,
+               touch.x_raw,
+               touch.y_raw
+               );  
+#---------------
+display:
+  - platform: ili9xxx
+    model:  ILI9341 #TFT 2.4
+    id: my_display1     
+    spi_id: spi0
+    cs_pin: 15   
+    dc_pin: 2  
+    invert_colors: false    
+    color_palette: 8BIT
+    color_order: rgb
+    transform:      
+      mirror_x: true #  L:true   R:false 
+      mirror_y: false # L:false  R:true 
+      swap_xy: false # L:false   R:false
+    dimensions:
+      height: 240
+      width: 320     
+  #    update_interval: 5s 
+
+    pages: 
+      - id: page_0
+        lambda: |- 
+          auto colori=Color(5, 255, 5);      // 
+          auto colore=Color(50, 55, 95);      // температура ошибка 
+          auto color0=Color(0, 255, 0);      // температура правильно зеленый
+          auto color1=Color(127, 39, 7);     // номера        
+          auto color2=Color(255, 47, 7);     // иконка+ линия
+          auto color3=Color(0, 47, 0);    // наименование
+          auto color4=Color(200, 200, 100);  // время 
+         
+          
+           //color1=Color(id(r1).state,id(g1).state,id(b1).state);
+           //color3=Color(id(r2).state,id(g2).state,id(b2).state);
+          
+          
+          static const char* temp_n[10]; // массив наименований для карточек
+          float tmpt_f[10];              // f массив значений для карточек
+          int tmpt_s[10];                //  масив статус ошибка при считывании данных с датчика 0-ошибка 1-ок
+          
+          
+          //tmpt_f[0]=id(tmpt00).state;
+          tmpt_s[0]=0; tmpt_f[0]=1.1; temp_n[0]="К";       if( !isnan(id(tmpt00).state) ) {tmpt_f[0]=id(tmpt00).state; tmpt_s[0]=1;}
+          tmpt_s[1]=0; tmpt_f[1]=0.1; temp_n[1]="Кухня";   if( !isnan(id(tmpt01).state) ) {tmpt_f[1]=id(tmpt01).state; tmpt_s[1]=1;}
+          tmpt_s[2]=0; tmpt_f[2]=0.2; temp_n[2]="Хол_1";   if( !isnan(id(tmpt02).state) ) {tmpt_f[2]=id(tmpt02).state; tmpt_s[2]=1;}
+          tmpt_s[3]=0; tmpt_f[3]=0.3; temp_n[3]="Хол_2";   if( !isnan(id(tmpt03).state) ) {tmpt_f[3]=id(tmpt03).state; tmpt_s[3]=1;}          
+          tmpt_s[4]=0; tmpt_f[4]=0.4; temp_n[4]="Кiмнт_3"; if( !isnan(id(tmpt04).state) ) {tmpt_f[4]=id(tmpt04).state; tmpt_s[4]=1;}
+          tmpt_s[5]=0; tmpt_f[5]=0.5; temp_n[5]="Зал_1";   if( !isnan(id(tmpt05).state) ) {tmpt_f[5]=id(tmpt05).state; tmpt_s[5]=1;}
+          tmpt_s[6]=0; tmpt_f[6]=0.6; temp_n[6]="Зал_2";   if( !isnan(id(tmpt06).state) ) {tmpt_f[6]=id(tmpt06).state; tmpt_s[6]=1;} 
+          tmpt_s[7]=0; tmpt_f[7]=0.7; temp_n[7]="Зал_3";   if( !isnan(id(tmpt07).state) ) {tmpt_f[7]=id(tmpt07).state; tmpt_s[7]=1;}
+          tmpt_s[8]=0; tmpt_f[8]=0.8; temp_n[8]="Кiмнт_2"; if( !isnan(id(tmpt08).state) ) {tmpt_f[8]=id(tmpt08).state; tmpt_s[8]=1;}
+          tmpt_s[9]=0; tmpt_f[9]=0.9; temp_n[9]="Кiмнт_1"; if( !isnan(id(tmpt09).state) ) {tmpt_f[9]=id(tmpt09).state; tmpt_s[9]=1;}
+           
+
+          // 
+            int dx=117; //id(dp_3).state;     // ширина между столбцами
+            int dy=65; //id(dp_4).state;       // ширина между строками
+                        
+             
+            int dx1=50;   // смещение по х наименований
+            int dy1=0;    // смещение по у наименований
+            int dx2=60;   // смещение по х в стороны показателей целой части
+            int dy2=18;   // смещение по у по высоте показателей целой части
+            int dx3=5;    // смещение по х для размерности в стороны
+            int dy3=5;    // смещение по у для размерности по высоте
+            int dx4=0;    // смещение по х дробной части   в стороны
+            int dy4=21;   // смещение по у дробной части  по высоте         
+            
+            
+            
+            for(int i=0; i<3; i++){   // перебор строк
+            
+            for(int j=0; j<3; j++){   // перебор столбцов
+              int n=1+i+3*j;        // номер датчика               
+              int x=i*dx;         // вычисление поз х
+              int y=42+j*dy;         // вычисление поз у 46
+              int x0=x+2;         // осн поз х для карточки
+              int y0=y+2;         // осн поз у для карточки
+              
+              int y1=y0+dy1;      // поз у для надписи
+              int x2=x0+dx2;      // поз х для значения
+              int y2=y0+dy2;      // поз у для значения
+              int x3=x2+(-51);      // поз х для номера       
+              int y3=y2+22;         // поз у для номера 
+
+              int t_i=static_cast<int>(tmpt_f[n]);                // извлекаем целую часть показателя
+              int t_d=abs(static_cast<int>(10*(tmpt_f[n]-t_i)));  //извлекаем дробную часть показателя                  
+                   
+                  if(tmpt_s[n]==0){colori=colore;} // 0-error 1-ok
+                              else{colori=color0;}
+                  it.printf( x2,     y2+5,      id(bebasneue400_45), colori,TextAlign::TOP_RIGHT, "%i", t_i ); // вывод целой части temp_f[n]
+                  it.printf( x2+dx3, y2+dy3+5 , id(roboto_17),   colori,TextAlign::TOP_LEFT,  "°" );          // вывод подписи °C
+                  it.printf( x2+dx4, y2+dy4,  id(roboto_25),   colori,TextAlign::TOP_LEFT,  ".%i", t_d );    // вывод дробной части
+                  it.printf( x3,     y3,      id(bebasneue400_25), color1,TextAlign::TOP_RIGHT, "%i", n ); // номер
+                  it.printf( x2+(-21), y3+(-32), id(roboto_17), color3,TextAlign::TOP_CENTER, temp_n[n] ); // печатаем наименованиid(bebasneue400_25), color2,TextAlign::TOP_RIGHT, "%i", n ); // номер
+                  
+                  //it.rectangle(x0, y0, x0+dx, y0+dy,color1);
+             }} // next j  next i 
+            
+            // 
+            it.horizontal_line(0,49,320, color2);             
+            it.printf( 0, 10, id(icon_20), color2,TextAlign::TOP_LEFT,"\U000F03C8" ); // вывод icon  
+             // Температура котла
+            int t_i=static_cast<int>(tmpt_f[0]);                // извлекаем целую часть показателя
+            int t_d=abs(static_cast<int>(10*(tmpt_f[0]-t_i)));  //извлекаем дробную часть показателя   
+            int x2=68;  
+            int y2=-7;            
+            if(tmpt_s[0]==0){colori=colore;} // 0-error 1-ok
+                        else{colori=color0;} //
+            it.printf( x2,     y2+5,      id(bebasneue400_45), colori,TextAlign::TOP_RIGHT, "%i", t_i ); // вывод целой части temp_f[n]
+            it.printf( x2+dx3, y2+dy3+5 , id(roboto_17),   colori,TextAlign::TOP_LEFT,  "°" );          // вывод подписи °C
+            it.printf( x2+dx4, y2+dy4,  id(roboto_25),   colori,TextAlign::TOP_LEFT,  ".%i", t_d );    // вывод дробной части
+             // Время
+            auto time_t = id(sntp_time).now();
+            x2=282;  
+            y2=-3;  
+            dy4=17;  
+            colori=color4;
+            it.printf(x2, y2, id(bebasneue400_45), colori, TextAlign::TOP_RIGHT, "%2d:%02d", time_t.hour, time_t.minute); 
+            it.printf(x2, y2+dy4,  id(roboto_25),  colori, TextAlign::TOP_LEFT,   " %02d", time_t.second );    //  
+            
+            // ssid
+            //it.printf( 80,-2, id(roboto_17), colore, TextAlign::TOP_LEFT, "%s", id(name_wifi).state.c_str());
+            //it.printf(162, 0, id(roboto_25),  "Time:%02d:%02d:%02d", time_t.hour, time_t.minute, time_t.second);//220
+            //it.printf(25, id(roboto_25), "W %3.0f db", id(wifi_signal_db).state);

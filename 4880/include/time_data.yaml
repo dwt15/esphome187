@@ -1,0 +1,88 @@
+         obj:    #    время <my_time>
+          id: obj_timed
+          x: 0 
+          y: 379        
+          height: 101
+          width: 800                              
+          bg_color: 0x000001
+          border_color: 0x00e001  #0xF0F0F0 
+          border_width: 0
+          outline_width: 0
+          outline_color: 0xF0F0F0
+          shadow_width: 0
+          pad_all: 0
+          radius: 0 
+          scrollbar_mode: "off"
+          scrollable: 'false'
+          widgets:                         
+           - label: # день недели         
+              id: time_t1   
+              x: 495    # ax5 495
+              y: -7     # ay5 -7
+              text_font: roboto_35
+              text_letter_space: 0
+              text_color: 0x00e000     
+              text: "пн" 
+           - label: # месяц
+              id: time_tm   
+              x: 485     # ax4 480
+              y: 37      # ay4 37
+              text_font: roboto500_65 # Oswald400_90  # 
+              text_letter_space: 0
+              text_color: 0x00e000     
+              text: "xx"           
+           - label: # дата
+              id: time_td   
+              x:  -325   # ax3 -325 
+              y: -44     # ay3 -44
+              text_font: Oswald400_120 #Oswald400_90  # roboto500_65 #
+              text_letter_space: 0
+              text_color: 0x00e000     
+              styles: style_top_r0
+              text: "xx"           
+           - label: # hh:mm           
+              id: time_t2 
+              x: -525    # ax1 -525
+              y: -44     # ay1 -44          
+              text_font: Oswald400_120  # 
+              text_letter_space: 2
+              text_color: 0x00e000       
+              styles: style_top_r0
+              text: "00:00" 
+           - label: # секунды            
+              id: time_t3 
+              x: 273     # ax2 273
+              y: 28      # ay2 28       
+              text_font: Oswald400_60 # roboto500_65  # 
+              styles: style_top_l0
+              text_letter_space: 0
+              text_color: 0x00e000       
+              text: "xx"
+           - image: # i Moon
+              id: img_imgm
+              src: img_moon_new                       
+              x: 560   # 560 ax5 
+              y: 0     # 0   ay5            
+           - image: # i Termetr
+              id: img_temprt
+              src: img_term1                        
+              x: 600    # ax4 600
+              y: 50     # ay4 50
+           - label: # температура внутри  {time_mytempi}      
+              id: time_mytempi 
+              x: -30    # ax1 -30
+              y: -8     # ay1 -8          
+              text_font: Oswald400_90  #roboto500_80 # roboto500_65 # Oswald400_70 #  bebasneue400_55 #   Oswald400_40 #Oswald400_120  # 
+              text_letter_space: 2
+              text_color: 0x00e000       
+              styles: style_top_r0
+              text: "xx."
+           - label: # температура внутри  {time_mytempd}       
+              id: time_mytempd 
+              x: 772   # ax2 772
+              y: 28     # ay2 28          
+              text_font: Oswald400_60 #roboto500_65 #Oswald400_90  #roboto500_80 #  Oswald400_70 #  bebasneue400_55 #   Oswald400_120  # 
+              text_letter_space: 2
+              text_color: 0x00e000       
+              #styles: style_top_r0
+              text: "x"

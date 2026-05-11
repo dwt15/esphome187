@@ -1,0 +1,390 @@
+binary_sensor:
+
+# platform: touchscreen
+
+ # page_0 стартовая страница все мелко
+  - platform: touchscreen  # page_0 -> page_1 показатели крупно 
+    name: Sel
+    x_min: 0
+    x_max: 220
+    y_min: 0
+    y_max: 110
+    page_id: page_0
+    filters:
+        - delayed_on: 20ms    
+    on_press:
+      then:
+        - lambda: |-             
+           id(page_i)=1;
+           id(my_display1).show_page(id(page_1));
+           id(my_display1).update();          
+  - platform: touchscreen  # page_0 -> page_2  
+    name: Sel
+    x_min: 0
+    x_max: 220
+    y_min: 138
+    y_max: 239
+    page_id: page_0
+    filters:
+        - delayed_on: 20ms 
+    on_press:    
+      then:
+        - lambda: |- 
+           id(page_i)=2;   
+           id(my_display1).show_page(id(page_2));
+           id(my_display1).update();
+  - platform: touchscreen  # page_0 -> page_14 кнопочная форма 
+    name: Sel  
+    x_min: 260
+    x_max: 319
+    y_min: 0
+    y_max: 239
+    page_id: page_0  
+    filters:
+        - delayed_on: 20ms     
+    on_press:
+      then:
+        - lambda: |- 
+           id(page_i)=14;
+           id(my_display1).show_page(id(page_14));
+           id(my_display1).update();
+
+ # page_1 ПОКАЗАТЕЛИ КРУПНО
+  - platform: touchscreen  # page_1    -> page_0    возврат 
+    name: Sel
+    x_min: 80
+    x_max: 319
+    y_min: 0
+    y_max: 239
+    page_id: page_1
+    filters:
+      - delayed_on: 20ms     
+    on_press:
+      then:
+        - lambda: |- 
+           id(page_i)=0; 
+           id(my_display1).show_page(id(page_0));
+           id(my_display1).update();
+  - platform: touchscreen  # page_1    -> page_11  показатели панели 
+    name: Sel
+    x_min: 0
+    x_max: 70
+    y_min: 0
+    y_max: 60
+    page_id: page_1
+    filters:
+      - delayed_on: 20ms    
+    on_press:
+      then:
+        - lambda: |- 
+           id(page_i)=11;
+           id(my_display1).show_page(id(page_11));
+           id(my_display1).update();
+  - platform: touchscreen  # page_1    -> page_131 показатели батареи общ 
+    name: Sel
+    x_min: 0
+    x_max: 70
+    y_min: 121
+    y_max: 180
+    page_id: page_1
+    filters:
+      - delayed_on: 20ms    
+    on_press:
+      then:
+        - lambda: |- 
+           id(page_i)=131;
+           id(my_display1).show_page(id(page_131));
+           id(my_display1).update(); 
+  - platform: touchscreen  # page_1    -> page_14  кнопочная форма  
+    name: Sel
+    x_min: 0
+    x_max: 70
+    y_min: 181
+    y_max: 239
+    page_id: page_1
+    filters:
+      - delayed_on: 20ms    
+    on_press:
+      then:
+        - lambda: |- 
+           id(page_i)=14;
+           id(my_display1).show_page(id(page_14));
+           id(my_display1).update();
+ # page_11  показатели панели
+  - platform: touchscreen  # page_11  -> page_1    возврат 
+    name: Sel
+    x_min: 0
+    x_max: 300
+    y_min: 0
+    y_max: 230
+    page_id: page_11
+    filters:
+      - delayed_on: 20ms    
+    on_press:
+      then:
+        - lambda: |- 
+           id(page_i)=1;
+           id(my_display1).show_page(id(page_1));
+           id(my_display1).update();
+ # page_13x показатели батаре
+  - platform: touchscreen  # page_131 -> page_1    возврат на крупную 
+    name: Sel
+    x_min: 0
+    x_max: 80
+    y_min: 0
+    y_max: 230
+    page_id: page_131
+    filters:
+      - delayed_on: 20ms    
+    on_press:
+      then:
+        - lambda: |- 
+           id(page_i)=1;
+           id(my_display1).show_page(id(page_1));
+           id(my_display1).update();
+  - platform: touchscreen  # page_131 -> page_132 (eva105) выбор батареи 
+    name: Sel
+    x_min: 85
+    x_max: 145
+    y_min: 0
+    y_max: 200
+    page_id: page_131
+    filters:
+      - delayed_on: 20ms    
+    on_press:
+      then:
+        - lambda: |- 
+           id(bat_n)="eva105";
+           id(page_i)=132;
+           id(my_display1).show_page(id(page_132));
+           id(my_display1).update();
+  - platform: touchscreen  # page_131 -> page_132 (byd125) выбор батареи 
+    name: Sel
+    x_min: 170
+    x_max: 230
+    y_min: 0
+    y_max: 200
+    page_id: page_131
+    filters:
+      - delayed_on: 20ms    
+    on_press:
+      then:
+        - lambda: |- 
+           id(bat_n)="byd125";
+           id(page_i)=132;
+           id(my_display1).show_page(id(page_132));
+           id(my_display1).update();
+  - platform: touchscreen  # page_131 -> page_132 (env305) выбор батареи 
+    name: Sel
+    x_min: 255
+    x_max: 319
+    y_min: 0
+    y_max: 200
+    page_id: page_131
+    filters:
+      - delayed_on: 20ms    
+    on_press:
+      then:
+        - lambda: |- 
+           id(bat_n)="env305";
+           id(page_i)=132;
+           id(my_display1).show_page(id(page_132));
+           id(my_display1).update();
+  - platform: touchscreen  # page_132 -> page_131 возврат показатели батареям общ 
+    name: Sel
+    x_min: 0
+    x_max: 310
+    y_min: 0
+    y_max: 230
+    page_id: page_132
+    filters:
+      - delayed_on: 20ms    
+    on_press:
+      then:
+        - lambda: |- 
+           id(page_i)=131;
+           id(my_display1).show_page(id(page_131));
+           id(my_display1).update();
+ # page_14 кнорочная форма 
+  - platform: touchscreen  # page_14 -> page_1 возврат 
+    name: Sel
+    x_min: 224 #210
+    x_max: 319
+    y_min: 169 #170
+    y_max: 239
+    page_id: page_14
+    filters:
+      - delayed_on: 20ms    
+    on_press:
+      then:
+        - lambda: |- 
+           id(page_i)=1;
+           id(my_display1).show_page(id(page_1));
+           id(my_display1).update();
+  - platform: touchscreen  # page_14 -  нажатие кнопки " 0 " 
+    name: Sel_0
+    x_min: 0
+    x_max: 95 #100
+    y_min: 0
+    y_max: 70 #75
+    page_id: page_14
+    filters:
+      - delayed_on: 20ms    
+    on_press:
+      then:
+        - lambda: |- 
+           if( id(sel_p) == 101 ){
+           id(sel_p)=0;
+           id(sel_b)=id(seln_0).state;
+           id(page_i)=14;
+           id(my_display1).show_page(id(page_14));
+           id(my_display1).update();}
+  - platform: touchscreen  # page_14 -  нажатие кнопки " 1 " 
+    name: Sel_1
+    x_min: 115 #110
+    x_max: 204 #210
+    y_min: 0
+    y_max: 70 #75
+    page_id: page_14
+    filters:
+      - delayed_on: 20ms    
+    on_press:
+      then:
+        - lambda: |- 
+           if( id(sel_p) == 101 ){
+           id(sel_p)=1;
+           id(sel_b)=id(seln_1).state;
+           id(page_i)=14;
+           id(my_display1).show_page(id(page_14));
+           id(my_display1).update();}
+  - platform: touchscreen  # page_14 -  нажатие кнопки " 2 " 
+    name: Sel_2
+    x_min: 224 #220
+    x_max: 319
+    y_min: 0
+    y_max: 70 #75
+    page_id: page_14
+    filters:
+      - delayed_on: 20ms    
+    on_press:
+      then:
+        - lambda: |- 
+           if( id(sel_p) == 101 ){
+           id(sel_p)=2;
+           id(sel_b)=id(seln_2).state;
+           id(page_i)=14;
+           id(my_display1).show_page(id(page_14));
+           id(my_display1).update();}
+  - platform: touchscreen  # page_14 -  нажатие кнопки " 3 " 
+    name: Sel_3
+    x_min: 0
+    x_max: 95 #100
+    y_min: 90 #85
+    y_max: 149 #155
+    page_id: page_14
+    filters:
+      - delayed_on: 20ms    
+    on_press:
+      then:
+        - lambda: |- 
+           if( id(sel_p) == 101 ){
+           id(sel_p)=3;
+           id(sel_b)=id(seln_3).state;
+           id(page_i)=14;
+           id(my_display1).show_page(id(page_14));
+           id(my_display1).update();}
+  - platform: touchscreen  # page_14 -  нажатие кнопки " 4 " 
+    name: Sel_4
+    x_min: 115 #110
+    x_max: 204 #210
+    y_min: 90 #85
+    y_max: 149 #155
+    page_id: page_14
+    filters:
+      - delayed_on: 20ms    
+    on_press:
+      then:
+        - lambda: |- 
+           if( id(sel_p) == 101 ){
+           id(sel_p)=4;
+           id(sel_b)=id(seln_4).state;
+           id(page_i)=14;
+           id(my_display1).show_page(id(page_14));
+           id(my_display1).update();}
+  - platform: touchscreen  # page_14 -  нажатие кнопки " 5 " 
+    name: Sel_5
+    x_min: 224 #220
+    x_max: 319
+    y_min: 90 #85
+    y_max: 149 #155
+    page_id: page_14
+    filters:
+      - delayed_on: 20ms    
+    on_press:
+      then:
+        - lambda: |- 
+           if( id(sel_p) == 101 ){
+           id(sel_p)=5;
+           id(sel_b)=id(seln_5).state;
+           id(page_i)=14;
+           id(my_display1).show_page(id(page_14));
+           id(my_display1).update();}
+  - platform: touchscreen  # page_14 -  нажатие кнопки " 6 " 
+    name: Sel_6
+    x_min: 0
+    x_max: 95 #100
+    y_min: 169 #165
+    y_max: 239
+    page_id: page_14
+    filters:
+      - delayed_on: 20ms    
+    on_press:
+      then:
+        - lambda: |- 
+           if( id(sel_p) == 101 ){
+           id(sel_p)=6;
+           id(sel_b)=id(seln_6).state;
+           id(page_i)=14;
+           id(my_display1).show_page(id(page_14));
+           id(my_display1).update();}
+  - platform: touchscreen  # page_14 -  нажатие кнопки " 7 " 
+    name: Sel_7
+    x_min: 115 #110
+    x_max: 204 #210
+    y_min: 169 #165
+    y_max: 239
+    page_id: page_14
+    filters:
+      - delayed_on: 20ms    
+    on_press:
+      then:
+        - lambda: |- 
+           if( id(sel_p) == 101 ){
+           id(sel_p)=7;
+           id(sel_b)=id(seln_7).state;
+           id(page_i)=14;
+           id(my_display1).show_page(id(page_14));
+           id(my_display1).update();}
+
+
+ # page_2 
+  - platform: touchscreen  # page_2 -> page_0 возврат 
+    name: Sel
+    x_min: 0
+    x_max: 319
+    y_min: 0
+    y_max: 239
+    page_id: page_2
+    filters:
+      - delayed_on: 20ms 
+    on_press:
+      then:
+        - lambda: |- 
+           id(page_i)=0; 
+           id(my_display1).show_page(id(page_0));
+           id(my_display1).update();
+
+
+
+#            
+           

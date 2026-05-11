@@ -1,0 +1,188 @@
+image:
+ # --- Иконки ----  
+ # солнечные панели
+  - file: mdi:solar-panel
+    id: solar_panel
+    resize: 20x20
+ # передача в город
+  - file: mdi:transmission-tower-export
+    id: grid_in
+    resize: 20x20
+ # люстра
+  - file: mdi:chandelier
+    id: chandelier
+    resize: 20x20
+ # батарея
+  - file: mdi:battery
+    id: battery
+    resize: 20x20
+ # батарея 30%
+  - file: mdi:battery-charging-30
+    id: battery_charging_30
+    resize: 20x20
+ # car battery
+  - file: mdi:car-battery
+    id: car_battery
+    resize: 20x20   
+ # молния
+  - file: mdi:flash
+    id: flash
+    resize: 20x20
+ #  ток
+  - file: mdi:current-dc
+    id: current_dc
+    resize: 20x20
+ # напряжение
+  - file: mdi:sine-wave  
+    id: sine_wave
+    resize: 20x20
+ # окно открыто
+  - file: mdi:window-open-variant
+    id: window_open
+    resize: 20x20
+ # окно закрыто
+  - file: mdi:window-closed-variant
+    id: window_closed 
+    resize: 20x20
+ # Дверь открыта
+  - file: mdi:door-open
+    id: door_open
+    resize: 20x20
+ # Дверь закрыта
+  - file: mdi:door-closed
+    id: door_closed
+    resize: 20x20
+ # Дверь 
+  - file: mdi:door
+    id: door
+    resize: 20x20
+ #
+  - file: mdi:snowflake 
+    id: snowflake
+    resize: 27x27
+
+  - file: mdi:shower-head
+    id: shower_head
+    resize: 27x27
+
+  - file: mdi:water-thermometer
+    id: water_thermometer
+    resize: 27x27
+
+  - file: mdi:water-boiler
+    id: water_boiler
+    resize: 27x27 
+
+  - file: mdi:water-boiler-alert 
+    id: water_boiler_alert
+    resize: 27x27
+
+  - file: mdi:scent
+    id: scent
+    resize: 27x27 
+
+  - file: mdi:scale-bathroom 
+    id: scale_bathroom
+    resize: 27x27
+
+  - file: mdi:account-cog 
+    id: account_cog
+    resize: 27x27
+
+  - file: mdi:account
+    id: account
+    resize: 27x27
+
+  - file: mdi:archive-outline
+    id: archive_outline
+    resize: 27x27
+
+  - file: mdi:numeric-1-box-outline
+    id: numeric_1_box_outline
+    resize: 27x27
+
+  - file: mdi:numeric-2-box-outline
+    id: numeric_2_box_outline
+    resize: 27x27  
+  
+  - file: mdi:heat-wave
+    id: heat_wave
+    resize: 27x27
+
+  - file: mdi:power-socket-eu
+    id: power_socket_eu
+    resize: 27x27
+ 
+  - file: mdi:power-plug
+    id: power_plug
+    resize: 27x27 
+  - file: mdi:solar-panel #solar-power-variant
+    id: solar_panel_1
+    resize: 28x28
+  - file: mdi:transmission-tower-export
+    id: grid_in_1
+    resize: 28x28
+  - file: mdi:car-battery #-charging
+    id: battery_1
+    resize: 28x28
+  - file: mdi:flash
+    id: flash_1
+    resize: 28x28
+ # mdi:power
+  - file: mdi:power
+    id: power
+    resize: 25x25
+
+ #  БОЛЬШИЕ ИКОНКИ ДЛЯ КНОПОЧНОЙ ФОРМЫ
+  - file: mdi:tools # tools 
+    id: tools
+    resize: 80x70
+
+  - file: mdi:exit-to-app # EXIT 
+    id: exit_to_app
+    resize: 80x70  
+  - file: mdi:logout # EXIT 
+    id: logout
+    resize: 80x70
+  - file: mdi:jeepney # ГАРАЖ машинка 
+    id: jeepney
+    resize: 80x70  
+  - file: mdi:garage-variant # ГАРАЖ2 ворота 
+    id: garage_variant
+    resize: 80x70 
+  - file: mdi:car-hatchback # ГАРАЖ3 машинка 
+    id: car_hatchback
+    resize: 80x70
+  - file: mdi:sack-outline # ПОГРЕБ
+    id: sack_outline
+    resize: 80x70  
+  - file: mdi:download # ПОГРЕБ2
+    id: download
+    resize: 80x70  
+  - file: mdi:coach-lamp # свет сарай
+    id: coach_lamp
+    resize: 80x70 
+
+
+  - file: mdi:food-fork-drink # КУХНЯ
+    id: food_fork_drink
+    resize: 80x70 
+  - file: mdi:silverware # КУХНЯ 2
+    id: silverware
+    resize: 80x70 
+
+  - file: mdi:shower # ВАННАЯ
+    id: shower
+    resize: 80x70 
+  - file: mdi:exit-run # выход 2
+    id: exit_run
+    resize: 80x70 
+  - file: mdi:home-floor-1 # вход 1
+    id: home_floor_1
+    resize: 80x70
+  - file: mdi:home-floor-2 # вход 2
+    id: home_floor_2
+    resize: 80x70
+
+
+#-------------------------------------

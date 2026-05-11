@@ -1,0 +1,108 @@
+sensor:
+# --- SOLARMAN ------------
+ # power DC pv1+pv2
+  - platform: homeassistant
+    id: dc_power 
+    entity_id: sensor.dc_power
+    name: "powerdc"
+    internal: true
+ # power DC pv1,pv2
+  - platform: homeassistant
+    id: pv1_p 
+    entity_id: sensor.solarman_pv1_power
+    name: "pv1_p"
+    internal: true
+  - platform: homeassistant
+    id: pv2_p 
+    entity_id: sensor.solarman_pv2_power
+    name: "pv2_p"
+    internal: true
+ # voltage DC pv1,pv2
+  - platform: homeassistant
+    id: pv1_v 
+    entity_id: sensor.solarman_pv1_voltage
+    name: "pv1_v"
+    internal: true
+  - platform: homeassistant
+    id: pv2_v 
+    entity_id: sensor.solarman_pv2_voltage
+    name: "pv2_v"
+    internal: true
+ # current DC pv1,pv2
+  - platform: homeassistant
+    id: pv1_c 
+    entity_id: sensor.solarman_pv1_current
+    name: "pv1_c"
+    internal: true
+  - platform: homeassistant
+    id: pv2_c 
+    entity_id: sensor.solarman_pv2_current
+    name: "pv2_c"
+    internal: true
+ # power load
+  - platform: homeassistant
+    id: solarman_total_load_power 
+    entity_id: sensor.solarman_total_load_power
+    name: "powerl"
+    internal: true
+ # power grid
+  - platform: homeassistant
+    id: solarman_total_grid_power
+    entity_id: sensor.solarman_total_grid_power
+    name: "powerg"
+    internal: true
+ # voltage grid
+  - platform: homeassistant
+    id: solarman_grid_voltage_l1
+    entity_id: sensor.solarman_grid_voltage_l1
+    name: "batv"
+    internal: true 
+ # battery voltage
+  - platform: homeassistant
+    id: solarman_battery_voltage
+    entity_id: sensor.solarman_battery_voltage
+    name: "batv"
+    internal: true
+ # battery  current
+  - platform: homeassistant
+    id: solarman_battery_current
+    entity_id: sensor.solarman_battery_current
+    name: "batc"
+    internal: true
+ # battery  power
+  - platform: homeassistant
+    id: solarman_battery_power
+    entity_id: sensor.solarman_battery_power
+    name: "batp"
+    internal: true
+ 
+  - platform: homeassistant
+    id: solarman_daily_production # сутки генерация
+    entity_id: sensor.solarman_daily_production
+    name: "energy_sdp"
+    internal: true
+  - platform: homeassistant
+    id: solarman_daily_load_consumption # сутки потребление
+    entity_id: sensor.solarman_daily_load_consumption
+    name: "energy_sdlc"
+    internal: true
+  - platform: homeassistant
+    id: solarman_daily_energy_bought # сутки покупка с сети
+    entity_id: sensor.solarman_daily_energy_bought
+    name: "energy_sdeb"
+    internal: true
+  - platform: homeassistant
+    id: solarman_daily_battery_charge # сутки зарядка батареи
+    entity_id: sensor.solarman_daily_battery_charge
+    name: "energy_sol"
+    internal: true
+  - platform: homeassistant
+    id: solarman_dc_temperature # температура DC
+    entity_id: sensor.solarman_dc_temperature
+    name: "dc_t"
+    internal: true
+  - platform: homeassistant
+    id: solarman_ac_temperature # температура AC
+    entity_id: sensor.solarman_ac_temperature
+    name: "ac_t"
+    internal: true 

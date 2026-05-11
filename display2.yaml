@@ -1,0 +1,1498 @@
+# setup board #  на кухне
+esphome:
+  name: display2
+  friendly_name: display2
+  on_boot:
+    priority: 600
+    then:
+      # - output.turn_on: res_d   
+  # - - - - - - - - - - - - - - - - - -   
+esp32:
+  board: esp32dev  # wemos_d1_mini32
+  framework:
+    type: arduino #esp-idf
+  # - - - - - - - - - - - - - - - - - -
+  # Enable logging
+logger:
+  # - - - - - - - - - - - - - - - - - -
+  # Enable Home Assistant API
+api:
+  encryption:
+    key: "G8/NBQwOpriF/+RcHSx9B2jt2nnIV2HoW7F/sMCcH9I="
+  # - - - - - - - - - - - - - - - - - -
+ota:
+  platform: esphome
+  password: "81bc583184c21af7cc9d1499cf3c5698"
+  # - - - - - - - - - - - - - - - - - -
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Display2 Fallback Hotspot"
+    password: "TYaYWbqKny12"
+
+ 
+
+captive_portal:
+
+#uart:
+#  tx_pin: GPIO3 # ld2420
+#  rx_pin: GPIO1 # ld2420
+#  baud_rate: 115200   
+
+#ld2420:
+
+spi:
+  - id : spi0
+    clk_pin: 18
+    mosi_pin: 23
+    miso_pin: 19
+#--------------
+touchscreen:
+  platform: xpt2046
+  id: my_touchscreen
+  spi_id: spi0
+  cs_pin: 17
+  calibration:
+    x_min: 200
+    x_max: 3830
+    y_min: 170
+    y_max: 3680
+  transform:
+    swap_xy: true #  для 2,8 красного true
+    mirror_x: false # для 2,8 красного false
+    mirror_y: true
+   # on_touch:
+   #  - lambda: |-
+   #        ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
+   #            touch.x,
+   #            touch.y,
+   #            touch.x_raw,
+   #            touch.y_raw
+   #            );  
+#--------------------------------------
+display:
+  - platform: ili9xxx
+    model: TFT_2.4
+    id: my_display1     
+    cs_pin: 16   
+    dc_pin: 26   
+    reset_pin: 13
+    #    rotation: 270°
+    invert_colors: false
+    color_palette: 8BIT
+    color_order: bgr
+    transform:      
+      mirror_x: true
+      mirror_y: true
+      swap_xy: true
+    dimensions:
+      height: 240
+      width: 320      
+  #    update_interval: 5s 
+
+    pages:
+      - id: page_x
+        lambda: |-           
+          it.printf(0,   0, id(my_font1), id(my_green),  "Pv: %.0f w", id(dc_power).state);  // генерация с панелей
+          it.printf(0,  30, id(my_font1), id(my_green),  "Gr: %.0f w", id(solarman_total_grid_power).state); // потребление с сети
+          it.printf(0,  60, id(my_font1), id(my_green),  "Bp: %.0f w", id(solarman_battery_power).state); // потребление/накопление батарея
+          it.printf(0,  90, id(my_font1), id(my_yellow), "Po: %.0f w", id(solarman_total_load_power).state); // НАШЕ ПОТРЕБЛЕНИЕ
+          it.printf(0, 120, id(my_font1), id(my_bg),     "Bv: %.1f v", id(solarman_battery_voltage).state); // напряжение на баиарее
+          it.printf(0, 150, id(my_font1), id(my_bg),     "Bc  %.1f A", id(bat_current).state); //ток батареи JK BMS
+          it.printf(0, 180, id(my_font1), id(my_bg),     "Be: %.0f Ah", id(bat_energy).state); // остаток енергии в Ач
+          it.printf(0, 210, id(my_font1), id(my_bg),     "Bp: %.0f w", id(bat_power).state); // мощность по JK BMS       
+          it.print(0,  240, id(my_font1), id(my_yellow),"fddf");    
+ 
+      - id: page_0
+        lambda: |- 
+          //  Setup
+            int r,g,b;
+            r=10;b=10;g=50;
+            auto color01=Color(r,g,b);
+            auto color0=Color(10,10,50);
+            auto color1=Color(id(my_rgb_i1));// Серо-синий 95,160,160
+            auto color2=Color(id(my_rgb_i2));// Gold 255,210,0
+            auto color3=Color(id(my_rgb_i3));// crimson 220,20,60
+            auto colori=color1; //
+            auto color4 = Color(id(r1).state, id(g1).state, id(b1).state);
+           int batt=50;//+id(bat_power).state;
+          
+           //    |dx1||dx3|       |dx2||dx3|
+           // .- -----.   .--  .- ----.    .-- 
+           // x1     x2   x3   x4     x5   x6
+           int x,dx,f; //
+           float p;
+           int y, y0, dy, dy1, di, dr;
+           int dx1=97;     // ширина для 1 значения  100
+           int dx2=78;     // шиоина для 2 значения 100
+           int dx3=8;      // отступ для размерности 10
+           int x1=0;        //  1 иконки 0
+           int x2=x1+dx1;   // значение выравнивание по правому краю
+           int x3=x2+dx3;   //  размерность
+           int x4=135;      //  2 иконка 175
+           int x5=x4+dx2;   //  выравнивание по правому краю
+           int x6=x5+dx3;   //  размерность
+                              
+           dy=30;          
+           dr=5; //  смещение для размерности по высоте  
+           di=4; // смещение иконки по высоте
+           y0=0; // 1 позиция
+          //  MONITOR
+           // <1> панели
+             y=y0; 
+                //it.image( x1, y+di,  id(solar_panel), id(my_rgb_i1)); //mdi:solar-panel
+             it.printf( x1, y+di, id(icon_20),  id(my_rgb_i1), "\U000F0D9B"); //mdi:solar-panel
+             it.printf(x2, y,    id(my_font3), id(my_rgb_v3), TextAlign::TOP_RIGHT,  "%4.0f", id(dc_power).state);  // генерация с панелей mdi:solar-panel-large mdi:solar-power-variant
+             it.print( x3, y+dr, id(my_font2), id(my_rgb_p1), "w");
+          
+           // <2> сеть
+             y=y+dy;
+                //it.image( x1, y+di,     id(grid_in),  id(my_rgb_i1)); //mdi:transmission-tower-export
+             it.printf( x1, y+di, id(icon_20),  id(my_rgb_i1), "\U000F192C"); //mdi:transmission-tower-export
+             it.printf(x2, y,    id(my_font1), id(my_rgb_v1), TextAlign::TOP_RIGHT, "%4.0f", id(solarman_total_grid_power).state); // потребление с сети mdi:transmission-tower-export         
+             it.print( x3, y+dr, id(my_font2), id(my_rgb_p1), "w");
+          
+           // <3> батарея
+             y=y+dy;
+             auto colorb=Color(id(my_rgb_v3));// 
+               //it.image( x1, y+di,     id(battery_charging_30),  id(my_rgb_i1)); // mdi:battery-charging-30 
+             it.printf( x1, y+di, id(icon_20), id(my_rgb_i1), "\U000F0087"); // mdi:battery-charging-30 
+             if(id(bat_power).state <0) {colorb=color3;}
+             it.printf(x2, y,     id(my_font1), colorb, TextAlign::TOP_RIGHT, "%4.0f", id(bat_power).state ); // id(solarman_battery_power).stateпотребление/накопление батарея        
+             it.print( x3, y+dr, id(my_font2), id(my_rgb_p1),"w");
+          
+           // <4> потребление          
+           y=y+dy;
+              //it.image( x1, y+di,     id(flash),    id(my_rgb_i1));//mdi:flash
+           it.printf( x1, y+di, id(icon_20),  id(my_rgb_i1), "\U000F0241");//mdi:flash
+           it.printf(x2, y,    id(my_font3), id(my_rgb_v2), TextAlign::TOP_RIGHT, "%4.0f", id(z2_ph1_power).state); // НАШЕ ПОТРЕБЛЕНИЕ
+           it.print( x3, y+dr, id(my_font2), id(my_rgb_p1), "w");
+          
+           // <1a>батарея напряжение
+           y=y0;
+              //it.image( x4, y+di,    id(sine_wave), id(my_rgb_i1));//mdi:sine_wave  
+           it.printf( x4, y+di, id(icon_20),   id(my_rgb_i1), "\U000F095B");//mdi:sine_wave 
+           it.printf(x5, y,    id(my_font1a), id(my_rgb_v1), TextAlign::TOP_RIGHT, "%.1f", id(solarman_battery_voltage).state); // напряжение на баиарее
+           it.print( x6, y+dr, id(my_font2),  id(my_rgb_p1), "V");
+          
+           // <2a>батарея ток
+           y=y+dy;
+              //it.image( x4, y+di,    id(current_dc),id(my_rgb_i1));//mdi:current_dc  
+           it.printf( x4, y+di, id(icon_20),   id(my_rgb_i1), "\U000F095C");//mdi:current_dc 
+           it.printf(x5, y,    id(my_font1a), id(my_rgb_v1), TextAlign::TOP_RIGHT, "%.1f", id(bat_current).state); //ток батареи JK BMS
+           it.print( x6, y+dr, id(my_font2),  id(my_rgb_p1), "A");
+          
+           // <3a>батарея емкость
+           y=y+dy;
+              //it.image( x4, y+di,       id(car_battery),      id(my_rgb_i1));// mdi:battery
+           it.printf( x4, y+di,   id(icon_20),   id(my_rgb_i1), "\U000F010C");// mdi:battery
+           it.printf(x5, y,      id(my_font1a), id(my_rgb_v1), TextAlign::TOP_RIGHT, "%.0f", id(bat_energy).state); // остаток енергии в Ач
+           it.print( x6-3, y+dr, id(my_font2),  id(my_rgb_p1), "Ah"); //
+          
+           // <4a>батарея мощность 
+           y=y+dy;
+              //it.image( x4, y+di,     id(car_battery),  id(my_rgb_i1));//mdi:battery 
+           it.printf( x4, y+di,   id(icon_20),   id(my_rgb_i1), "\U000F010C");//mdi:battery 
+           it.printf(x5, y,      id(my_font1a), id(my_rgb_v1), TextAlign::TOP_RIGHT, "%.1f", id(bat_energy).state * 50/1000); // мощность по JK BMS 
+           it.print( x6-9, y+dr, id(my_font2),  id(my_rgb_p1), "kWh");         
+          
+           // ---------------------------------------------------
+          //  ОКНА,ДВЕРИ
+           // setup 
+            dx=30; //отступ от иконки для печати показателей 
+            dy=30; //ширина между строками
+            // y=0; x=250; //1 позиция variant a            
+            y=120+10;x=0; // variant b
+           // <1>            
+             
+            
+            it.print( x+dx, y, id(my_font4), id(my_rgb_v1),"Вход1"); // ВХОД 1
+            if (id(z2_se6).state) {it.printf(x, y, id(icon_20), id(my_rgb_i2), "\U000F081C");} // открыто            
+                             else {it.printf(x, y, id(icon_20), id(my_rgb_i1), "\U000F081B");} // закрыто                        
+           // <2> 
+            y=y+dy;
+            it.print( x+dx, y, id(my_font4), id(my_rgb_v1),"Серая"); // СЕРАЯ
+            if (id(z2_se7).state) {it.printf(x, y, id(icon_20), id(my_rgb_i2), "\U000F081C");} // открыто            
+                             else {it.printf(x, y, id(icon_20), id(my_rgb_i1), "\U000F081B");} // закрыто 
+           // <3> 
+            y=y+dy;
+            it.print( x+dx, y, id(my_font4), id(my_rgb_v1),"Вход2"); // ВХОД 2
+            if (id(z2_se11).state) {it.printf(x, y, id(icon_20), id(my_rgb_i2), "\U000F081C");} // открыто            
+                              else {it.printf(x, y, id(icon_20), id(my_rgb_i1), "\U000F081B");} // закрыто 
+           // <4>  
+            y=y+dy;
+            
+            colori=Color(id(my_rgb_v1));
+            if(id(sw6_swich).state){colori=Color(my_rgb_i2);} // СВЕТ в ГАРАЖЕ
+            it.print( x+dx, y, id(my_font4), colori,"Гараж"); //  ГАРАЖ
+            if (id(z2_seb1).state) {it.printf(x, y, id(icon_20), id(my_rgb_i2), "\U000F081C");} // открыто            
+                              else {it.printf(x, y, id(icon_20), id(my_rgb_i1), "\U000F081B");} // закрыто 
+           // <5> 
+            y=120+10;x=80+15; // variant b
+            //y=y+dy; // variant a
+            it.print( x+dx, y, id(my_font4), id(my_rgb_v1),"Спалн"); // СПАЛЬНЯ
+            if (id(z2_se2).state) {it.printf(x, y, id(icon_20), id(my_rgb_i2), "\U000F081C");} // открыто          
+                             else {it.printf(x, y, id(icon_20), id(my_rgb_i1), "\U000F081B");} // закрыто            
+
+           // <6>
+            y=y+dy; 
+            it.print( x+dx, y, id(my_font4), id(my_rgb_v1),"Зал"); // ЗАЛ
+            if (id(z2_se3).state) {it.printf(x, y, id(icon_20), id(my_rgb_i2), "\U000F11DC");} // открыто           
+                             else {it.printf(x, y, id(icon_20), id(my_rgb_i1), "\U000F11DB");} // закрыто 
+           // <7>
+            y=y+dy;
+            it.print( x+dx, y, id(my_font4), id(my_rgb_v1),"Коридр"); // ПРИХОЖАЯ
+            if (id(z2_se4).state) {it.printf(x, y, id(icon_20), id(my_rgb_i2), "\U000F11DC");} // открыто            
+                             else {it.printf(x, y, id(icon_20), id(my_rgb_i1), "\U000F11DB");} // закрыто                   
+           // <8>
+            y=y+dy;
+            colori=Color(id(my_rgb_v1));
+            if(id(sw2_swich).state){colori=Color(my_rgb_i2);} //СВЕТ в ПОГРЕБЕ            
+            it.print( x+dx, y, id(my_font4), colori,"Погрб"); //  ПОГРЕБ
+            if (id(z2_seb2).state) {it.printf(x, y, id(icon_20), id(my_rgb_i2), "\U000F081C");} // открыто            
+                              else {it.printf(x, y, id(icon_20), id(my_rgb_i1), "\U000F081B");} // закрыто                     
+           //
+            // y=y+dy;        
+            // it.print( x+dx, y, id(my_font4), id(my_rgb_v1),"Кух"); // КУХНЯ
+            // if (id(z2_se1).state) {it.printf(x, y, id(icon_20), id(my_rgb_i2), "\U000F11DC");} // открыто          
+            //                  else {it.printf(x, y, id(icon_20), id(my_rgb_i1), "\U000F11DB");} // закрыто 
+            //                               
+          //  РОЗЕТКИ
+           // setup                 
+             dx=25;  // отступ от иконки для печати показателей 
+             dy=30; // ширина между строками
+             dy1=3;  // смещени показатели по вертикали для выравнивания
+              //x=0; y=120; // 1 позиция variant a                    
+             x=255; y=0; // variant b         
+             x=292; dx=-5; y=0; // variant c
+           // <1>                
+              f=id(rz1_swich).state; // rz1 бойлер1 подогрев
+              p=id(rz1_power).state; //
+             colori=color1; 
+             if (f) {colori=color2;} 
+             if (p > 5){it.printf(x+dx, y+dy1, id(my_font5), id(my_rgb_v1), TextAlign::TOP_RIGHT, "%.0f", p); colori=color3;} // пошла нагрузка                                                                    
+                //it.image(x, y, id(numeric_1_box_outline),colori);                    
+             it.printf(x, y, id(icon_27), colori, "\U000F03A6"); //mdi:numeric_1_box_outline
+
+           // <2>  
+              f=id(rz2_swich).state; // rz2 бойлер2 основной
+              p=id(rz2_power).state; //                          
+             colori=color1; y=y+dy;  
+             if (f) {colori=color2;} 
+             if (p > 5){it.printf(x+dx, y+dy1, id(my_font5), id(my_rgb_v1), TextAlign::TOP_RIGHT, "%.0f", p); colori=color3;} // пошла нагрузка                                                                    
+                //it.image(x, y, id(numeric_2_box_outline),colori);
+             it.printf(x, y, id(icon_27), colori, "\U000F03A9"); // mdi:numeric_2_box_outline                                           
+           // <3>    
+              f=id(rz8_swich).state; // rz8  МОРОЗИЛКА
+              p=id(rz8_power).state; //                          
+             colori=color1; y=y+dy; 
+             if (f) {colori=color2;} 
+             if (p > 5){it.printf(x+dx, y+dy1, id(my_font5), id(my_rgb_v1), TextAlign::TOP_RIGHT, "%.0f", p); colori=color3;} // пошла нагрузка                                                                    
+                //it.image(x, y, id(snowflake),colori);                          
+             it.printf(x, y, id(icon_27),colori, "\U000F0717"); // mdi:snowflake
+           // <4>
+              f=10;p=100;
+              f=id(sw5_swich).state; // sw5 ХОЛОДИЛЬНИК+МИКРОВОЛНОВКА+ЧАЙНИК 
+              p=id(sw5_power).state; //                          
+             colori=color1; y=y+dy; 
+             if (f) {colori=color2;} 
+             if (p > 5){it.printf(x+dx, y+dy1, id(my_font5), id(my_rgb_v1), TextAlign::TOP_RIGHT, "%.0f", p); colori=color3;} // пошла нагрузка                                                                    
+                //it.image(x, y, id(snowflake),colori);                                     
+             it.printf(x, y, id(icon_27), colori, "\U000F0717"); //mdi:snowflake
+           // <5>
+              f=id(rz3_swich).state; // rz3 КУХНЯ
+              p=id(rz3_power).state; //                          
+             colori=color1; y=y+dy; 
+             if (f) {colori=color2;} 
+             if (p > 5){it.printf(x+dx, y+dy1, id(my_font5), id(my_rgb_v1), TextAlign::TOP_RIGHT, "%.0f", p); colori=color3;} // пошла нагрузка                                                                    
+                //it.image(x, y, id(power_plug),colori);             
+             it.printf(x, y, id(icon_27), colori, "\U000F06A5"); //mdi:power_plug
+           // <6>  
+              f=id(rz6_swich).state;  // rz6 ДУХОВКА 
+              p=id(rz6_power).state; //                          
+             colori=color1; y=y+dy; 
+             if (f) {colori=color2;} 
+             if (p > 5){it.printf(x+dx, y+dy1, id(my_font5), id(my_rgb_v1), TextAlign::TOP_RIGHT, "%.0f", p); colori=color3;} // пошла нагрузка                                                                    
+                //it.image(x, y, id(archive_outline),colori);  
+             it.printf(x, y, id(icon_27), colori, "\U000F120E"); //mdi:archive_outline
+           // <7>           
+              f=id(rz7_swich).state;  // rz7 SERG
+              p=id(rz7_power).state; //                          
+             colori=color1; y=y+dy; 
+             if (f) {colori=color2;} 
+             if (p > 5){it.printf(x+dx, y+dy1, id(my_font5), id(my_rgb_v1), TextAlign::TOP_RIGHT, "%.0f", p); colori=color3;} // пошла нагрузка                                                                    
+                //it.image(x, y, id(account),colori);             
+             it.printf(x, y, id(icon_27), colori, "\U000F0004"); //mdi:account
+           // <8>            
+              f=id(rz5_swich).state;  // rz5 ОБОГРЕВАТЕЛЬ в ПОДВАЛЕ
+              p=id(rz5_power).state; //                          
+             colori=color1; y=y+dy; 
+             if (f) {colori=color2;} 
+             if (p > 5){it.printf(x+dx, y+dy1, id(my_font5), id(my_rgb_v1), TextAlign::TOP_RIGHT, "%.0f", p); colori=color3;} // пошла нагрузка                                                                    
+                //it.image(x, y, id(heat_wave),colori);             
+             it.printf(x, y, id(icon_27),colori, "\U000F1A45"); //mdi:heat_wave
+                       
+            x=0;y=125;dx=240;
+            it.horizontal_line(x,y,dx, id(my_rgb_p1));
+            x=x+dx;y=0;dy=240;
+            it.vertical_line(x,y,dy, id(my_rgb_p1));
+      
+      - id: page_1
+        lambda: |-
+           //  Setup color             
+            auto color0=Color(85,145,170);    // цвет больших иконок
+            auto color1=Color(100,100,80);    // off line розетка
+            auto color2=Color(0,255,0);  // генерация с панелей
+            auto color3=Color(150,95,0);   // размерность
+            auto color4=Color(0,255,255); // цвет суточных показателей энергии 
+            auto color5=Color(235,115,50); // цвет потребление с сети
+            auto color6=Color(25,255,25); // цвет акамулятор заряд
+            auto color7=Color(235,115,50); // цвет акамулятор розряд
+            auto color8=Color(235,210,0); // цвет розетка подключена
+            auto color9=Color(235,25,50); // цвет розетка нагрузка            
+            auto color10=Color(145,205,230); // цвет дом нагрузка
+            auto colori=color1; //
+            auto colorb=color6; //
+            //color7=color9;
+            auto colorg1=Color(110,110,0);  // главн разделитель
+            auto colorg2=Color(110,110,0);  // дополнительный разделитель (сетка)
+             //color0=Color(id(r1).state, id(g1).state, id(b1).state);
+             //color4=Color(id(r2).state, id(g2).state, id(b2).state);
+            it.fill(Color(0,0,0));
+            
+           // 
+            int f; //
+            float p;
+            int x, dx, x1, x2, x3, x4, x5, dx1, dx2, dx3, dx4, dx5;
+            int y, dy, dy1, dy2, dr, di, dp, dp1, dp2, dp3, dp4, dp5;                      
+              dp1=id(dp_1).state; 
+              dp2=id(dp_2).state;
+              dp3=id(dp_3).state; 
+              dp4=id(dp_4).state;
+              dp5=id(dp_5).state;
+           //  ENERGY          
+           // setup 
+            // координат Х
+            dx1=35;         // ширина иконки
+            dx2=120;        //dx2=dp1;  // ширина 1 показателя
+            dx3=8;          //dx3=dp1;  // отступ размерности 1 показателя 
+            dx4=85;         //dx4=dp2;  // шиоина  2 показателя
+            dx5=7;          //dx5=   // отступ размерности 2 показателя
+            // расчет поз координат Х  
+            x1=0;           //x1=dp1;          // поз иконка
+            x2=180;         //x1+dx1+dx2;  // поз 1 показатель
+            x3=x2+dx3;      // поз размерность 1 показателя
+            x4=265;          //x3+dx4;      // поз 2 показателя
+            x5=x4+dx5;      // поз размерность 3 показателя
+            // координат Y
+            dy1=60;         //55;         // высота строки
+            dr=32;         // dr=dp3; //  смещение для размерности по высоте  
+            di=25;         //15;         // di=dp1; // смещение иконки по высоте  
+            dp=10;           //dp=dp2; // смещение  2 показателя  
+           
+           // < 1 > панели            
+             y=0;          //y=dp1;
+               //it.image( x1, y+di, id(solar_panel_1), color0); //mdi:solar-panel-2
+            it.printf( x1, y+di, id(icon_28), color0, "\U000F0D9B"); //mdi:solar-panel 
+            it.printf(x2, y, id(my_font1_b), color2,TextAlign::TOP_RIGHT,  "%4.0f", id(dc_power).state);  // генерация с панелей mdi:solar-panel-large mdi:solar-power-variant
+              //it.print( x3, y+dr, id(my_font2), color3, "W");
+            it.printf(x4, y+dp, id(my_font2_b), color4, TextAlign::TOP_RIGHT, "%4.1f", id(solarman_daily_production).state); // потребление с сети mdi:transmission-tower-export                   
+              //it.print( x5, y+dr, id(my_font2), color3, "kWh");
+      
+           // < 2 > сеть
+             y=y+dy1;
+               //it.image( x1, y+di, id(grid_in_1),  color0); //mdi:transmission-tower-export
+            it.printf( x1, y+di, id(icon_28),  color0, "\U000F192C"); // mdi:transmission-tower-export
+              if( id(z2_ph0_voltage).state < 170 or isnan(id(z2_ph0_power).state) ) {it.print(x2, y, id(my_font1_b), color5, TextAlign::TOP_RIGHT, "- - -");} // отсутствие внешней сети
+                else { 
+                  if( !id(z2_ph0).state ) {it.print(x2, y, id(my_font1_b), color2, TextAlign::TOP_RIGHT, "- - -");} // выключенно внешняя сеть пользователем
+                   else {it.printf(x2, y, id(my_font1_b), color5, TextAlign::TOP_RIGHT, "%4.0f", id(solarman_total_grid_power).state);} // потребление с сети текущее mdi:transmission-tower-export         
+                     }
+            it.printf(x4, y+dp, id(my_font2_b), color4, TextAlign::TOP_RIGHT, "%4.1f", id(solarman_daily_energy_bought).state); // потребление с сети сутки mdi:transmission-tower-export
+              
+           
+           // < 3 >  батарея     
+             y=y+dy1;
+             colorb=color6;// 
+               //it.image( x1, y+di,     id(battery_1),  color0); // mdi:battery-charging-30 
+            it.printf( x1, y+di, id(icon_28), color0, "\U000F010C"); // mdi:car-battery 
+            if(id(bat_power).state <0) {colorb=color7;}
+            it.printf(x2, y, id(my_font1_b), colorb, TextAlign::TOP_RIGHT, "%4.0f", id(bat_power).state ); // id(solarman_battery_power).stateпотребление/накопление батарея                   
+              //it.print( x3, y+dr, id(my_font2), color3, "W");
+            it.printf(x4, y+dp, id(my_font2_b), color4, TextAlign::TOP_RIGHT, "%.1f", id(bat_energy).state * 50/1000); // мощность по JK BMS 
+              //it.print( x5, y+dr, id(my_font2), color3, "kWh");
+           // < 4 > потребление          
+             y=y+dy1;
+               //it.image( x1, y+di,     id(flash_1),    color0);//mdi:flash
+            it.printf( x1, y+di, id(icon_28), color0, "\U000F0241"); //mdi:flash
+            it.printf(x2, y, id(my_font1_b), color10, TextAlign::TOP_RIGHT, "%4.0f", id(z2_ph1_power).state); // НАШЕ ПОТРЕБЛЕНИЕ 
+              //it.print( x3, y+dr, id(my_font2), color3, "w");
+            it.printf(x4, y+dp, id(my_font2_b), color4, TextAlign::TOP_RIGHT, "%4.1f", id(solarman_daily_load_consumption).state); // потребление с сети mdi:transmission-tower-export         
+              //it.print( x5, y+dr, id(my_font2), color3, "kWh");
+           
+           //  РОЗЕТКИ
+           // setup                               
+              dy2=30; // ширина между строками                    
+               
+              x=292;  
+              y=0; // variant c
+           // <1>                
+              f=id(rz1_swich).state; // rz1 бойлер1 подогрев
+              p=id(rz1_power).state; //
+             colori=color1; 
+             if (f) {colori=color8;} 
+             if (p > 5){ colori=color9;} // пошла нагрузка                                                                    
+                //it.image(x, y, id(numeric_1_box_outline),colori);                    
+             it.printf(x, y, id(icon_27),colori, "\U000F03A6"); // mdi:numeric_1_box_outline 
+           // <2>  
+              f=id(rz2_swich).state; // rz2 бойлер2 основной
+              p=id(rz2_power).state; //                          
+             colori=color1; y=y+dy2;  
+             if (f) {colori=color8;} 
+             if (p > 5){ colori=color9;} // пошла нагрузка                                                                    
+                //it.image(x, y, id(numeric_2_box_outline),colori);                                            
+             it.printf(x, y, id(icon_27),colori, "\U000F03A9"); // mdi:numeric_2_box_outline
+           // <3>    
+              f=id(rz8_swich).state; // rz8  МОРОЗИЛКА
+              p=id(rz8_power).state; //                          
+             colori=color1; y=y+dy2; 
+             if (f) {colori=color8;} 
+             if (p > 5){  colori=color9;} // пошла нагрузка                                                                    
+                //it.image(x, y, id(snowflake),colori);                          
+             it.printf(x, y, id(icon_27), colori, "\U000F0717"); // mdi:snowflake
+           // <4>
+              f=10;p=100;
+              f=id(sw5_swich).state; // sw5 ХОЛОДИЛЬНИК+МИКРОВОЛНОВКА+ЧАЙНИК 
+              p=id(sw5_power).state; //                          
+             colori=color1; y=y+dy2; 
+             if (f) {colori=color8;} 
+             if (p > 5){  colori=color9;} // пошла нагрузка                                                                    
+                //it.image(x, y, id(snowflake),colori);                                     
+             it.printf(x, y, id(icon_27), colori, "\U000F0717");// mdi:snowflake
+           // <5>
+              f=id(rz3_swich).state; // rz3 КУХНЯ
+              p=id(rz3_power).state; //                          
+             colori=color1; y=y+dy2; 
+             if (f) {colori=color8;} 
+             if (p > 5){  colori=color9;} // пошла нагрузка                                                                    
+                //it.image(x, y, id(power_plug),colori);             
+             it.printf(x, y, id(icon_27), colori, "\U000F06A5"); // mdi:power_plug
+           // <6>  
+              f=id(rz6_swich).state;  // rz6 ДУХОВКА 
+              p=id(rz6_power).state; //                          
+             colori=color1; y=y+dy2; 
+             if (f) {colori=color8;} 
+             if (p > 5){  colori=color9;} // пошла нагрузка                                                                    
+                //it.image(x, y, id(archive_outline),colori);  
+             it.printf(x, y, id(icon_27), colori, "\U000F120E"); // mdi:archive_outline
+           // <7>           
+              f=id(rz7_swich).state;  // rz7 SERG
+              p=id(rz7_power).state; //                          
+             colori=color1; y=y+dy2;
+             if (f) {colori=color8;} 
+             if (p > 5){  colori=color9;} // пошла нагрузка                                                                    
+                //it.image(x, y, id(account),colori);
+             it.printf(x, y, id(icon_27), colori, "\U000F0004"); // mdi:account           
+           // <8>            
+              f=id(rz5_swich).state;  // rz5 ОБОГРЕВАТЕЛЬ в ПОДВАЛЕ
+              p=id(rz5_power).state; //                          
+             colori=color1; y=y+dy2;
+             if (f) {colori=color8;} 
+             if (p > 5){  colori=color9;} // пошла нагрузка                                                                    
+                //it.image(x, y, id(heat_wave),colori);
+             it.printf(x, y, id(icon_27), colori, "\U000F1A45");  // mdi:heat_wave   
+           //  LINE  
+           // setup               
+              dx=280;   // длина горизонтальной  линия 
+              dy=239;   //4*dy1-1; dy=220;//dy=dp1;
+           // it.horizontal_line( 0, dy, dx, colorg1);
+            it.vertical_line( dx+1, 0, 240, colorg1); 
+           // it.vertical_line( x1+dx1, 0, dy, colorg2); 
+           // it.vertical_line( x3+20, 0, dy, colorg2); 
+           // for( int i=1; i<4; i++){
+           //   y=dy1*i+1;
+           //   it.horizontal_line(0, y, dx, colorg2);
+           // } 
+
+
+      - id: page_2
+        lambda: |- 
+          //it.image(0, 0, id(nadya));           
+          it.print(240, 20, id(my_font1), id(my_rgb_i2),"Page 2");
+      - id: page_3
+        lambda: |- 
+          //it.image(0, 0, id(nadya));      
+          it.print(240, 20, id(my_font1), id(my_rgb_i2),"Page 3");
+      - id: pageN
+        lambda: |- 
+          //it.image(0, 0, id(nadya));
+          int a;
+#-------------------
+number:
+  - platform: template
+    name: "Template number"
+    optimistic: true
+    min_value: 0
+    max_value: 100
+    step: 1
+ #ld2420 
+  #- platform: ld2420
+  # presence_timeout:
+  #    name: Detection Presence Timeout
+  #  min_gate_distance:
+  #    name: Detection Gate Minimum
+  #  max_gate_distance:
+  #    name: Detection Gate Maximum
+  #  # See "Number" section below for detail
+  #  gate_select:
+  #    name: Select Gate to Set
+  #  still_threshold:
+  #    name: Set Still Threshold Value
+  #  move_threshold:
+  #    name: Set Move Threshold Value
+#button:
+ #ld2420
+ # - platform: ld2420
+ #   apply_config:
+ #     name: Apply Config
+ #   factory_reset:
+ #     name: Factory Reset
+ #   restart_module:
+ #     name: Restart Module
+ #   revert_config:
+ #     name: Undo Edits
+#text_sensor:
+ #ld2420
+ # - platform: ld2420
+ #   fw_version:
+ #     name: LD2420 Firmware
+
+sensor:
+ #ld2420 
+  #- platform: ld2420
+  #  moving_distance:
+  #    name : Moving Distance
+
+ # input_number
+ # input_number
+  - platform: homeassistant
+    id: r1 
+    entity_id: input_number.r1
+    name: "red1"
+    internal: true
+  - platform: homeassistant
+    id: g1 
+    entity_id: input_number.g1
+    name: "green1"
+    internal: true 
+  - platform: homeassistant
+    id: b1 
+    entity_id: input_number.b1
+    name: "blue1"
+    internal: true  
+  - platform: homeassistant
+    id: r2 
+    entity_id: input_number.r2
+    name: "red2"
+    internal: true
+  - platform: homeassistant
+    id: g2
+    entity_id: input_number.g2
+    name: "green2"
+    internal: true 
+  - platform: homeassistant
+    id: b2 
+    entity_id: input_number.b2
+    name: "blue2"
+    internal: true  
+  - platform: homeassistant
+    id: dp
+    entity_id: counter.dp
+    name: "dp"
+    internal: true 
+  - platform: homeassistant
+    id: dp_1
+    entity_id: input_number.dp1
+    name: "dp_1"
+    internal: true 
+  - platform: homeassistant
+    id: dp_2
+    entity_id: input_number.dp2
+    name: "dp_2"
+    internal: true
+  - platform: homeassistant
+    id: dp_3
+    entity_id: input_number.dp3
+    name: "dp_3"
+    internal: true
+  - platform: homeassistant
+    id: dp_4
+    entity_id: input_number.dp4
+    name: "dp_4"
+    internal: true
+  - platform: homeassistant
+    id: dp_5
+    entity_id: input_number.dp5
+    name: "dp_5"
+    internal: true
+
+
+
+ # --- JK BMS -----------------
+ # current total
+  - platform: homeassistant
+    id: bat_current 
+    entity_id: sensor.bat_current
+ 
+ # current eva105
+  - platform: homeassistant
+    id: eva105_current 
+    entity_id: sensor.eva105_current
+ 
+ # power total
+  - platform: homeassistant
+    id: bat_power
+    entity_id: sensor.bat_power
+ 
+ # energy total
+  - platform: homeassistant
+    id: bat_energy
+    entity_id: sensor.bat_energy_Ah # количество енергии в батарее
+ 
+ 
+
+ # --- SOLARMAN ------------
+ # power DC pv1+pv2
+  - platform: homeassistant
+    id: dc_power 
+    entity_id: sensor.dc_power
+ 
+ # power load
+  - platform: homeassistant
+    id: solarman_total_load_power 
+    entity_id: sensor.solarman_total_load_power
+ 
+ # power grid
+  - platform: homeassistant
+    id: solarman_total_grid_power
+    entity_id: sensor.solarman_total_grid_power
+ 
+ # voltage grid
+  - platform: homeassistant
+    id: solarman_grid_voltage_l1
+    entity_id: sensor.solarman_grid_voltage_l1
+ 
+
+ # battery voltage
+  - platform: homeassistant
+    id: solarman_battery_voltage
+    entity_id: sensor.solarman_battery_voltage
+ 
+ # battery  current
+  - platform: homeassistant
+    id: solarman_battery_current
+    entity_id: sensor.solarman_battery_current
+ 
+ # battery  power
+  - platform: homeassistant
+    id: solarman_battery_power
+    entity_id: sensor.solarman_battery_power
+ 
+  - platform: homeassistant
+    id: solarman_daily_production # сутки генерация
+    entity_id: sensor.solarman_daily_production
+ 
+  - platform: homeassistant
+    id: solarman_daily_load_consumption # сутки потребление
+    entity_id: sensor.solarman_daily_load_consumption
+ 
+  - platform: homeassistant
+    id: solarman_daily_energy_bought # сутки покупка с сети
+    entity_id: sensor.solarman_daily_energy_bought
+ 
+  - platform: homeassistant
+    id: solarman_daily_battery_charge # сутки зарядка батареи
+    entity_id: sensor.solarman_daily_battery_charge
+ 
+ # --- Zigbee ------------------
+ # ph1
+  - platform: homeassistant
+    entity_id: sensor.z2_ph1_power
+    id: z2_ph1_power    
+ 
+ # ph0
+  - platform: homeassistant
+    entity_id: sensor.z2_ph0_power # потребление с внешней сети
+    id: z2_ph0_power    
+ 
+  - platform: homeassistant
+    entity_id: sensor.z2_ph0_voltage # напряжение с внешней сети
+    id: z2_ph0_voltage 
+
+
+ # rz1
+  - platform: homeassistant
+    entity_id: sensor.z2_rz01_power
+    id: rz1_power    
+ 
+ # rz2
+  - platform: homeassistant
+    id: rz2_power
+    entity_id: sensor.z2_rz02_power
+ 
+ # -
+  - platform: homeassistant
+    id: rz2_last_seen
+    entity_id: sensor.z2_rz02_last_seen
+ 
+ # rz3
+  - platform: homeassistant
+    id: rz3_power
+    entity_id: sensor.z2_rz03_power
+ 
+ # rz4
+  - platform: homeassistant
+    id: rz4_power
+    entity_id: sensor.z2_rz04_power
+ 
+ # rz5
+  - platform: homeassistant
+    id: rz5_power
+    entity_id: sensor.z2_rz05_power
+ 
+ # rz6
+  - platform: homeassistant
+    id: rz6_power
+    entity_id: sensor.z2_rz06_power
+ 
+ # rz7
+  - platform: homeassistant
+    id: rz7_power
+    entity_id: sensor.z2_rz07_power
+ 
+ # rz8
+  - platform: homeassistant
+    id: rz8_power
+    entity_id: sensor.z2_rz08_power
+ 
+ # rz9
+  - platform: homeassistant
+    id: rz9_power
+    entity_id: sensor.z2_rz09_power
+ 
+ # sw5 
+  - platform: homeassistant
+    id: sw5_power
+    entity_id: sensor.z2_sw5_power
+ 
+  - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
+    name: "WiFi Signal dB"
+    id: wifi_signal_db
+    update_interval: 30s
+    entity_category: "diagnostic"
+  # 
+
+
+#-------------------------------------- 
+binary_sensor:
+ # #ld2420
+  #- platform: ld2420
+    #has_target:
+    #  name: Presence  
+ # --- Zigbee -----------------
+ # se датчики открытия
+  # se1 окно кухня
+  - platform: homeassistant
+    id: z2_se1
+    entity_id: binary_sensor.z2_se1_contact
+    name: "se1"
+    internal: true
+  # se2 окно спальня
+  - platform: homeassistant
+    id: z2_se2
+    entity_id: binary_sensor.z2_se2_contact
+    name: "se2"
+    internal: true
+  # se3 окно зал
+  - platform: homeassistant
+    id: z2_se3
+    entity_id: binary_sensor.z2_se3_contact
+    name: "se3"
+    internal: true
+  # se4 окно прихожая
+  - platform: homeassistant
+    id: z2_se4
+    entity_id: binary_sensor.z2_se4_contact
+    name: "se4"
+    internal: true
+  # se5 окно детская
+  - platform: homeassistant
+    id: z2_se5
+    entity_id: binary_sensor.z2_se5_contact
+    name: "se5"
+    internal: true
+  # se6 дверь вход 1
+  - platform: homeassistant
+    id: z2_se6
+    entity_id: binary_sensor.z2_se6_contact
+    name: "se6"
+    internal: true
+  # se7 дверь серая
+  - platform: homeassistant
+    id: z2_se7
+    entity_id: binary_sensor.z2_se7_contact
+    name: "se7"
+    internal: true
+  # se8 окно 2 этаж
+  - platform: homeassistant
+    id: z2_se8
+    entity_id: binary_sensor.z2_se8_contact
+    name: "se8"
+    internal: true
+  # se9 дверь 2 этаж 1
+  - platform: homeassistant
+    id: z2_se9
+    entity_id: binary_sensor.z2_se9_contact
+    name: "se9"
+    internal: true
+  # se10 окно лесенка
+  - platform: homeassistant
+    id: z2_se10
+    entity_id: binary_sensor.z2_se10_contact
+    name: "se10"
+    internal: true
+  # se11 дверь вход 2 
+  - platform: homeassistant
+    id: z2_se11
+    entity_id: binary_sensor.z2_se11_contact
+    name: "se11"
+    internal: true
+  # se12 ------ 
+  - platform: homeassistant
+    id: z2_se12
+    entity_id: binary_sensor.z2_se12_contact
+    name: "se12"
+    internal: true
+  # seb1 дверь подвал - гараж 
+  - platform: homeassistant
+    id: z2_seb1
+    entity_id: binary_sensor.z2_seb1_contact
+    name: "seb1"
+    internal: true
+  # seb2 дверь подвал - погреб
+  - platform: homeassistant
+    id: z2_seb2
+    entity_id: binary_sensor.z2_seb2_contact
+    name: "seb2"
+    internal: true
+ 
+ # SW включатели  
+  # sw2
+  - platform: homeassistant
+    id: sw2_swich
+    entity_id: switch.z2_sw2
+    name: "sw6"
+    internal: true  
+  # sw5
+  - platform: homeassistant
+    id: sw5_swich
+    entity_id: switch.z2_sw5
+    name: "sw5"
+    internal: true    
+  # sw6
+  - platform: homeassistant
+    id: sw6_swich
+    entity_id: switch.z2_sw6
+    name: "sw6"
+    internal: true
+
+ # rz розетки
+  # rz1
+  - platform: homeassistant
+    id: rz1_swich
+    entity_id: switch.z2_rz01
+    name: "rz2_p"
+    internal: true
+  # rz2
+  - platform: homeassistant
+    id: rz2_swich
+    entity_id: switch.z2_rz02
+    name: "rz2_p"
+    internal: true
+  # rz3
+  - platform: homeassistant
+    id: rz3_swich
+    entity_id: switch.z2_rz03
+    name: "rz3_p"
+    internal: true
+  # rz4
+  - platform: homeassistant
+    id: rz4_swich
+    entity_id: switch.z2_rz04
+    name: "rz4_p"
+    internal: true
+  # rz5
+  - platform: homeassistant
+    id: rz5_swich
+    entity_id: switch.z2_rz05
+    name: "rz5_p"
+    internal: true
+  # rz6
+  - platform: homeassistant
+    id: rz6_swich
+    entity_id: switch.z2_rz06
+    name: "rz6_p"
+    internal: true
+  # rz7
+  - platform: homeassistant
+    id: rz7_swich
+    entity_id: switch.z2_rz07
+    name: "rz7_p"
+    internal: true
+  # rz8
+  - platform: homeassistant
+    id: rz8_swich
+    entity_id: switch.z2_rz08
+    name: "rz8_p"
+    internal: true
+  # rz9
+  - platform: homeassistant
+    id: rz9_swich
+    entity_id: switch.z2_rz09
+    name: "rz9_p"
+    internal: true
+  # ph_0
+  - platform: homeassistant
+    id: z2_ph0
+    entity_id: switch.z2_ph0
+     
+     
+ # platform: touchscreen
+  
+  - platform: touchscreen  # page_0 -> page_1
+    name: Sel_0
+    x_min: 0
+    x_max: 220
+    y_min: 0
+    y_max: 110
+    page_id: page_0
+    filters:
+        - delayed_on: 20ms    
+    on_press:
+      then:
+        - lambda: |-             
+           id(page_i)=1;
+           id(my_display1).show_page(id(page_1));
+           id(my_display1).update();          
+  - platform: touchscreen  # page_0 -> page_2
+    name: Sel_1
+    x_min: 0
+    x_max: 220
+    y_min: 138
+    y_max: 239
+    page_id: page_0
+    filters:
+        - delayed_on: 20ms 
+    on_press:    
+      then:
+        - lambda: |- 
+           id(page_i)=2;   
+           id(my_display1).show_page(id(page_2));
+           id(my_display1).update();
+  - platform: touchscreen  # page_0 -> page_3
+    name: Sel_2  
+    x_min: 260
+    x_max: 319
+    y_min: 0
+    y_max: 239
+    page_id: page_0  
+    filters:
+        - delayed_on: 20ms     
+    on_press:
+      then:
+        - lambda: |- 
+           id(page_i)=3;
+           id(my_display1).show_page(id(page_3));
+           id(my_display1).update();
+  - platform: touchscreen  # page_1 -> page_0
+    name: Sel_3
+    x_min: 0
+    x_max: 319
+    y_min: 0
+    y_max: 239
+    page_id: page_1
+    filters:
+      - delayed_on: 20ms     
+    on_press:
+      then:
+        - lambda: |- 
+           id(page_i)=0; 
+           id(my_display1).show_page(id(page_0));
+           id(my_display1).update();
+  - platform: touchscreen  # page_2 -> page_0
+    name: Sel
+    x_min: 0
+    x_max: 319
+    y_min: 0
+    y_max: 239
+    page_id: page_2
+    filters:
+      - delayed_on: 20ms 
+    on_press:
+      then:
+        - lambda: |- 
+           id(page_i)=0; 
+           id(my_display1).show_page(id(page_0));
+           id(my_display1).update();
+  - platform: touchscreen  # page_3 -> page_0
+    name: Sel_4
+    x_min: 0
+    x_max: 319
+    y_min: 0
+    y_max: 239
+    page_id: page_3
+    filters:
+      - delayed_on: 20ms    
+    on_press:
+      then:
+        - lambda: |- 
+           id(page_i)=0;
+           id(my_display1).show_page(id(page_0));
+           id(my_display1).update();
+#--------------------------------------
+#select:
+ #ld2420
+ # - platform: ld2420
+ #   operating_mode:
+ #      name: Operating Mode
+
+font:
+ # показатели 1 колонка my_font1
+  - file: "gfonts://Roboto"
+    id: my_font1
+    size: 25
+    glyphs: [" ",".","-","=","1","2","3","4","5","6","7","8","9","0",
+             a,b,c,d,e,f,g,i,j,k,l,m,n,o,p,r,s,t,u,v,w,x,y,z,
+             A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z]
+ # показатели 2 колонка my_font1a
+  - file: "gfonts://Roboto"
+    id: my_font1a
+    size: 22   
+    glyphs: [" ",".","-","1","2","3","4","5","6","7","8","9","0",a,n,o]
+ # размерность
+  - file: "gfonts://Roboto"
+    id: my_font2
+    size: 12
+    glyphs: [" ",".","-","1","2","3","4","5","6","7","8","9","0",
+             A,V,W,h,k,w,n,o]
+ #   my_font3
+  - file:
+      type: gfonts
+      family: Roboto
+      weight: 700
+    id: my_font3
+    size: 30
+    glyphs: [" ",".","-","1","2","3","4","5","6","7","8","9","0",a,n,o]
+ # my_font4
+  - file: "gfonts://Roboto"
+    id: my_font4
+    size: 17
+    glyphs: [
+      "1","2","3","4","5","6","7","8","9","0","+","-"," ",
+      А,Б,В,Г,Д,Е,Ё,Ж,З,И,Й,К,Л,М,Н,О,П,Р,С,Т,У,Ф,Х,Ч,Ш,Щ,Ь,Ъ,Э,Ю,Я,
+      а,б,в,г,д,е,ё,ж,з,и,й,к,л,м,н,о,п,р,с,т,у,ф,х,ч,ш,щ,ь,ъ,э,ю,я]
+ # показатели мощности розеток
+  - file: "gfonts://Roboto"
+    id: my_font5
+    size: 17
+    glyphs: [" ",".","-","1","2","3","4","5","6","7","8","9","0",a,n,o]
+#-------------------------------------    
+  - file:  "gfonts://Roboto@500" #"gfonts://Oswald@500" #"gfonts://Rubik@400" # "gfonts://Rubik@400" #  "gfonts://Oswald@600" #  
+    id: my_font1_a
+    size: 38  
+    glyphs: [" ",".","-","1","2","3","4","5","6","7","8","9","0",a,n,o]
+  - file: "gfonts://Bebas Neue@400" # "gfonts://Rubik@400" # "gfonts://Roboto" # "gfonts://Oswald@600" #   
+    id: my_font2_a
+    size: 35
+    glyphs: [" ",".","-","1","2","3","4","5","6","7","8","9","0",a,n,o]
+  - file:  "gfonts://Roboto@500" #"gfonts://Oswald@500" #"gfonts://Rubik@400" # "gfonts://Rubik@400" #  "gfonts://Oswald@600" #  
+    id: my_font1_b
+    size: 60  
+    glyphs: [" ",".","-","1","2","3","4","5","6","7","8","9","0",a,n,o]
+  - file: "gfonts://Bebas Neue@400" # "gfonts://Rubik@400" # "gfonts://Roboto" # "gfonts://Oswald@600" #   
+    id: my_font2_b
+    size: 50
+    glyphs: [" ",".","-","1","2","3","4","5","6","7","8","9","0",a,n,o]
+
+  - file: "fonts/materialdesignicons-webfont.ttf"
+    id: icon_20      
+    size: 20
+    glyphs: [
+          "\U000F02D1", # mdi-heart
+          "\U000F05D4", # mdi-airplane-landing
+          "\U000F0D9B", # ! mdi-solar-panel
+          "\U000F192C", # ! mdi-transmission-tower-export
+          "\U000F010C", # ! mdi-car-battery
+          "\U000F0241", # ! mdi-flash          
+          "\U000F03C8", # ? mdi-flash   
+          "\U000F1793", # ! mdi-chandelier
+          "\U000F0079", # ! mdi-battery
+          "\U000F0087", # ! mdi:battery-charging-30
+          "\U000F095C", # ! mdi:current-dc
+          "\U000F095B", # ! mdi:sine-wave
+          "\U000F11DC", # ! mdi:window-open-variant
+          "\U000F11DB", # ! mdi:window-closed-variant
+          "\U000F081C", # ! mdi:door-open
+          "\U000F081B", # ! mdi:door-closed
+          "\U000F081A", # ! mdi:door 
+          ]
+  - file: "fonts/materialdesignicons-webfont.ttf"
+    id: icon_27      
+    size: 27
+    glyphs: [
+          "\U000F0717", # mdi:snowflake
+          "\U000F09A1", # mdi:shower-head
+          "\U000F1A85", # mdi:water-thermometer
+          "\U000F0F92", # mdi:water-boiler
+          "\U000F11B3", # mdi:water-boiler-alert
+          "\U000F1958", # mdi:scent        
+          "\U000F0473", # mdi:scale-bathroom  
+          "\U000F1370", # mdi:account-cog 
+          "\U000F0004", # mdi:account 
+          "\U000F120E", # mdi:archive-outline 
+          "\U000F03A6", # mdi:numeric-1-box-outline 
+          "\U000F03A9", # mdi:numeric-2-box-outline 
+          "\U000F1A45", # mdi:heat-wave 
+          "\U000F07E7", # mdi:power-socket-eu 
+          "\U000F06A5", # mdi:power-plug 
+          ]
+  - file: "fonts/materialdesignicons-webfont.ttf"
+    id: icon_28      
+    size: 28
+    glyphs: [
+          "\U000F0D9B", # mdi:solar-panel 
+          "\U000F192C", # mdi:transmission-tower-export 
+          "\U000F010C", # mdi:car-battery 
+          "\U000F0241", # mdi:flash 
+          "\U000F11B3", # mdi: 
+          "\U000F1958", # mdi:        
+          "\U000F0473", # mdi:   
+          "\U000F1370", # mdi:  
+          "\U000F0004", # mdi:  
+          "\U000F120E", # mdi:  
+          "\U000F03A6", # mdi:  
+          "\U000F03A9", # mdi:  
+  
+          ]
+#--------------------------------------
+color:
+ # иконки
+  - id: my_rgb_i1  # Серо-синий
+    red_int: 95
+    green_int: 160
+    blue_int: 160  
+  
+  - id: my_rgb_i2  # Gold
+    red_int: 255
+    green_int: 210
+    blue_int: 0 
+
+  - id: my_rgb_i3  # crimson  
+    red_int: 255
+    green_int: 20
+    blue_int: 60  
+ # показатели 
+  - id: my_rgb_v1  
+    red_int: 245
+    green_int: 245
+    blue_int: 220   
+  
+  - id: my_rgb_v2  # потребление
+    red_int:   250
+    green_int:  170
+    blue_int:  50  
+
+  - id: my_rgb_v3  
+    red_int: 50
+    green_int: 250
+    blue_int: 50 
+ #  размерность
+  - id: my_rgb_p1  
+    red_int: 150
+    green_int: 100
+    blue_int: 60      
+ # цвета
+  - id: my_red
+    red_int: 255
+    green_int: 0
+    blue_int: 0
+  - id: my_green
+    red_int: 0
+    green_int: 255
+    blue_int: 0
+  - id: my_blue
+    red_int: 0
+    green_int: 0
+    blue_int: 255
+  - id: my_white
+    red_int: 255
+    green_int: 255
+    blue_int: 255
+  - id: my_rb
+    red_int: 255
+    green_int: 0
+    blue_int: 255
+  - id: my_yellow
+    red_int: 255
+    green_int: 255
+    blue_int: 0
+  - id: my_bg
+    red_int: 0
+    green_int: 255
+    blue_int: 255
+  - id: my_50
+    red_int: 128
+    green_int: 128
+    blue_int: 128
+  - id: my_1
+    red_int: 125
+    green_int: 165
+    blue_int: 255
+  - id: my_2
+    red_int: 0
+    green_int: 115
+    blue_int: 190
+  - id: my_3
+    red_int: 0
+    green_int: 190
+    blue_int: 255
+  - id: my_4
+    red_int: 176
+    green_int: 196
+    blue_int: 222
+  - id: my_5
+    red_int: 220
+    green_int: 220
+    blue_int: 220
+  - id: my_6
+    red_int: 245
+    green_int: 245
+    blue_int: 245
+  - id: my_7
+    red_int: 100
+    green_int: 149
+    blue_int: 237
+  - id: my_8
+    red_int: 106
+    green_int: 90
+    blue_int: 205
+  - id: my_9 # orange
+    red_int: 255
+    green_int: 165
+    blue_int: 0
+  - id: my_10 # orangered
+    red_int: 255
+    green_int: 69
+    blue_int: 0
+  - id: my_11 # darkorange
+    red_int: 255
+    green_int: 140
+    blue_int: 0
+  - id: my_12 # 
+    red_int: 255
+    green_int: 100
+    blue_int: 0
+  - id: my_13 # lightsalmon
+    red_int: 255
+    green_int: 160
+    blue_int: 122
+  - id: my_14 #  lightcoral
+    red_int: 240
+    green_int: 128
+    blue_int: 128
+  - id: my_15 # tomato
+    red_int: 255
+    green_int: 100
+    blue_int: 70
+  - id: my_16 # crimson
+    red_int: 220
+    green_int: 20
+    blue_int: 60
+#---------------------------------------------------------
+
+image:
+ # --- Иконки ----  
+ # солнечные панели
+  #- file: mdi:solar-panel
+  #  id: solar_panel
+  #  resize: 20x20
+ # передача в город
+  #- file: mdi:transmission-tower-export
+  #  id: grid_in
+  #  resize: 20x20
+ # люстра
+  #- file: mdi:chandelier
+  #  id: chandelier
+  #  resize: 20x20
+ # батарея
+  #- file: mdi:battery
+  #  id: battery
+  #  resize: 20x20
+ # батарея 30%
+  #- file: mdi:battery-charging-30
+  #  id: battery_charging_30
+  #  resize: 20x20
+ # car battery
+  #- file: mdi:car-battery
+  #  id: car_battery
+  #  resize: 20x20   
+ # молния
+  #- file: mdi:flash
+  #  id: flash
+  #  resize: 20x20
+ #  ток
+  #- file: mdi:current-dc
+  #  id: current_dc
+  #  resize: 20x20
+ # напряжение
+  #- file: mdi:sine-wave  
+  #  id: sine_wave
+  #  resize: 20x20
+ # окно открыто
+  #- file: mdi:window-open-variant
+  #  id: window_open
+  #  resize: 20x20
+ # окно закрыто
+  #- file: mdi:window-closed-variant
+  #  id: window_closed 
+  #  resize: 20x20
+ # Дверь открыта
+  #- file: mdi:door-open
+  #  id: door_open
+  #  resize: 20x20
+ # Дверь закрыта
+  #- file: mdi:door-closed
+  #  id: door_closed
+  #  resize: 20x20
+ # Дверь 
+  #- file: mdi:door
+  #  id: door
+  #  resize: 20x20
+ #
+  #- file: mdi:snowflake 
+  #  id: snowflake
+  #  resize: 27x27
+
+  #- file: mdi:shower-head
+  #  id: shower_head
+  #  resize: 27x27
+
+  #- file: mdi:water-thermometer
+  #  id: water_thermometer
+  #  resize: 27x27
+
+  #- file: mdi:water-boiler
+  #  id: water_boiler
+  #  resize: 27x27 
+
+  #- file: mdi:water-boiler-alert 
+  #  id: water_boiler_alert
+  #  resize: 27x27
+
+  #- file: mdi:scent
+  #  id: scent
+  #  resize: 27x27 
+
+  #- file: mdi:scale-bathroom 
+  #  id: scale_bathroom
+  #  resize: 27x27
+
+  #- file: mdi:account-cog 
+  #  id: account_cog
+  #  resize: 27x27
+
+  #- file: mdi:account
+  #  id: account
+  #  resize: 27x27
+
+  #- file: mdi:archive-outline
+  #  id: archive_outline
+  #  resize: 27x27
+
+  #- file: mdi:numeric-1-box-outline
+  #  id: numeric_1_box_outline
+  #  resize: 27x27
+
+  #- file: mdi:numeric-2-box-outline
+  #  id: numeric_2_box_outline
+  #  resize: 27x27  
+  
+  #- file: mdi:heat-wave
+  #  id: heat_wave
+  #  resize: 27x27
+
+  #- file: mdi:power-socket-eu
+  #  id: power_socket_eu
+  #  resize: 27x27
+ 
+  #- file: mdi:power-plug
+  #  id: power_plug
+  #  resize: 27x27 
+  
+  #- file: mdi:solar-panel #solar-power-variant
+  #  id: solar_panel_1
+  #  resize: 28x28
+  #- file: mdi:transmission-tower-export
+  #  id: grid_in_1
+  #  resize: 28x28
+  #- file: mdi:car-battery #-charging
+  #  id: battery_1
+  #  resize: 28x28
+  #- file: mdi:flash
+  #  id: flash_1
+  #  resize: 28x28
+ # mdi:power
+  #- file: mdi:power
+  #  id: power
+  #  resize: 25x25
+ # 
+ #  
+  
+ #  - file: http://192.168.0.224:8123/config/media/pic1.jpg
+ # - file: http://192.168.0.224:8123/api/hassio_ingress/3YTiHIZ0t5K86xatXipeo9IXxPE1S105_G6B3XPlWtc/api/file?filename=/media/pic1.jpg
+ # - file:  http://192.168.0.224:8123/api/image/serve/4dd43c8a5a17656df672f05717ac2670/512x512
+ # - file:  http://192.168.0.224:8123/local/512x512 #pic1.jpg
+ # 
+ #   id: nadya
+ #   resize: 240x320
+ #   type: RGB24
+#-------------------------------------
+
+globals:
+  - id: page_i #
+    type: int
+    restore_value: no
+    initial_value: '1' 
+  - id: page_z #
+    type: int
+    restore_value: no
+    initial_value: '5' 
+
+
+
+
+
+interval:
+  - interval: 2s
+    then:  
+      - lambda: |- 
+         if(id(page_z)!=id(page_i)){
+            id(page_z)=id(page_i);
+            if(id(page_i)== 0 ) {id(my_display1).show_page(id(page_0));}      
+            if(id(page_i)== 1 ) {id(my_display1).show_page(id(page_1));}       
+            if(id(page_i)== 2 ) {id(my_display1).show_page(id(page_2));}
+            if(id(page_i)== 3 ) {id(my_display1).show_page(id(page_3));}                         
+            id(my_display1).update();}

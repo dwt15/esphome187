@@ -1,0 +1,32 @@
+esphome:
+  name: ddb02
+  friendly_name: ddb02
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "cwrHQCrvvIfC2J90LEEm/y9lK4grkR7Q1Q0cKV112Qo="
+
+ota:
+  - platform: esphome
+    password: "8b91ec6995db47ea1ddcdfd6e6809d32"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Ddb02 Fallback Hotspot"
+    password: "TW3OYmPNrSq4"
+
+captive_portal:
+    

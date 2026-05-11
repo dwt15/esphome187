@@ -1,0 +1,56 @@
+
+# file: 4880/packages4880/update_s_butt_xx.yaml
+
+script:
+  - id: update_s_${s_butt_xx}  # тестовый
+    then:
+      - lambda: |-
+          // 
+            lv_color_t color0 = lv_color_make(64,64,48);     // 0 серый отключенно
+            lv_color_t color1 = lv_color_make(170,160,  5);  // 1 желт  включенно для розеток   160 160 0
+            lv_color_t color2 = lv_color_make(255,  0,  0);  // 2 красн пошла нагрузка
+            lv_color_t color3 = lv_color_make(0,  0, 48);    // 3 сний  база кнопки
+            lv_color_t color4 = lv_color_make(0,  0, 0);     // 4 черн  кнопки отключенно  
+            
+            lv_color_t colori = color0;      // цвет иконки
+            lv_color_t colorb = color0;      // цвет контура sbutt_xx
+            lv_color_t colorc = color0;      // цвет кнопки
+            lv_color_t colorl = color0;      // цвет automation state
+            int sbut;
+            static int s_${s_butt_xx};  // 
+            static int t_${s_butt_xx} = 100;
+                             
+            if(t_${s_butt_xx} < 70) {t_${s_butt_xx}++;}
+            else {t_${s_butt_xx} = 0; s_${s_butt_xx} = -1;}
+
+          // - but_06 - sw2 ПОГРЕБ             
+            if( !id(${s_butt_xx}s).has_state()) {                // 0- не доступен                 
+             colori = color0; colorb=color4; colorc=color0;                     // серый-черн-серый icon but contur  
+             sbut  = 0;                                                         // 0- нет подключения
+             if( lv_obj_has_flag(  id(${s_butt_xx}x), LV_OBJ_FLAG_HIDDEN)) {       // скрыт виджет
+              id(msg_6).execute(611);
+              lv_obj_clear_flag(id(${s_butt_xx}x), LV_OBJ_FLAG_HIDDEN);         // показать линию                              
+             }                                 
+            }else{ 
+              sbut  = 1;                                                          // 1-в сети 
+              colori = color1; colorb = color3; colorc = color1;                  // серый-черн-серы
+              if( !lv_obj_has_flag(  id(${s_butt_xx}x), LV_OBJ_FLAG_HIDDEN) ){         // не скрыт виджет
+               lv_obj_add_flag(id(${s_butt_xx}x), LV_OBJ_FLAG_HIDDEN);               // убрать линию 
+               id(msg_6).execute(600);
+              }                
+              if (id(${s_butt_xx}s).state) {// пошла нагрузка 
+               sbut = 3;
+               colori=color1; colorb=color2; colorc=color1;
+              } else { 
+                sbut = 2;
+                colori=color1; colorb=color3; colorc=color1;
+               }     
+            }
+            if ( s_${s_butt_xx} != sbut){     // состояние кнопки поменялось все прекрашиваем                              
+                 s_${s_butt_xx}  = sbut ;      // сохраняем новое состояние кнопки               
+                 t_${s_butt_xx} = 0;
+                lv_obj_set_style_text_color(  id(${s_butt_xx}i), colori, LV_PART_MAIN );    // цвет иконки
+                lv_obj_set_style_bg_color(    id(${s_butt_xx}), colorb, LV_PART_MAIN );   // цвет конпки
+                lv_obj_set_style_border_color(id(${s_butt_xx}), colorc, LV_PART_MAIN );   // цвет контура
+                id(msg_6).execute(6);  
+            }

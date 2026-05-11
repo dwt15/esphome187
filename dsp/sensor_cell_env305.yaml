@@ -1,0 +1,82 @@
+sensor:
+ # cell env305
+  - platform: homeassistant
+    id: env305_1 
+    entity_id: sensor.env305_cell_voltage_1
+    name: "env305_1"
+    internal: true
+  - platform: homeassistant
+    id: env305_2
+    entity_id: sensor.env305_cell_voltage_2
+    name: "env305_2"
+    internal: true
+  - platform: homeassistant
+    id: env305_3
+    entity_id: sensor.env305_cell_voltage_3
+    name: "env305_3"
+    internal: true
+  - platform: homeassistant
+    id: env305_4
+    entity_id: sensor.env305_cell_voltage_4
+    name: "env305_4"
+    internal: true
+  - platform: homeassistant
+    id: env305_5
+    entity_id: sensor.env305_cell_voltage_5
+    name: "env305_5"
+    internal: true
+  - platform: homeassistant
+    id: env305_6
+    entity_id: sensor.env305_cell_voltage_6
+    name: "env305_6"
+    internal: true
+  - platform: homeassistant
+    id: env305_7
+    entity_id: sensor.env305_cell_voltage_7
+    name: "env305_7"
+    internal: true
+  - platform: homeassistant
+    id: env305_8
+    entity_id: sensor.env305_cell_voltage_8
+    name: "env305_8"
+    internal: true
+  - platform: homeassistant
+    id: env305_9
+    entity_id: sensor.env305_cell_voltage_9
+    name: "env305_9"
+    internal: true
+  - platform: homeassistant
+    id: env305_10
+    entity_id: sensor.env305_cell_voltage_10
+    name: "env305_10"
+    internal: true
+  - platform: homeassistant
+    id: env305_11
+    entity_id: sensor.env305_cell_voltage_11
+    name: "env305_11"
+    internal: true
+  - platform: homeassistant
+    id: env305_12
+    entity_id: sensor.env305_cell_voltage_12
+    name: "env305_12"
+    internal: true
+  - platform: homeassistant
+    id: env305_13
+    entity_id: sensor.env305_cell_voltage_13
+    name: "env305_13"
+    internal: true
+  - platform: homeassistant
+    id: env305_14
+    entity_id: sensor.env305_cell_voltage_14
+    name: "env305_14"
+    internal: true
+  - platform: homeassistant
+    id: env305_15
+    entity_id: sensor.env305_cell_voltage_15
+    name: "env305_15"
+    internal: true
+  - platform: homeassistant
+    id: env305_16
+    entity_id: sensor.env305_cell_voltage_16
+    name: "env305_16"
+    internal: true

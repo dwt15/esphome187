@@ -1,0 +1,32 @@
+esphome:
+  name: xcc
+  friendly_name: xcc
+
+esp32:
+  board: waveshare_esp32_s3_zero
+  framework:
+    type: esp-idf
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "uVyvfU2lC19zPoAisl0lwh3sR6/z9wrnN8nTmdYcKtE="
+
+ota:
+  - platform: esphome
+    password: "5354f6154d38bf3cde6cbfa6cc6bddb5"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Xcc Fallback Hotspot"
+    password: "dsPVVCHKdcZb"
+
+captive_portal:
+    

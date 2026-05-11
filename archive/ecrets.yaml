@@ -1,0 +1,32 @@
+esphome:
+  name: ecrets
+  friendly_name: ecrets
+
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: esp-idf
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "/fmwihaX4rMtVLrMcFBXBms2GZn8kEyLLroVbAS+32k="
+
+ota:
+  - platform: esphome
+    password: "c188bebb4f8ff31563bd4927afda5617"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Ecrets Fallback Hotspot"
+    password: "lrOEy1r2ytJx"
+
+captive_portal:
+    

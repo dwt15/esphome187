@@ -1,0 +1,192 @@
+#  butt_dom_a1: !include  
+#    file: 4880/packages4880/butt_dom_xx.yaml 
+#    vars:
+#      xx: 'a1'              #  [i]
+#      bs: ${ha_butt_dom_a1s} #  <h_state>
+#      bp: ${ha_butt_dom_a1p} #  <h_power>
+#  butt_dom_a2: !include  
+#    file: 4880/packages4880/butt_dom_xx.yaml 
+#    vars:
+#      xx: 'a2'              #  [i]
+#      bs: ${ha_butt_dom_a2s} #  <h_state>
+#      bp: ${ha_butt_dom_a2p} #  <h_power>
+#  butt_dom_a3: !include  
+#    file: 4880/packages4880/butt_dom_xx.yaml 
+#    vars:
+#      xx: 'a3'              #  [i]
+#      bs: ${ha_butt_dom_a3s} #  <h_state>
+#      bp: ${ha_butt_dom_a3p} #  <h_power>
+#  butt_dom_a4: !include  
+#    file: 4880/packages4880/butt_dom_xx.yaml 
+#    vars:
+#      xx: 'a4'              #  [i]
+#      bs: ${ha_butt_dom_a4s} #  <h_state>
+#      bp: ${ha_butt_dom_a4p} #  <h_power>
+#  butt_dom_b1: !include  
+#    file: 4880/packages4880/butt_dom_xx.yaml 
+#    vars:
+#      xx: 'b1'              #  [i]
+#      bs: ${ha_butt_dom_b1s} #  <h_state>
+#      bp: ${ha_butt_dom_b1p} #  <h_power> 
+#  butt_dom_b2: !include  
+#    file: 4880/packages4880/butt_dom_xx.yaml 
+#    vars:
+#      xx: 'b2'              #  [i]
+#      bs: ${ha_butt_dom_b2s} #  <h_state>
+#      bp: ${ha_butt_dom_b2p} #  <h_power> 
+#  butt_dom_b3: !include  
+#    file: 4880/packages4880/butt_dom_xx.yaml 
+#    vars:
+#      xx: 'b3'              #  [i]
+#      bs: ${ha_butt_dom_b3s} #  <h_state>
+#      bp: ${ha_butt_dom_b3p} #  <h_power> 
+#  butt_dom_b4: !include  
+#    file: 4880/packages4880/butt_dom_xx.yaml 
+#    vars:
+#      xx: 'b4'              #  [i]
+#      bs: ${ha_butt_dom_b4s} #  <h_state>
+#      bp: ${ha_butt_dom_b4p} #  <h_power> 
+ # butt_dom_c1: !include  
+ #   file: 4880/packages4880/butt_dom_xx.yaml 
+ #   vars:
+ #     xx: 'c1'              #  [i]
+ #     bs: ${ha_butt_dom_c1s} #  <h_state>
+ #     bp: ${ha_butt_dom_c1p} #  <h_power>
+ # butt_dom_c2: !include  
+ #   file: 4880/packages4880/butt_dom_xx.yaml 
+ #   vars:
+ #     xx: 'c2'              #  [i]
+ #     bs: ${ha_butt_dom_c2s} #  <h_state>
+ #     bp: ${ha_butt_dom_c2p} #  <h_power>
+ # butt_dom_c3: !include  
+ #   file: 4880/packages4880/butt_dom_xx.yaml 
+ #   vars:
+ #     xx: 'c3'              #  [i]
+ #     bs: ${ha_butt_dom_c3s} #  <h_state>
+ #     bp: ${ha_butt_dom_c3p} #  <h_power>
+ #
+ # butt_dom_c4: !include  
+ #   file: 4880/packages4880/butt_dom_xx.yaml 
+ #   vars:
+ #     xx: 'c4'              #  [i]
+ #     bs: ${ha_butt_dom_c4s} #  <h_state>
+ #     bp: ${ha_butt_dom_c4p} #  <h_power> 
+ # butt_dom_d1: !include  
+ #   file: 4880/packages4880/butt_dom_xx.yaml 
+ #   vars:
+ #     xx: 'd1'              #  [i]
+ #     bs: ${ha_butt_dom_d1s} #  <h_state>
+ #     bp: ${ha_butt_dom_d1p} #  <h_power>
+ # butt_dom_d2: !include  
+ #   file: 4880/packages4880/butt_dom_xx.yaml 
+ #   vars:
+ #     xx: 'd2'              #  [i]
+ #     bs: ${ha_butt_dom_d2s} #  <h_state>
+ #     bp: ${ha_butt_dom_d2p} #  <h_power>
+ # butt_dom_d3: !include  
+ #   file: 4880/packages4880/butt_dom_xx.yaml 
+ #   vars:
+ #     xx: 'd3'              #  [i]
+ #     bs: ${ha_butt_dom_d3s} #  <h_state>
+ #     bp: ${ha_butt_dom_d3p} #  <h_power>
+ # butt_dom_d4: !include  
+ #   file: 4880/packages4880/butt_dom_xx.yaml 
+ #   vars:
+ #     xx: 'd4'              #  [i]
+ #     bs: ${ha_butt_dom_d4s} #  <h_state>
+ #     bp: ${ha_butt_dom_d4p} #  <h_power>
+
+#binary_sensor:
+#    - platform: homeassistant
+#      id: butt_dom_${xx}sj
+#      entity_id: ${bs}
+#      publish_initial_state: true
+#      on_state:
+#        then:
+#          lvgl.widget.update:
+#            id: butt_dom_${xx}b
+#            state:
+#              checked: !lambda 'return x;'
+
+#sensor:
+#    - platform: homeassistant # 
+#      id: butt_dom_${xx}pj
+#      entity_id: ${bp}     
+
+
+
+
+script:
+  - id: chek_butt_dom_${xx}  #09 #
+    then:
+      - lambda: |-
+          //       
+            int p=-1;
+            int sbut;
+            int per=15;             
+            char buf[16];
+             
+
+            lv_color_t colr_on   = lv_color_make(240,  240, 0);    //  желтй
+            lv_color_t colr_off  = lv_color_make(64,  64, 48);     // 4 черн  кнопки отключенно 
+            lv_color_t colr_offn = lv_color_make(0,  104, 0);     //  темнозеленій
+            lv_color_t colr_pw   = lv_color_make(255,  0, 0);     // red power
+            lv_color_t colr_bl   = lv_color_make(0,  0, 64);     // blu redyо
+            
+          //-- c1  ${xx} 
+              static int s_butt_${xx} =-1;  //  
+              static int t_butt_${xx} = 100;
+              static int        ${xx} =-100;             
+
+              if(   t_butt_${xx} < per) {t_butt_${xx}++;}
+              else {t_butt_${xx} = 0;    s_butt_${xx}  = -1; ${xx}=-100;} 
+            
+            if(  isnan(id(butt_dom_${xx}p).state) ) { sbut = 0;                               // 0 - не доступен    
+                if  (s_butt_${xx} != sbut ) {                                                 // новое состояние
+                     s_butt_${xx} = 0;                                                        // запоминаем 
+                     t_butt_${xx} = 0;                                                        // сброс таймера 
+                    lv_obj_clear_flag(        id(butt_dom_${xx}x), LV_OBJ_FLAG_HIDDEN);       // показать "X"   
+                  lv_obj_set_style_text_color(id(butt_dom_${xx}i), colr_off, LV_PART_MAIN);   // grey
+                  lv_obj_set_style_text_color(id(butt_dom_${xx}n), colr_offn, LV_PART_MAIN);  // grey
+                  lv_obj_set_style_text_color(id(butt_dom_${xx}w), colr_off, LV_PART_MAIN);   // grey
+                  lv_obj_set_style_text_color(id(butt_dom_${xx}r), colr_off, LV_PART_MAIN);   // grey
+                }                                              
+            } else {                                                                 // 1-в сети OFF           
+                if( s_butt_${xx} == 0 ){lv_obj_add_flag(id(butt_dom_${xx}x), LV_OBJ_FLAG_HIDDEN);} // убрать "X"     
+                
+                if( id(butt_dom_${xx}s).state ){                                       // 2- ON
+                   sbut = 2;
+                   p=static_cast<int>(id(butt_dom_${xx}p).state);                               //  считывае значенние 
+                   if(s_butt_${xx} != sbut){
+                      s_butt_${xx}  = sbut;
+                      t_butt_${xx} = 0;
+                      lv_obj_set_style_text_color(id(butt_dom_${xx}i), colr_on, LV_PART_MAIN); //,  
+                      lv_obj_set_style_text_color(id(butt_dom_${xx}n), colr_on, LV_PART_MAIN); //  
+                      lv_obj_set_style_text_color(id(butt_dom_${xx}w), colr_on, LV_PART_MAIN); //  
+                      lv_obj_set_style_text_color(id(butt_dom_${xx}r), colr_on, LV_PART_MAIN); //  
+                      lv_obj_add_state(           id(butt_dom_${xx}b), LV_STATE_CHECKED);          
+                   }
+               
+                } else { 
+                    sbut=1;
+                    p=0;
+                    if(s_butt_${xx} != sbut){
+                       s_butt_${xx}  = sbut;
+                       t_butt_${xx} = 0;                    
+                       
+                       lv_obj_clear_state(         id(butt_dom_${xx}b), LV_STATE_CHECKED);   
+                       lv_obj_set_style_text_color(id(butt_dom_${xx}i), colr_off,  LV_PART_MAIN); //, LV_STATE_CHECKED); //  
+                       lv_obj_set_style_text_color(id(butt_dom_${xx}n), colr_offn, LV_PART_MAIN); //  
+                       lv_obj_set_style_text_color(id(butt_dom_${xx}w), colr_off,  LV_PART_MAIN); //  
+                       lv_obj_set_style_text_color(id(butt_dom_${xx}r), colr_off,  LV_PART_MAIN); //                     
+                    }  
+                }                                                                                          
+                if(${xx} != p){                                               
+                   ${xx}  = p;                                                            
+                   t_butt_${xx} = 0;  
+                   snprintf(buf, sizeof(buf), "%i",p);                                
+                   lv_label_set_text( id(butt_dom_${xx}w), buf );                             
+                   if(p>5){lv_obj_set_style_bg_color(id(butt_dom_${xx}b), colr_pw, LV_STATE_CHECKED);} // red
+                     else {lv_obj_set_style_bg_color(id(butt_dom_${xx}b), colr_bl, LV_STATE_CHECKED);} // blue
+                }                    
+            }

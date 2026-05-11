@@ -1,0 +1,32 @@
+esphome:
+  name: ddm01
+  friendly_name: ddm01
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "yJEaIZqs/OCZSAUZHs+JJQE9j+wON+JaORN1qovLW50="
+
+ota:
+  - platform: esphome
+    password: "578930343d36f93d200973438b00858f"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Ddm01 Fallback Hotspot"
+    password: "qUWAbXa3eBQ3"
+
+captive_portal:
+    

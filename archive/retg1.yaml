@@ -1,0 +1,32 @@
+esphome:
+  name: retg1
+  friendly_name: retg1
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "H9HMn9kwbjclfJPe7qC4OSGVLVwfu8u1aL47cyTqeno="
+
+ota:
+  - platform: esphome
+    password: "e0b4d0928c4494abf09a0b9843c6f18e"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Retg1 Fallback Hotspot"
+    password: "yjaBjMVjyf8R"
+
+captive_portal:
+    

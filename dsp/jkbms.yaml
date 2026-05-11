@@ -1,0 +1,362 @@
+sensor:
+# --- JK BMS -----------------
+
+ # current eva105
+  - platform: homeassistant
+    id: eva105_current 
+    entity_id: sensor.eva105_current
+    name: "eva105c"
+    internal: true  
+ # current byd125
+  - platform: homeassistant
+    id: byd125_current 
+    entity_id: sensor.byd125_current
+    name: "byd125c"
+    internal: true
+ # current env305
+  - platform: homeassistant
+    id: env305_current 
+    entity_id: sensor.env305_current
+    name: "env305c"
+    internal: true
+ # current total
+  - platform: homeassistant
+    id: bat_current 
+    entity_id: sensor.bat_current
+    name: "jk_c"
+    internal: true
+
+ # Ah eva105
+  - platform: homeassistant
+    id: eva105_ah 
+    entity_id: sensor.eva105_capacity_remaining_derived
+    name: "eva105ah"
+    internal: true
+ # Ah byd125
+  - platform: homeassistant
+    id: byd125_ah 
+    entity_id: sensor.byd125_capacity_remaining_derived
+    name: "byd125ah"
+    internal: true 
+ # Ah env305
+  - platform: homeassistant
+    id: env305_ah 
+    entity_id: sensor.env305_capacity_remaining_derived
+    name: "env305ah"
+    internal: true 
+ # Ah total
+  - platform: homeassistant
+    id: bat_energy
+    entity_id: sensor.but_energy
+    name: "jk_p"
+    internal: true
+
+ # Vmin eva105
+  - platform: homeassistant
+    id: eva105_min 
+    entity_id: sensor.eva105_min_cell_voltage
+    name: "eva105min"
+    internal: true
+ # Vmin byd125
+  - platform: homeassistant
+    id: byd125_min 
+    entity_id: sensor.byd125_min_cell_voltage
+    name: "byd125min"
+    internal: true
+ # Vmin env305
+  - platform: homeassistant
+    id: env305_min 
+    entity_id: sensor.env305_min_cell_voltage
+    name: "env305min"
+    internal: true
+
+ # Vmax eva105
+  - platform: homeassistant
+    id: eva105_max 
+    entity_id: sensor.eva105_max_cell_voltage
+    name: "eva105min"
+    internal: true
+ # Vmax byd125
+  - platform: homeassistant
+    id: byd125_max 
+    entity_id: sensor.byd125_max_cell_voltage
+    name: "byd125min"
+    internal: true
+ # Vmax env305
+  - platform: homeassistant
+    id: env305_max 
+    entity_id: sensor.env305_max_cell_voltage
+    name: "env305min"
+    internal: true
+
+ # dV eva105
+  - platform: homeassistant
+    id: eva105_dv 
+    entity_id: sensor.eva105_delta_cell_voltage
+    name: "eva105dv"
+    internal: true
+ # dV byd125
+  - platform: homeassistant
+    id: byd125_dv 
+    entity_id: sensor.byd125_delta_cell_voltage
+    name: "byd125dv"
+    internal: true
+ # dV env305
+  - platform: homeassistant
+    id: env305_dv 
+    entity_id: sensor.env305_delta_cell_voltage
+    name: "env305dv"
+    internal: true
+
+ # cell eva105
+  - platform: homeassistant
+    id: eva105_1 
+    entity_id: sensor.eva105_cell_voltage_1
+    name: "eva105_1"
+    internal: true
+  - platform: homeassistant
+    id: eva105_2 
+    entity_id: sensor.eva105_cell_voltage_2
+    name: "eva105_2"
+    internal: true
+  - platform: homeassistant
+    id: eva105_3 
+    entity_id: sensor.eva105_cell_voltage_3
+    name: "eva105_3"
+    internal: true
+  - platform: homeassistant
+    id: eva105_4
+    entity_id: sensor.eva105_cell_voltage_4
+    name: "eva105_4"
+    internal: true
+  - platform: homeassistant
+    id: eva105_5 
+    entity_id: sensor.eva105_cell_voltage_5
+    name: "eva105_5"
+    internal: true
+  - platform: homeassistant
+    id: eva105_6 
+    entity_id: sensor.eva105_cell_voltage_6
+    name: "eva105_6"
+    internal: true
+  - platform: homeassistant
+    id: eva105_7
+    entity_id: sensor.eva105_cell_voltage_7
+    name: "eva105_7"
+    internal: true
+  - platform: homeassistant
+    id: eva105_8 
+    entity_id: sensor.eva105_cell_voltage_8
+    name: "eva105_8"
+    internal: true
+  - platform: homeassistant
+    id: eva105_9 
+    entity_id: sensor.eva105_cell_voltage_9
+    name: "eva105_9"
+    internal: true
+  - platform: homeassistant
+    id: eva105_10
+    entity_id: sensor.eva105_cell_voltage_10
+    name: "eva105_10"
+    internal: true
+  - platform: homeassistant
+    id: eva105_11 
+    entity_id: sensor.eva105_cell_voltage_11
+    name: "eva105_11"
+    internal: true
+  - platform: homeassistant
+    id: eva105_12 
+    entity_id: sensor.eva105_cell_voltage_12
+    name: "eva105_12"
+    internal: true
+  - platform: homeassistant
+    id: eva105_13 
+    entity_id: sensor.eva105_cell_voltage_13
+    name: "eva105_13"
+    internal: true
+  - platform: homeassistant
+    id: eva105_14
+    entity_id: sensor.eva105_cell_voltage_14
+    name: "eva105_14"
+    internal: true
+  - platform: homeassistant
+    id: eva105_15
+    entity_id: sensor.eva105_cell_voltage_15
+    name: "eva105_15"
+    internal: true
+  - platform: homeassistant
+    id: eva105_16
+    entity_id: sensor.eva105_cell_voltage_16
+    name: "eva105_16"
+    internal: true
+
+ # cell byd125
+  - platform: homeassistant
+    id: byd125_1 
+    entity_id: sensor.byd125_cell_voltage_1
+    name: "byd125_1"
+    internal: true
+  - platform: homeassistant
+    id: byd125_2
+    entity_id: sensor.byd125_cell_voltage_2
+    name: "byd125_2"
+    internal: true
+  - platform: homeassistant
+    id: byd125_3
+    entity_id: sensor.byd125_cell_voltage_3
+    name: "byd125_3"
+    internal: true
+  - platform: homeassistant
+    id: byd125_4
+    entity_id: sensor.byd125_cell_voltage_4
+    name: "byd125_4"
+    internal: true
+  - platform: homeassistant
+    id: byd125_5
+    entity_id: sensor.byd125_cell_voltage_5
+    name: "byd125_5"
+    internal: true
+  - platform: homeassistant
+    id: byd125_6
+    entity_id: sensor.byd125_cell_voltage_6
+    name: "byd125_6"
+    internal: true
+  - platform: homeassistant
+    id: byd125_7
+    entity_id: sensor.byd125_cell_voltage_7
+    name: "byd125_7"
+    internal: true
+  - platform: homeassistant
+    id: byd125_8
+    entity_id: sensor.byd125_cell_voltage_8
+    name: "byd125_8"
+    internal: true
+  - platform: homeassistant
+    id: byd125_9
+    entity_id: sensor.byd125_cell_voltage_9
+    name: "byd125_9"
+    internal: true
+  - platform: homeassistant
+    id: byd125_10
+    entity_id: sensor.byd125_cell_voltage_10
+    name: "byd125_10"
+    internal: true
+  - platform: homeassistant
+    id: byd125_11
+    entity_id: sensor.byd125_cell_voltage_11
+    name: "byd125_11"
+    internal: true
+  - platform: homeassistant
+    id: byd125_12
+    entity_id: sensor.byd125_cell_voltage_12
+    name: "byd125_12"
+    internal: true
+  - platform: homeassistant
+    id: byd125_13
+    entity_id: sensor.byd125_cell_voltage_13
+    name: "byd125_13"
+    internal: true
+  - platform: homeassistant
+    id: byd125_14
+    entity_id: sensor.byd125_cell_voltage_14
+    name: "byd125_14"
+    internal: true
+  - platform: homeassistant
+    id: byd125_15
+    entity_id: sensor.byd125_cell_voltage_15
+    name: "byd125_15"
+    internal: true
+  - platform: homeassistant
+    id: byd125_16
+    entity_id: sensor.byd125_cell_voltage_16
+    name: "byd125_16"
+    internal: true
+ 
+ # cell env305
+  - platform: homeassistant
+    id: env305_1 
+    entity_id: sensor.env305_cell_voltage_1
+    name: "env305_1"
+    internal: true
+  - platform: homeassistant
+    id: env305_2
+    entity_id: sensor.env305_cell_voltage_2
+    name: "env305_2"
+    internal: true
+  - platform: homeassistant
+    id: env305_3
+    entity_id: sensor.env305_cell_voltage_3
+    name: "env305_3"
+    internal: true
+  - platform: homeassistant
+    id: env305_4
+    entity_id: sensor.env305_cell_voltage_4
+    name: "env305_4"
+    internal: true
+  - platform: homeassistant
+    id: env305_5
+    entity_id: sensor.env305_cell_voltage_5
+    name: "env305_5"
+    internal: true
+  - platform: homeassistant
+    id: env305_6
+    entity_id: sensor.env305_cell_voltage_6
+    name: "env305_6"
+    internal: true
+  - platform: homeassistant
+    id: env305_7
+    entity_id: sensor.env305_cell_voltage_7
+    name: "env305_7"
+    internal: true
+  - platform: homeassistant
+    id: env305_8
+    entity_id: sensor.env305_cell_voltage_8
+    name: "env305_8"
+    internal: true
+  - platform: homeassistant
+    id: env305_9
+    entity_id: sensor.env305_cell_voltage_9
+    name: "env305_9"
+    internal: true
+  - platform: homeassistant
+    id: env305_10
+    entity_id: sensor.env305_cell_voltage_10
+    name: "env305_10"
+    internal: true
+  - platform: homeassistant
+    id: env305_11
+    entity_id: sensor.env305_cell_voltage_11
+    name: "env305_11"
+    internal: true
+  - platform: homeassistant
+    id: env305_12
+    entity_id: sensor.env305_cell_voltage_12
+    name: "env305_12"
+    internal: true
+  - platform: homeassistant
+    id: env305_13
+    entity_id: sensor.env305_cell_voltage_13
+    name: "env305_13"
+    internal: true
+  - platform: homeassistant
+    id: env305_14
+    entity_id: sensor.env305_cell_voltage_14
+    name: "env305_14"
+    internal: true
+  - platform: homeassistant
+    id: env305_15
+    entity_id: sensor.env305_cell_voltage_15
+    name: "env305_15"
+    internal: true
+  - platform: homeassistant
+    id: env305_16
+    entity_id: sensor.env305_cell_voltage_16
+    name: "env305_16"
+    internal: true
+
+ # power total
+  - platform: homeassistant
+    id: bat_power
+    entity_id: sensor.bat_power
+    name: "jk_p"
+    internal: true

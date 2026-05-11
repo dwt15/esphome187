@@ -1,0 +1,82 @@
+sensor: 
+ # cell eva105
+  - platform: homeassistant
+    id: eva105_1 
+    entity_id: sensor.eva105_cell_voltage_1
+    name: "eva105_1"
+    internal: true
+  - platform: homeassistant
+    id: eva105_2 
+    entity_id: sensor.eva105_cell_voltage_2
+    name: "eva105_2"
+    internal: true
+  - platform: homeassistant
+    id: eva105_3 
+    entity_id: sensor.eva105_cell_voltage_3
+    name: "eva105_3"
+    internal: true
+  - platform: homeassistant
+    id: eva105_4
+    entity_id: sensor.eva105_cell_voltage_4
+    name: "eva105_4"
+    internal: true
+  - platform: homeassistant
+    id: eva105_5 
+    entity_id: sensor.eva105_cell_voltage_5
+    name: "eva105_5"
+    internal: true
+  - platform: homeassistant
+    id: eva105_6 
+    entity_id: sensor.eva105_cell_voltage_6
+    name: "eva105_6"
+    internal: true
+  - platform: homeassistant
+    id: eva105_7
+    entity_id: sensor.eva105_cell_voltage_7
+    name: "eva105_7"
+    internal: true
+  - platform: homeassistant
+    id: eva105_8 
+    entity_id: sensor.eva105_cell_voltage_8
+    name: "eva105_8"
+    internal: true
+  - platform: homeassistant
+    id: eva105_9 
+    entity_id: sensor.eva105_cell_voltage_9
+    name: "eva105_9"
+    internal: true
+  - platform: homeassistant
+    id: eva105_10
+    entity_id: sensor.eva105_cell_voltage_10
+    name: "eva105_10"
+    internal: true
+  - platform: homeassistant
+    id: eva105_11 
+    entity_id: sensor.eva105_cell_voltage_11
+    name: "eva105_11"
+    internal: true
+  - platform: homeassistant
+    id: eva105_12 
+    entity_id: sensor.eva105_cell_voltage_12
+    name: "eva105_12"
+    internal: true
+  - platform: homeassistant
+    id: eva105_13 
+    entity_id: sensor.eva105_cell_voltage_13
+    name: "eva105_13"
+    internal: true
+  - platform: homeassistant
+    id: eva105_14
+    entity_id: sensor.eva105_cell_voltage_14
+    name: "eva105_14"
+    internal: true
+  - platform: homeassistant
+    id: eva105_15
+    entity_id: sensor.eva105_cell_voltage_15
+    name: "eva105_15"
+    internal: true
+  - platform: homeassistant
+    id: eva105_16
+    entity_id: sensor.eva105_cell_voltage_16
+    name: "eva105_16"
+    internal: true

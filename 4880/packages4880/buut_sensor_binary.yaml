@@ -1,0 +1,92 @@
+binary_sensor:
+ # Obj LVGL
+  # button
+   # butt_01 бойлер 1
+    - platform: lvgl           # ${butt_01n} name для Home Assistant
+      widget: butt_01    
+      name: ${butt_01n}b   
+    - platform: homeassistant  #  <butt_01s> состояние свича от Home Assistant  
+      id: butt_01s               
+      entity_id: ${butt_01s}
+      internal: true
+   # butt_02 бойлер 2
+    - platform: lvgl           # ${butt_02n} name для Home Assistant
+      widget: butt_02    # 
+      name: ${butt_02n}b  #     
+    - platform: homeassistant  #  <butt_02s> состояние свича от Home Assistant  
+      id: butt_02s               
+      entity_id: ${butt_02s}
+      internal: true
+   # butt_03 мотор 1
+    - platform: lvgl           # ${butt_03n} name для Home Assistant
+      widget: butt_03    # 
+      name: ${butt_03n}b  #
+    - platform: homeassistant  #  <butt_03s> состояние свича от Home Assistant  
+      id: butt_03s               
+      entity_id: ${butt_03s}
+      internal: true
+   # butt_04 мотор 2
+    - platform: lvgl           # ${butt_04n} name для Home Assistant
+      widget: butt_04    # 
+      name: ${butt_04n}b  #
+    - platform: homeassistant  #  <butt_04s> состояние свича от Home Assistant  
+      id: butt_04s               
+      entity_id: ${butt_04s}
+      internal: true
+   # butt_05 котел газ
+    - platform: lvgl           # ${butt_05n} name для Home Assistant
+      widget: butt_05    # 
+      name: ${butt_05n}b  #
+    - platform: homeassistant  #  <butt_05s> состояние свича от Home Assistant  
+      id: butt_05s               
+      entity_id: ${butt_05s}
+      internal: true
+   # butt_06 свет погреб
+    - platform: lvgl           # ${butt_06n} name для Home Assistant
+      widget: butt_06    # 
+      name: ${butt_06n}b  #
+    - platform: homeassistant  #  <butt_06s> состояние свича от Home Assistant  
+      id: butt_06s               
+      entity_id: ${butt_06s}
+      internal: true
+   # butt_07 свет гараж
+    - platform: lvgl           # ${butt_07n} name для Home Assistant
+      widget: butt_07    # 
+      name: ${butt_07n}b  #
+    - platform: homeassistant  #  <butt_07s> состояние свича от Home Assistant  
+      id: butt_07s               
+      entity_id: ${butt_07s}
+      internal: true
+   # butt_08 свет ВХОД 2
+    - platform: lvgl           # ${butt_08n} name для Home Assistant
+      widget: butt_08    # 
+      name: ${butt_08n}b  #
+    - platform: homeassistant  #  <butt_08s> состояние свича от Home Assistant  
+      id: butt_08s               
+      entity_id: ${butt_08s}
+      internal: true
+   # butt_09 свет сарай
+    - platform: lvgl           # ${butt_09n} name для Home Assistant
+      widget: butt_09    # 
+      name: ${butt_09n}b  #
+    - platform: homeassistant  #  <butt_09s> состояние свича от Home Assistant  
+      id: butt_09s               
+      entity_id: ${butt_09s}
+      internal: true
+   # butt_10 тест rz09
+    - platform: lvgl           # ${butt_10n} name для Home Assistant
+      widget: butt_10    # 
+      name: ${butt_10n}b  #
+    - platform: homeassistant  #  <butt_10s> состояние свича от Home Assistant  
+      id: butt_10s               
+      entity_id: ${butt_10s}
+      internal: true
+   # butt_11 deye
+    - platform: lvgl           # ${butt_11n} name для Home Assistant
+      widget: butt_11    # 
+      name: ${butt_11n}b  #
+    - platform: homeassistant  #  <butt_11s> состояние свича от Home Assistant  
+      id: butt_11s               
+      entity_id: ${butt_11s}   
+      internal: true
+   #--------------------------------

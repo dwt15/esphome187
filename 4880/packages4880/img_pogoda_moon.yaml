@@ -1,0 +1,178 @@
+image:
+ # Edid helper    
+  - file: "/config/esphome/img/4880/icon_humi.png"   
+    resize: 64x64
+    type: RGB565
+    id: img_e1 # 
+  - file: "/config/esphome/img/4880/icon_humi.png"   
+    resize: 64x64
+    type: RGB565
+    id: img_e2 # 
+  - file: "/config/esphome/img/4880/icon_humi.png"   
+    resize: 64x64
+    type: RGB565
+    id: img_e3 # 
+  - file: "/config/esphome/img/4880/icon_humi.png"   
+    resize: 64x64
+    type: RGB565
+    id: img_e4 # 
+  - file: "/config/esphome/img/4880/icon_humi.png"   
+    resize: 64x64
+    type: RGB565
+    id: img_e5 # 
+  - file: "/config/esphome/img/4880/icon_humi.png"   
+    resize: 64x64
+    type: RGB565
+    id: img_e6 # 
+
+ # Pogoda 
+
+  - file: "/config/esphome/4880/image/icon_humi.png"   
+    resize: 24x24
+    type: RGB565
+    id: icon_humi #
+
+  
+  - file: "/config/esphome/4880/image/icon_oblako.png"  # bush cloud_242
+    resize: 24x24
+    type: RGB565
+    id: icon_oblako #   
+
+  - file: "/config/esphome/4880/image/img_windy.png"  # bush cloud_242
+    resize: 24x24
+    type: RGB565
+    id: icon_windy #  
+ 
+  - file: "/config/esphome/4880/image/img_hurricane.png"   
+    resize: 40x40
+    type: RGB565
+    id: my_img1 # hurricane циклон
+
+  - file: "/config/esphome/4880/image/img_termometr.png"   
+    resize: 50x50
+    type: RGB565
+    id: img_term1 # иконка термометр
+
+  - file: "/config/esphome/4880/image/img_viter.png"  
+    type: RGB565
+    resize: 64x64
+    id: img_viter # указатель направления ветра 
+ 
+ # status pogoda    
+  
+  - file: "/config/esphome/4880/image/img_partlycloudy.png"  
+    resize: 64x64
+    type: RGB565
+    id: img_partlycloudy # partlycloudy переменная облачность
+
+  - file: "/config/esphome/4880/image/img_rain.png"  
+    resize: 64x64
+    type: RGB565
+    id: img_rainy #  rainy     
+
+  - file: "/config/esphome/4880/image/img_clear_night.png"  
+    resize: 64x64
+    type: RGB565
+    id: img_clear_night # clear-night ясная ночь
+ 
+  - file: "/config/esphome/4880/image/img_cloudy.png"  
+    type: RGB565
+    resize: 64x64
+    id: img_cloudy # cloudy облачно     
+
+  - file: "/config/esphome/4880/image/img_fog.png"  
+    resize: 64x64
+    type: RGB565
+    id: img_fog # fog туман
+
+  - file: "/config/esphome/4880/image/img_sunny.png"  
+    resize: 64x64
+    type: RGB565
+    id: img_sunny  #  sunny
+
+  - file: "/config/esphome/4880/image/img_lightning.png"  
+    resize: 64x64
+    type: RGB565
+    id: img_lightning # 
+ 
+  - file: "/config/esphome/4880/image/img_lightning_rainy.png"  
+    resize: 64x64
+    type: RGB565
+    id: img_lightning_rainy #  
+ 
+  - file: "/config/esphome/4880/image/img_pouring.png"   
+    resize: 64x64
+    type: RGB565
+    id: img_pouring # 
+
+  - file: "/config/esphome/4880/image/img_snowy.png" 
+    resize: 64x64
+    type: RGB565
+    id: img_snowy # 
+
+  - file: "/config/esphome/4880/image/img_hail.png"  
+    resize: 64x64
+    type: RGB565
+    id: img_hail #
+
+  - file: "/config/esphome/4880/image/img_snowy_rainy.png"  
+    resize: 64x64
+    type: RGB565
+    id: img_snowy_rainy #
+
+  - file: "/config/esphome/4880/image/img_windy.png"  
+    resize: 64x64
+    type: RGB565
+    id: img_windy # 
+
+  - file: "/config/esphome/4880/image/img_windy_variant.png"  
+    resize: 64x64
+    type: RGB565
+    id: img_windy_variant #
+
+  - file: "/config/esphome/4880/image/img_exceptional.png"  
+    resize: 64x64
+    type: RGB565
+    id: img_exceptional # #
+
+ # moon
+  
+  - file: "/config/esphome/4880/image/moon_new.png" #  новая
+    resize: 50x50
+    type: RGB565
+    id: img_moon_new # moon 
+ 
+  - file: "/config/esphome/4880/image/moon_waxing_crescent.png" #  растущий серп / угасаущий серп перевернуть
+    resize: 50x50
+    type: RGB565
+    id: img_moon_waxing_crescent # moon-waxing-crescent  растущий серп
+ 
+  - file: "/config/esphome/4880/image/moon_first_quarter.png" #  1 четверть  
+    resize: 50x50
+    type: RGB565
+    id: img_moon_first_quarter # moon-first-quarter 
+ 
+  - file: "/config/esphome/4880/image/moon_waxing_gibbous.png" # pастущий горб
+    resize: 50x50
+    type: RGB565
+    id: img_moon_waxing_gibbous #  
+ 
+  - file: "/config/esphome/4880/image/moon_full.png" # полная луна 
+    resize: 50x50
+    type: RGB565
+    id: img_moon_full # moon-full
+ 
+  - file: "/config/esphome/4880/image/moon_waning_gibbous.png" # угасающий горб
+    resize: 50x50
+    type: RGB565
+    id: img_moon_waning_gibbous #  
+ 
+  - file: "/config/esphome/4880/image/moon_last_quarter.png" #  последняя четверть  
+    resize: 50x50
+    type: RGB565
+    id: img_moon_last_quarter # moon-   
+
+  - file: "/config/esphome/4880/image/moon_waning_crescent.png" #   угасаущий серп перевернуть
+    resize: 50x50
+    type: RGB565
+    id: img_moon_waning_crescent # moon 

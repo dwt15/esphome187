@@ -1,0 +1,291 @@
+sensor:
+ # --- Zigbee ------------------
+ # ph1
+  - platform: homeassistant
+    entity_id: sensor.z2_ph1_power
+    id: z2_ph1_power    
+    name: "ph1_p"
+    internal: true
+ # rz1
+  - platform: homeassistant
+    entity_id: sensor.z2_rz1_power
+    id: rz1_power    
+    name: "rz1_p"
+    internal: true
+ # rz2
+  - platform: homeassistant
+    id: rz2_power
+    entity_id: sensor.z2_rz2_power
+    name: "rz2_p"
+    internal: true
+ # -
+  - platform: homeassistant
+    id: rz2_last_seen
+    entity_id: sensor.z2_rz2_last_seen
+    name: "rz3_p"
+    internal: true
+ # rz3
+  - platform: homeassistant
+    id: rz3_power
+    entity_id: sensor.z2_rz3_power
+    name: "rz3_p"
+    internal: true
+ # rz4
+  - platform: homeassistant
+    id: rz4_power
+    entity_id: sensor.z2_rz4_power
+    name: "rz4_p"
+    internal: true
+ # rz5
+  - platform: homeassistant
+    id: rz5_power
+    entity_id: sensor.z2_rz5_power
+    name: "rz5_p"
+    internal: true
+ # rz6
+  - platform: homeassistant
+    id: rz6_power
+    entity_id: sensor.z2_rz6_power
+    name: "rz6_p"
+    internal: true
+ # rz7
+  - platform: homeassistant
+    id: rz7_power
+    entity_id: sensor.z2_rz7_power
+    name: "rz7_p"
+    internal: true
+ # rz8
+  - platform: homeassistant
+    id: rz8_power
+    entity_id: sensor.z2_rz8_power
+    name: "rz8_p"
+    internal: true
+ # rz9
+  - platform: homeassistant
+    id: rz9_power
+    entity_id: sensor.z2_rz9_power
+    name: "rz9_p"
+    internal: true
+ # sw5 
+  - platform: homeassistant
+    id: sw5_power
+    entity_id: sensor.z2_sw5_power
+    name: "sw5_p"
+    internal: true
+  # 
+binary_sensor:
+ # --- Zigbee -----------------
+ # se датчики открытия
+  # se1 окно кухня
+  - platform: homeassistant
+    id: z2_se1
+    entity_id: binary_sensor.z2_se1_contact
+    name: "se1"
+    internal: true
+  # se2 окно спальня
+  - platform: homeassistant
+    id: z2_se2
+    entity_id: binary_sensor.z2_se2_contact
+    name: "se2"
+    internal: true
+  # se3 окно зал
+  - platform: homeassistant
+    id: z2_se3
+    entity_id: binary_sensor.z2_se3_contact
+    name: "se3"
+    internal: true
+  # se4 окно прихожая
+  - platform: homeassistant
+    id: z2_se4
+    entity_id: binary_sensor.z2_se4_contact
+    name: "se4"
+    internal: true
+  # se5 окно детская
+  - platform: homeassistant
+    id: z2_se5
+    entity_id: binary_sensor.z2_se5_contact
+    name: "se5"
+    internal: true
+  # se6 дверь вход 1
+  - platform: homeassistant
+    id: z2_se6
+    entity_id: binary_sensor.z2_se6_contact
+    name: "se6"
+    internal: true
+  # se7 дверь серая
+  - platform: homeassistant
+    id: z2_se7
+    entity_id: binary_sensor.z2_se7_contact
+    name: "se7"
+    internal: true
+  # se8 окно 2 этаж
+  - platform: homeassistant
+    id: z2_se8
+    entity_id: binary_sensor.z2_se8_contact
+    name: "se8"
+    internal: true
+  # se9 дверь 2 этаж 1
+  - platform: homeassistant
+    id: z2_se9
+    entity_id: binary_sensor.z2_se9_contact
+    name: "se9"
+    internal: true
+  # se10 окно лесенка
+  - platform: homeassistant
+    id: z2_se10
+    entity_id: binary_sensor.z2_se10_contact
+    name: "se10"
+    internal: true
+  # se11 дверь вход 2 
+  - platform: homeassistant
+    id: z2_se11
+    entity_id: binary_sensor.z2_se11_contact
+    name: "se11"
+    internal: true
+  # se12 ------ 
+  - platform: homeassistant
+    id: z2_se12
+    entity_id: binary_sensor.z2_se12_contact
+    name: "se12"
+    internal: true
+  # seb1 дверь подвал - гараж 
+  - platform: homeassistant
+    id: z2_seb1
+    entity_id: binary_sensor.z2_seb1_contact
+    name: "seb1"
+    internal: true
+  # seb2 дверь подвал - погреб
+  - platform: homeassistant
+    id: z2_seb2
+    entity_id: binary_sensor.z2_seb2_contact
+    name: "seb2"
+    internal: true
+ # SW включатели  
+  # sw2 свет погреб
+  - platform: homeassistant
+    id: sw2_swich
+    entity_id: switch.z2_sw2 # свет погреб
+    name: "sw2"
+    internal: true  
+  # sw5 чайник+холод+микроволновка
+  - platform: homeassistant
+    id: sw5_swich
+    entity_id: switch.z2_sw5 # чайник+холод+микроволновка
+    name: "sw5"
+    internal: true    
+  # sw6 свет гараж
+  - platform: homeassistant
+    id: sw6_swich
+    entity_id: switch.z2_sw6  #
+    name: "sw6"
+    internal: true
+  # sw8 свет коридор
+  - platform: homeassistant
+    id: sw8_swich
+    entity_id: switch.z2_sw8  #
+    name: "sw8"
+    internal: true 
+ 
+ # rz розетки
+  # rz1
+  - platform: homeassistant
+    id: rz1_swich
+    entity_id: switch.z2_rz1
+    name: "rz2_p"
+    internal: true
+  # rz2
+  - platform: homeassistant
+    id: rz2_swich
+    entity_id: switch.z2_rz2
+    name: "rz2_p"
+    internal: true
+  # rz3
+  - platform: homeassistant
+    id: rz3_swich
+    entity_id: switch.z2_rz3
+    name: "rz3_p"
+    internal: true
+  # rz4
+  - platform: homeassistant
+    id: rz4_swich
+    entity_id: switch.z2_rz4
+    name: "rz4_p"
+    internal: true
+  # rz5
+  - platform: homeassistant
+    id: rz5_swich
+    entity_id: switch.z2_rz5
+    name: "rz5_p"
+    internal: true
+  # rz6
+  - platform: homeassistant
+    id: rz6_swich
+    entity_id: switch.z2_rz6
+    name: "rz6_p"
+    internal: true
+  # rz7
+  - platform: homeassistant
+    id: rz7_swich
+    entity_id: switch.z2_rz7
+    name: "rz7_p"
+    internal: true
+  # rz8
+  - platform: homeassistant
+    id: rz8_swich
+    entity_id: switch.z2_rz8
+    name: "rz8_p"
+    internal: true
+  # rz9
+  - platform: homeassistant
+    id: rz9_swich
+    entity_id: switch.z2_rz9
+    name: "rz9_p"
+    internal: true  
+    
+# сенсоры для кнопочной формы
+  - platform: homeassistant
+    id: seln_0 
+    entity_id: ${seln0}
+    name: "seln_0"
+    internal: true
+  - platform: homeassistant
+    id: seln_1 
+    entity_id: ${seln1}
+    name: "seln_1"
+    internal: true
+  - platform: homeassistant
+    id: seln_2 
+    entity_id: ${seln2}
+    name: "seln_2"
+    internal: true
+  - platform: homeassistant
+    id: seln_3 
+    entity_id: ${seln3}
+    name: "seln_3"
+    internal: true
+  - platform: homeassistant
+    id: seln_4 
+    entity_id: ${seln4}
+    name: "seln_4"
+    internal: true
+  - platform: homeassistant
+    id: seln_5 
+    entity_id: ${seln5}
+    name: "seln_5"
+    internal: true
+  - platform: homeassistant
+    id: seln_6 
+    entity_id: ${seln6}
+    name: "seln_6"
+    internal: true
+  - platform: homeassistant
+    id: seln_7 
+    entity_id: ${seln7}
+    name: "seln_7"
+    internal: true
+  - platform: homeassistant
+    id: seln_8 
+    entity_id: ${seln8}
+    name: "seln_8"
+    internal: true 
+    

@@ -1,0 +1,2283 @@
+ # set: esphome, esp32, logger, api, ota, wifi img_snowy
+  esphome:
+    name: display6
+    friendly_name: display6
+    comment: "Кухн холод температура" 
+    on_boot:
+      priority: -100
+      then:
+        - output.turn_on: led_dsp
+        - output.turn_on: led_red
+        - output.turn_on: led_grn
+        - output.turn_on: led_blu
+        - rtttl.play: ${beep1}  
+   #- - - - - - - - - - - - - - - - - - -      
+  esp32:
+    board: esp32dev
+    framework:
+      type: esp-idf
+      advanced:
+        minimum_chip_revision: "3.1"     
+   #- - - - - - - - - - - - - - - - - - -   
+  logger:
+   #- - - - - - - - - - - - - - - - - - -   
+  api:
+    encryption:
+      key: "E01HN/7VZrFHRG3rMDuGmIj2WdDNpwNo4KhDwV1Z83s="
+   #- - - - - - - - - - - - - - - - - - -   
+  ota:
+    platform: esphome
+    password: "ca3568e846d668143bce44f6174dd397"
+   #- - - - - - - - - - - - - - - - - - -   
+  wifi:
+    id: wifi_component
+    ssid: !secret wifi_ssid
+    password: !secret wifi_password
+    on_connect:
+      - script.execute: update_net_status
+    on_disconnect:
+      - script.execute: update_net_status
+   #- - - - - - - - - - - - - - - - - - -   
+
+ #subst: icon, pin, buzzer,var, plan, lvgl 
+  substitutions: 
+      com1: "Кухня холодильник"
+  #icon:
+      cog:                           "\U000F08BB"  #  cog-outline
+      close_co:                      "\U000F015A"  #close-circle-outline         
+      car:                           "\U000F07A9"  # mdi-car-hatchback          ГАРАЖ      
+      coach_lamp:                    "\U000F1020"  # mdi-coach-lamp             Сарай улица        
+      download:                      "\U000F01DA"  # mdi-download               ПОГРЕБ2 
+
+      fan_1:                         "\U000F1472"  # mdi-fan-speed-1  Моторчик 1
+      fan_2:                         "\U000F1473"  # mdi-fan-speed-2  Моторчик 2      
+      fonar:                         "\U000F1987"  # light-flood-down      
+      fonar2:                        "\U000F0914"  # track-light 
+      fonar3:                        "\U000F091D"  # wall-sconce-flat        
+      fire:                          "\U000F0238"  # mdi-fire        
+      home_f1:                       "\U000F0D80"  # mdi-home-floor-1           ВХОД 1  
+      home_f2:                       "\U000F0D81"  # mdi-home-floor-2           ВХОД 2      
+      lan_connect:                   "\U000F0318" 
+      lan_disconnect:                "\U000F0319"       
+      lightbulb_on:                  "\U000F06E8"      
+      mdi_heart:                     "\U000F02D1"  
+      mdi_airplane_landing:          "\U000F05D4" 
+      mdi_solar_panel:               "\U000F0D9B"  
+      mdi_transmission_tower_export: "\U000F192C"  
+      mdi_car_battery:               "\U000F010C" 
+      mdi_flash:                     "\U000F0241"             
+      mdi_coolant_temperature:       "\U000F03C8"  
+      minus_box_outline:             "\U000F06F2"
+      next:                          "\U000F00E8"  #  cached
+      plus_box_outline:              "\U000F0704"
+      wall_sconce_round:             "\U000F0748"  #
+      wifi_off:                      "\U000F05AA"   
+   
+   #- - - - - - - - - - - - - - - - - - -   
+  #pin:
+    #display esp32 240x320
+      pin_dsp_cs: 15 
+      pin_dsp_dc: 2     
+      pin_dsp_ld: 21
+    #touch:
+      pin_touch_sc: 33    
+    #output: led
+      pin_led_red: 4
+      pin_led_grn: 16    
+      pin_led_blu: 17     
+    #spi:
+      #display
+      pin_spi0_clk:  14 
+      pin_spi0_mosi: 13 
+      pin_spi0_miso: 12
+     #touch
+      pin_spi1_clk:  25
+      pin_spi1_mosi: 32    
+      pin_spi1_miso: 39      
+
+    #uart: ld2420
+      pin_uart_tx:  18 # 
+      pin_uart_rx:  17 # 
+    #one_wire :
+      pin_one_wire: 27
+    #rtttl
+      pin_rtttl:    26 #
+     #light
+      pin_light: 34    
+    
+    #- - - - - - - - - - - - - - - - - - -    
+  #rtttl:
+       
+      beep1: "b:d=32,o=7,b=200: g#"
+      beep2: "b:d=32,o=6,b=200: a#"
+  #sensor:
+    #temperatura
+      sn_tmrt1_adr:  "0x463ce1e381d6c428"             # adress dallas 1820b
+      sn_tmrt1_name: "temperature1"
+      sn_tmrt2_adr:  "0x433ceff64977c828 "            # adress dallas 1820b     
+      sn_tmrt2_name: "temperature2"   
+      sn_tmrt3_ha:   "sensor.display7_temperature4"    # sensor homeassistant
+      sn_tmrt4_ha:   "sensor.display7_temperature1"    # sensor homeassistant
+      sn_tmrt5_ha:   "sensor.display7_temperature5"    # sensor homeassistant
+      sn_tmrt6_ha:   "sensor.display7_temperature2"    # sensor homeassistant
+
+    #rz:      
+     #gas
+      sn_gas_online: "binary_sensor.z2_rz12_online"  # котел горелка
+      sn_gas_switch: "switch.z2_rz12"             # 
+      sn_gas_power:  "sensor.z2_rz12_power"       #
+     #motor1
+      sn_mtr1_online: "binary_sensor.z2_rz13_online"  # моторчик 1
+      sn_mtr1_switch: "switch.z2_rz13"             # 
+      sn_mtr1_power:  "sensor.z2_rz13_power"       #
+     #motor2
+      sn_mtr2_online: "binary_sensor.z2_rz14_online"  # моторчи 2 второй этаж
+      sn_mtr2_switch: "switch.z2_rz14"             # 
+      sn_mtr2_power:  "sensor.z2_rz14_power"       #
+    #sw:
+     #1 Сарай улица
+      sn_sw01_swt: "switch.z2_sv01"              #
+      sn_sw01_ava: "binary_sensor.z2_s01_online" 
+     #2 Погреб
+      sn_sw02_swt: "switch.z2_sv02"
+      sn_sw02_ava: "binary_sensor.z2_sv02_online" #      
+     #3 Коридрч
+      sn_sw03_swt: "switch.z2_sv05_left"
+      sn_sw03_ava: "binary_sensor.z2_sv05_online"     
+     #4 ВХОД1
+      sn_sw04_swt: "switch.z2_sv05_right"
+      sn_sw04_ava: "binary_sensor.z2_sv05_online" 
+    #5 Дежурн
+      sn_sw05_swt: "switch.z2_sv25"
+      sn_sw05_ava: "binary_sensor.z2_sv25_online" 
+     #6 Гараж
+      sn_sw06_swt: "switch.z2_sv06"
+      sn_sw06_ava: "binary_sensor.z2_sv06_online" #     
+     #7 ВХОД2
+      sn_sw07_swt: "switch.z2_sv07"
+      sn_sw07_ava: "binary_sensor.ava_z2_sv07_online"        
+     #8 Яблоня
+      sn_sw08_swt: "switch.z2_sv11"
+      sn_sw08_ava: "binary_sensor.z2_sv11_online"       
+    #- - - - - - - - - - - - - - - - - - - 
+   
+   
+  #lvgl:
+   #top_time:
+      tp_obj_wi: 215
+      tp_obj_he: 60
+      tp_obj_px: 0   
+      tp_obj_py: 179     
+      tp_obj_color_bg: 0x000000
+      tp_time_hm_x: -19
+      tp_time_hm_y: 30
+      tp_time_sc_x: 11
+      tp_time_sc_y: -22 #15     
+      tp_time_color: 0x009000
+      tp_time_font_sc: "RobotoCondensed_Regular_25"  #"RobotoCondensed_Regular_35" # 
+      tp_time_font_hm: "RobotoCondensed_Medium_80"  # hh mm     
+   #pg_main:
+    #butt
+      main_but_dy: 5
+     #tmrt
+      main_tmrt_but_wi: 103
+      main_tmrt_but_he: 80           
+      main_tmrt_but_colr_bg: 0x000000  # цвет внешнего контура
+      main_tmrt_but_colr_bd: 0x0000f0  # 
+      main_tmrt_but_x0: 0
+      main_tmrt_but_y0: 0
+      main_tmrt_but_dx: 5     
+       #main_tmrt_but_dy: 5     
+      #name
+      main_tmrt_but_nam_colr: 0x006000
+      main_tmrt_but_nam_font: "RobotoCondensed_Regular_16" 
+      main_tmrt_but_nam_x: 5  
+      main_tmrt_but_nam_y: 3        
+      #temperature
+       #int
+      main_tmrt_but_tth_colr: 0x0040f0
+      main_tmrt_but_tth_font: "RobotoCondensed_Medium_50"      
+      main_tmrt_but_tth_x: -21  
+      main_tmrt_but_tth_y:  1    
+       #dec
+      main_tmrt_but_ttl_colr: 0x002080
+      main_tmrt_but_ttl_font: "RobotoCondensed_Regular_25"      
+      main_tmrt_but_ttl_x: -7   
+      main_tmrt_but_ttl_y: -7      
+     #but1
+      main_tmrt_but1_tr: "temperature1"
+      main_tmrt_but1_n: "Холодильник"
+      main_tmrt_but1_x: ${main_tmrt_but_x0 + 0 * (main_tmrt_but_wi + main_tmrt_but_dx) }
+      main_tmrt_but1_y: ${main_tmrt_but_y0  }
+      
+      #but2
+      main_tmrt_but2_tr: "temperature2"
+      main_tmrt_but2_n: "Морозилка Х"
+      main_tmrt_but2_x: ${main_tmrt_but_x0 + 1 * (main_tmrt_but_wi + main_tmrt_but_dx) }    
+      main_tmrt_but2_y: ${main_tmrt_but_y0  }          
+      #but3
+      main_tmrt_but3_tr: ${sn_tmrt3_ha}
+      main_tmrt_but3_n: "Морозилка К"
+      main_tmrt_but3_x:  ${main_tmrt_but_x0 + 2 * (main_tmrt_but_wi + main_tmrt_but_dx) }     
+      main_tmrt_but3_y:  ${main_tmrt_but_y0  }   
+    #kotel 
+     #butt
+      main_kotl_but_wi: 103
+      main_kotl_but_he: 80      
+      main_kotl_but_colr_bg:    0x000000  # 
+      main_kotl_but_colr_bg_on: 0x000020    #  
+      main_kotl_but_colr_bg_pw: 0x300000   #     
+      main_kotl_but_colr_bd:    0x504838 #0x0000f0  # 
+      main_kotl_but_colr_bd_on: 0xf0f000  #       
+      main_kotl_but_colr_bd_er: 0xff0000  #       
+      main_kotl_but_x0: 0
+      main_kotl_but_y0: 0
+      main_kotl_but_dx: 5     
+       #main_kotl_but_dy: 5     
+      #name:
+      main_kotl_but_nam_colr: 0x006000
+      main_kotl_but_nam_font: "RobotoCondensed_Regular_16" 
+      main_kotl_but_nam_x: 5  
+      main_kotl_but_nam_y: 3       
+      #icon:
+      main_kotl_but_icn_x: -4
+      main_kotl_but_icn_y:  0    
+      main_kotl_but_colr_ic:    0x404000
+      main_kotl_but_colr_ic_er: 0x000000
+      main_kotl_but_icn_font: "icon_34"       
+      #temperature:
+      main_kotl_but_tth_colr: 0x008000
+      main_kotl_but_tth_font: "RobotoCondensed_Medium_50"         
+      main_kotl_but_tth_x: -21
+      main_kotl_but_tth_y:  5
+      main_kotl_but_ttl_colr: 0x006000
+      main_kotl_but_ttl_font: "RobotoCondensed_Regular_25"      
+      main_kotl_but_ttl_x: -7
+      main_kotl_but_ttl_y: -2        
+     #1
+      main_kotl_but1_nm: "Мотор1"
+      main_kotl_but1_ic: "${fan_1}"     
+      main_kotl_but1_tr: ${sn_tmrt4_ha} # temperature
+      main_kotl_but1_ss: ${sn_mtr1_switch}               # switch 
+      main_kotl_but1_sa: ${sn_mtr1_online}               # online      
+      main_kotl_but1_sp: ${sn_mtr1_power}                # power        
+      main_kotl_but1_x: ${main_tmrt_but_x0 + 0 * (main_tmrt_but_wi + main_tmrt_but_dx) }
+      main_kotl_but1_y: ${main_tmrt_but_y0 + 1 * (main_tmrt_but_he + main_but_dy) }
+      
+      #2
+      main_kotl_but2_nm: "Мотор2"
+      main_kotl_but2_ic: "${fan_2}"       
+      main_kotl_but2_tr: ${sn_tmrt5_ha} # temperature
+      main_kotl_but2_ss: ${sn_mtr2_switch}               # switch 
+      main_kotl_but2_sa: ${sn_mtr2_online}               # online      
+      main_kotl_but2_sp: ${sn_mtr2_power}                # power        
+      main_kotl_but2_x: ${main_tmrt_but_x0 + 1 * (main_tmrt_but_wi + main_tmrt_but_dx) }
+      main_kotl_but2_y: ${main_tmrt_but_y0 + 1 * (main_tmrt_but_he + main_but_dy) }      
+      #3
+      main_kotl_but3_nm: "Горелка"
+      main_kotl_but3_ic: "${fire}"       
+      main_kotl_but3_tr: ${sn_tmrt6_ha} # temperature
+      main_kotl_but3_ss: ${sn_gas_switch}               # switch 
+      main_kotl_but3_sa: ${sn_gas_online}               # online      
+      main_kotl_but3_sp: ${sn_gas_power}                # power        
+      main_kotl_but3_x: ${main_tmrt_but_x0 + 2 * (main_tmrt_but_wi + main_tmrt_but_dx) }
+      main_kotl_but3_y: ${main_tmrt_but_y0 + 1 * (main_tmrt_but_he + main_but_dy) }    
+   #pg_svet: 
+    #but: 
+      svet_but_wi: 76
+      svet_but_he: 80      
+      svet_but_colr_bg:    0x000000
+      svet_but_colr_bg_on: 0x500000
+      svet_but_colr_bg_er: 0x000000  
+      svet_but_colr_bd:    0x504838
+      svet_but_colr_bd_on: 0x808000
+      svet_but_colr_bd_er: 0x00000   
+      svet_but_colr_ic:    0x504838
+      svet_but_colr_ic_on: 0x606000
+      svet_but_colr_ic_er: 0x600060   
+      svet_but_colr_nm:    0x008000
+      svet_but_colr_nm_on: 0x000000   
+      svet_but_colr_nm_er: 0x000000    
+      svet_but_font_ic:    "icon_65"
+      svet_but_font_nm:    "RobotoCondensed_Regular_16"
+
+      svet_but_x0: 0
+      svet_but_y0: 0      
+      svet_but_dx: 5
+      svet_but_dy: 5      
+      
+      svet_but_ic_x: 5
+      svet_but_ic_y: 15     
+      svet_but_nm_x: 5
+      svet_but_nm_y: 3      
+    # 
+      #h1
+      svet_but1_ic: "${home_f1}"
+      svet_but1_nm: "Вход-1"      
+      svet_but1_st: "${sn_sw04_swt}"
+      svet_but1_sa: "${sn_sw04_ava}"
+      svet_but1_x: ${svet_but_x0 + 0*(svet_but_wi + svet_but_dx)}
+      svet_but1_y: ${svet_but_y0 }
+      #h2
+      svet_but2_ic: "${wall_sconce_round}"
+      svet_but2_nm: "Дежурка"      
+      svet_but2_st: "${sn_sw05_swt}"
+      svet_but2_sa: "${sn_sw05_ava}"
+      svet_but2_x: ${svet_but_x0 + 1*(svet_but_wi + svet_but_dx)}
+      svet_but2_y: ${svet_but_y0 }
+      #h3
+      svet_but3_ic: "${home_f2}"
+      svet_but3_nm: "Вход-2"      
+      svet_but3_st: "${sn_sw07_swt}"
+      svet_but3_sa: "${sn_sw07_ava}"
+      svet_but3_x: ${svet_but_x0 + 2*(svet_but_wi + svet_but_dx)}
+      svet_but3_y: ${svet_but_y0 }
+      #h4
+      svet_but4_ic: "${fonar3}"
+      svet_but4_nm: "Сарай"      
+      svet_but4_st: "${sn_sw01_swt}"
+      svet_but4_sa: "${sn_sw01_ava}"
+      svet_but4_x: ${svet_but_x0 + 3*(svet_but_wi + svet_but_dx)}
+      svet_but4_y: ${svet_but_y0 }
+      #l1
+      svet_but5_ic: "${fonar}"
+      svet_but5_nm: "Улица"      
+      svet_but5_st: "${sn_sw08_swt}"
+      svet_but5_sa: "${sn_sw08_ava}"
+      svet_but5_x: ${svet_but_x0 + 0*(svet_but_wi + svet_but_dx)}
+      svet_but5_y: ${svet_but_y0  + svet_but_he + svet_but_dy}
+      #l2
+      svet_but6_ic: "${car}"
+      svet_but6_nm: "Гараж"      
+      svet_but6_st: "${sn_sw06_swt}"
+      svet_but6_sa: "${sn_sw06_ava}"
+      svet_but6_x: ${svet_but_x0 + 1*(svet_but_wi + svet_but_dx)}
+      svet_but6_y: ${svet_but_y0  + svet_but_he + svet_but_dy}
+      #l3
+      svet_but7_ic: "${download}"
+      svet_but7_nm: "Погреб"      
+      svet_but7_st: "${sn_sw02_swt}"
+      svet_but7_sa: "${sn_sw02_ava}"
+      svet_but7_x: ${svet_but_x0 + 2*(svet_but_wi + svet_but_dx)}
+      svet_but7_y: ${svet_but_y0  + svet_but_he + svet_but_dy}
+      #l4
+      svet_but8_ic: "${fire}"
+      svet_but8_nm: "Незнаю"      
+      svet_but8_st: "${sn_sw03_swt}"
+      svet_but8_sa: "${sn_sw03_ava}"
+      svet_but8_x: ${svet_but_x0 + 3*(svet_but_wi + svet_but_dx)}
+      svet_but8_y: ${svet_but_y0 + svet_but_he + svet_but_dy}
+   #pg_maxt:
+     #but_tmrt 
+      maxt_tmrt_but_wi: 120 #103
+      maxt_tmrt_but_he: 90 #80           
+      maxt_tmrt_but_colr_bg: 0x000000  # 
+      maxt_tmrt_but_colr_bd: 0x0000f0  # цвет внешнего контура
+      maxt_tmrt_but_x: 5
+      maxt_tmrt_but_y: 5     
+      #name
+      maxt_tmrt_but_nam_colr: 0x006000
+      maxt_tmrt_but_nam_font: "RobotoCondensed_Regular_16" 
+      maxt_tmrt_but_nam_x: 5  
+      maxt_tmrt_but_nam_y: 3        
+      #temperature
+       #int
+      maxt_tmrt_but_tth_colr: 0x0040f0
+      maxt_tmrt_but_tth_font: "RobotoCondensed_Medium_50"      
+      maxt_tmrt_but_tth_x: -21  
+      maxt_tmrt_but_tth_y:  1    
+       #dec
+      maxt_tmrt_but_ttl_colr: 0x002080
+      maxt_tmrt_but_ttl_font: "RobotoCondensed_Regular_25"      
+      maxt_tmrt_but_ttl_x: -7   
+      maxt_tmrt_but_ttl_y: -7      
+
+     #but_up/dn
+      maxt_updn_but_x0: 150
+      maxt_updn_but_y0: 0      
+      maxt_updn_but_dy: 80      
+      
+      maxt_updn_but_nm_font: "icon_65" 
+      maxt_updn_but_nm_colr: 0x00a0a0      
+      maxt_updn_but1_nm:  "${plus_box_outline}"     
+      maxt_updn_but1_x:   ${maxt_updn_but_x0}     
+      maxt_updn_but1_y:   ${maxt_updn_but_y0} 
+      maxt_updn_but2_nm:  "${minus_box_outline}"      
+      maxt_updn_but2_x:   ${maxt_updn_but_x0} 
+      maxt_updn_but2_y:   ${maxt_updn_but_y0  + maxt_updn_but_dy} 
+   #-obj_sysi
+      sysi_he: 179        # высота
+      sysi_wi: 320        # ширина
+      sysi_x0: 0          # Х нач поз
+      sysi_y0: 0          # У нач   
+      sysi_bg: 0x000000   # цвет полотна
+      sysi_bd: 0x300000   # цвет рамки   
+      sysi_bw: 1          # ширина рамки
+
+
+    #lab 
+      sysi_fnt_n: "roboto_30" 
+      sysi_clr_n: 0x808060
+      sysi_fnt_d: "roboto_30" 
+      sysi_clr_d: 0x909070
+      sysi_lab_nx: 100
+      sysi_lab_ny: 10
+      sysi_lab_dx: ${sysi_lab_nx + 15}
+      sysi_lab_dy: ${sysi_lab_ny}      
+      sysi_lab_yy: 40
+     #exit
+      sysi_exit_ic: "icon_65"
+      sysi_exit_bt: "${close_co}"
+      sysi_exit_px: ${sysi_wi - 75}
+      sysi_exit_py:  0    
+     
+     #1
+      sysi_lab_nm1: "name:"
+      sysi_lab_n1x: ${sysi_lab_nx - sysi_wi}
+      sysi_lab_n1y: ${sysi_lab_ny + 0*sysi_lab_yy} 
+      sysi_lab_d1x: ${sysi_lab_dx}
+      sysi_lab_d1y: ${sysi_lab_dy + 0*sysi_lab_yy}   
+     #2
+      sysi_lab_nm2: "wifi:"
+      sysi_lab_n2x: ${sysi_lab_nx - sysi_wi}
+      sysi_lab_n2y: ${sysi_lab_ny + 1*sysi_lab_yy} 
+      sysi_lab_d2x: ${sysi_lab_dx}
+      sysi_lab_d2y: ${sysi_lab_dy + 1*sysi_lab_yy}    
+     #3
+      sysi_lab_nm3: "ssid:"
+      sysi_lab_nd3: !secret wifi_ssid 
+      sysi_lab_n3x: ${sysi_lab_nx - sysi_wi}
+      sysi_lab_n3y: ${sysi_lab_ny + 2*sysi_lab_yy} 
+      sysi_lab_d3x: ${sysi_lab_dx}
+      sysi_lab_d3y: ${sysi_lab_dy + 2*sysi_lab_yy}    
+     #4
+      sysi_lab_nm4: "pass:"
+      sysi_lab_nd4: !secret wifi_password
+      sysi_lab_n4x: ${sysi_lab_nx - sysi_wi}
+      sysi_lab_n4y: ${sysi_lab_ny + 3*sysi_lab_yy} 
+      sysi_lab_d4x: ${sysi_lab_dx}
+      sysi_lab_d4y: ${sysi_lab_dy + 3*sysi_lab_yy}
+     #5
+      sysi_lab_nm5: "ip:"
+      sysi_lab_n5x: ${sysi_lab_nx - sysi_wi}
+      sysi_lab_n5y: ${sysi_lab_ny + 4*sysi_lab_yy} 
+      sysi_lab_d5x: ${sysi_lab_dx}
+      sysi_lab_d5y: ${sysi_lab_dy + 4*sysi_lab_yy}
+     #6
+      sysi_lab_nm6: "mac:"
+      sysi_lab_n6x: ${sysi_lab_nx - sysi_wi}
+      sysi_lab_n6y: ${sysi_lab_ny + 5*sysi_lab_yy} 
+      sysi_lab_d6x: ${sysi_lab_dx}
+      sysi_lab_d6y: ${sysi_lab_dy + 5*sysi_lab_yy}
+     #7
+      sysi_lab_nm7: "free:"
+      sysi_lab_n7x: ${sysi_lab_nx - sysi_wi}
+      sysi_lab_n7y: ${sysi_lab_ny + 6*sysi_lab_yy} 
+      sysi_lab_d7x: ${sysi_lab_dx}
+      sysi_lab_d7y: ${sysi_lab_dy + 6*sysi_lab_yy}
+     #8
+      sysi_lab_nm8: "ver:"
+      sysi_lab_n8x: ${sysi_lab_nx - sysi_wi}
+      sysi_lab_n8y: ${sysi_lab_ny + 7*sysi_lab_yy} 
+      sysi_lab_d8x: ${sysi_lab_dx}
+      sysi_lab_d8y: ${sysi_lab_dy + 7*sysi_lab_yy}
+     #9
+      sysi_lab_nm9: "com:"
+      sysi_lab_nd9: "${com1}"
+      sysi_lab_n9x: ${sysi_lab_nx - sysi_wi}
+      sysi_lab_n9y: ${sysi_lab_ny + 8*sysi_lab_yy} 
+      sysi_lab_d9x: ${sysi_lab_dx}
+      sysi_lab_d9y: ${sysi_lab_dy + 8*sysi_lab_yy}
+ 
+
+ #set: output, spi,one_wire ,touch, display,  time 
+  debug:  
+  output:   # 2 яркость экрана
+    - platform: ledc
+      pin: ${pin_dsp_ld} # 2   # яркость
+      id: led_dsp
+    - platform: ledc   # led red
+      pin: ${pin_led_red}
+      id: led_red 
+    - platform: ledc   # led gren
+      pin: ${pin_led_grn}
+      id: led_grn 
+    - platform: ledc   # led blue
+      pin: ${pin_led_blu}
+      id: led_blu   
+    - platform: ledc  # бузер     
+      pin: ${pin_rtttl}
+      id: rtttl_out   
+   #- - - - - - - - - - - - - - - - - - -
+  rtttl:
+      output: rtttl_out
+      id: my_rtttl
+      gain: 1%  
+  spi:
+    - id: spi_display 
+      clk_pin:  ${pin_spi0_clk}   #14
+      mosi_pin: ${pin_spi0_mosi}  #13
+      #miso_pin: ${pin_spi0_miso}  #12
+    - id: spi_touch 
+      clk_pin:  ${pin_spi1_clk}   #25
+      mosi_pin: ${pin_spi1_mosi}  #32
+      miso_pin: ${pin_spi1_miso}  #39
+   #- - - - - - - - - - - - - - - - - - -
+  one_wire: # dallas
+    - platform: gpio
+      pin: ${pin_one_wire} #27
+  touchscreen:
+    platform: xpt2046
+    id: my_touch
+    spi_id: spi_touch
+    cs_pin: ${pin_touch_sc} #33
+    calibration:
+      x_min: 200  # L:200    R:200 
+      x_max: 3830  # L:3830  R:3830 
+      y_min: 170  # L:170    R:170
+      y_max: 3780 # L:3780   R:3780
+    transform:
+      swap_xy: true #  L:true  R:true
+      mirror_x: true # L:true  R:false
+      mirror_y: true # L:true  R:false
+    on_touch:
+       - lambda: |-
+             ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
+                 touch.x,
+                 touch.y,
+                 touch.x_raw,
+                 touch.y_raw
+                 );  
+   #- - - - - - - - - - - - - - - 
+  display:
+    - platform: mipi_spi #ili9xxx
+      model: ESP32-2432S028 #ILI9341 #TFT 2.4
+      id: my_display     
+      spi_id: spi_display
+      cs_pin: ${pin_dsp_cs} #15   
+      dc_pin: ${pin_dsp_dc} #2  
+      invert_colors: false    
+      #color_palette: 8BIT    
+      color_order: rgb
+      transform:      
+        mirror_x: true #  L:true   R:false 
+        mirror_y: false # L:false  R:true 
+        swap_xy: false # L:false   R:false
+      dimensions:
+        height: 240
+        width: 320     
+    #    update_interval: 5s 
+  time:
+    - platform: sntp
+      id: my_time
+      timezone: "Europe/Kyiv"
+      servers:
+        - 0.pool.ntp.org
+        - 1.pool.ntp.org
+        - 2.pool.ntp.org
+      update_interval: 3600s
+      on_time:
+        - seconds: /1  # каждую секунду
+          then:
+            - lambda: |-
+                //
+                  auto now = id(my_time).now();
+                  if (!now.is_valid()) return;
+                  static int last_sec = -1;
+                  static int last_min = -1;
+                  static int last_hour = -1;
+                  static int last_day = -1;
+                  static int last_month = -1;
+                  static int last_wday = -1;    
+                  int sec = now.second;
+                  int min = now.minute;
+                  int hour = now.hour;
+                  int day = now.day_of_month;
+                  int month = now.month;
+                  int wday = now.day_of_week;  // 0 = воскресенье, 1 = понедельник ...
+                  char buf[20];
+                // СЕКУНДЫ   {time_t3}
+                  if (sec != last_sec) {
+                    last_sec = sec;
+                    snprintf(buf, sizeof(buf), "%02d", sec);
+                    lv_label_set_text(id(top_time_sec), buf);
+                  }
+                // МИНУТЫ + ЧАСЫ
+                  
+                  if (min != last_min) {
+                    last_min = min;
+                    snprintf(buf, sizeof(buf), "%2d:%02d", hour,  min);
+                    lv_label_set_text(id(top_time_hour_min), buf);
+                  }
+
+  #- - - - - - - - - - - - - - - - - - -
+ 
+ #lvgl
+  lvgl:
+    touchscreens:
+      - my_touch
+    displays:
+      - my_display
+    buffer_size: 10%  
+    style_definitions:
+     #pg_main 
+      #tmrt 
+        - id: style_main_tmrt_but_bt   # button  
+          height: ${main_tmrt_but_he}               # g2 50
+          width:  ${main_tmrt_but_wi}             # r2 60        
+          bg_color:     ${main_tmrt_but_colr_bg}
+          border_color: ${main_tmrt_but_colr_bd} #0x0000ff  # цвет внешнего контура
+          border_width: 1
+          outline_width: 0                        # толщина внешнего контура
+          shadow_width: 0 
+          pad_all: 0
+        - id: style_main_tmrt_but_nm   # Температура name
+          #align: top_mid # top_left
+          x: ${main_tmrt_but_nam_x}               #5    #  
+          y: ${main_tmrt_but_nam_y}               #3      
+          pad_all: 0
+          text_letter_space: 0                    # 2  # dp0        
+          text_font:  "${main_tmrt_but_nam_font}" #RobotoCondensed_Regular_16
+          text_color: "${main_tmrt_but_nam_colr}" #0x006000 # 0xf0f000 
+        - id: style_main_tmrt_but_th  # Температура целые
+          align: bottom_right
+          x: ${main_tmrt_but_tth_x}               #-21    # ax1 -30
+          y: ${main_tmrt_but_tth_y}               #5      # ay1 3
+          pad_all: 0
+          text_letter_space: 0                    # 2  # dp0        
+          text_font:  "${main_tmrt_but_tth_font}" #RobotoCondensed_Medium_50 
+          text_color: "${main_tmrt_but_tth_colr}" # 0xf0f000    
+          #
+        - id: style_main_tmrt_but_tl  # Температура десятые
+          align: bottom_right
+          x: ${main_tmrt_but_ttl_x}               #-7    # ax1 -30
+          y: ${main_tmrt_but_ttl_y}               #-2      # ay1 3
+          pad_all: 0
+          text_letter_space: 0                    # 2  # dp0
+          text_font:  "${main_tmrt_but_ttl_font}" #RobotoCondensed_Regular_25  
+          text_color: "${main_tmrt_but_ttl_colr}" # 0xf0f000          
+      #kotl
+        - id: style_main_kotl_but_bt   # button  
+          height: ${main_kotl_but_he}               # g2 50
+          width:  ${main_kotl_but_wi}             # r2 60        
+          bg_color:     ${main_kotl_but_colr_bg}
+          border_color: ${main_kotl_but_colr_bd} #0x0000ff  # цвет внешнего контура
+          border_width: 2
+          outline_width: 0                        # толщина внешнего контура
+          shadow_width: 0 
+          pad_all: 0
+        - id: style_main_kotl_but_nm   # Температура name
+          #align: top_mid # top_left
+          x: ${main_kotl_but_nam_x}               #5    #  
+          y: ${main_kotl_but_nam_y}               #3      
+          pad_all: 0
+          text_letter_space: 0                    # 2  # dp0        
+          text_font:  "${main_kotl_but_nam_font}" #RobotoCondensed_Regular_16
+          text_color: "${main_kotl_but_nam_colr}" #0x006000 # 0xf0f000                
+        - id: style_main_kotl_but_ic   # icon
+          align:  top_right #top_mid
+          x: "${main_kotl_but_icn_x}" #-5    #  
+          y: "${main_kotl_but_icn_y}" #1      
+          pad_all: 0
+          text_font:  "${main_kotl_but_icn_font}" #icon_30 
+          text_color: "${main_kotl_but_colr_ic}" # 0x404000 # 0xf0f000         
+        - id: style_main_kotl_but_th   # temperature
+          align: bottom_right
+          x: ${main_kotl_but_tth_x}               #-7    # ax1 -30
+          y: ${main_kotl_but_tth_y}               #-2      # ay1 3
+          pad_all: 0
+          text_letter_space: 0                    # 2  # dp0
+          text_font:  "${main_kotl_but_tth_font}" #RobotoCondensed_Regular_25  
+          text_color: "${main_kotl_but_tth_colr}" # 0xf0f000 
+        - id: style_main_kotl_but_tl   # temperature    
+          align: bottom_right
+          x: ${main_kotl_but_ttl_x}               #-7    # ax1 -30
+          y: ${main_kotl_but_ttl_y}               #-2      # ay1 3
+          pad_all: 0
+          text_letter_space: 0                    # 2  # dp0
+          text_font:  "${main_kotl_but_ttl_font}" #RobotoCondensed_Regular_25  
+          text_color: "${main_kotl_but_ttl_colr}" # 0xf0f000     
+     #pg_svet
+        - id: style_svet_but_bt   # button  
+          height: ${svet_but_he}               
+          width:  ${svet_but_wi}                    
+          bg_color:     ${svet_but_colr_bg}
+          border_color: ${svet_but_colr_bd}   # цвет внешнего контура
+          border_width: 2
+          outline_width: 0                        # толщина внешнего контура
+          shadow_width: 0 
+          pad_all: 0
+        - id: style_svet_but_nm   # name
+          #align: top_mid # top_left
+          x: ${svet_but_nm_x}               #5    #  
+          y: ${svet_but_nm_y}               #3      
+          pad_all: 0
+          text_letter_space: 0                    # 2  # dp0        
+          text_font:  "${svet_but_font_nm}" #RobotoCondensed_Regular_16
+          text_color: "${svet_but_colr_nm}"                 
+        - id: style_svet_but_ic   # icon
+          align:  top_left #top_mid
+          x: "${svet_but_ic_x}" #-5    #  
+          y: "${svet_but_ic_y}" #1      
+          pad_all: 0
+          text_font:  "${svet_but_font_ic}" #icon_30 
+          text_color: "${svet_but_colr_ic}"          
+     #pg_maxt 
+      #but_tmrt 
+        - id: style_maxt_tmrt_but_bt   # button  
+          height: ${maxt_tmrt_but_he}               # g2 50
+          width:  ${maxt_tmrt_but_wi}             # r2 60        
+          bg_color:     ${maxt_tmrt_but_colr_bg}
+          border_color: ${maxt_tmrt_but_colr_bd} #0x0000ff  # цвет внешнего контура
+          border_width: 1
+          outline_width: 0                        # толщина внешнего контура
+          shadow_width: 0 
+          pad_all: 0
+        - id: style_maxt_tmrt_but_nm   # Температура name
+          #align: top_mid # top_left
+          x: ${maxt_tmrt_but_nam_x} #maxt_tmrt_but_nam_x             #5    #  
+          y: ${maxt_tmrt_but_nam_y}               #3      
+          pad_all: 0
+          text_letter_space: 0                    # 2  # dp0        
+          text_font:  "${maxt_tmrt_but_nam_font}" #RobotoCondensed_Regular_16
+          text_color: "${maxt_tmrt_but_nam_colr}" #0x006000 # 0xf0f000 
+        - id: style_maxt_tmrt_but_th  # Температура целые
+          align: bottom_right
+          x: ${maxt_tmrt_but_tth_x}               #-21    # ax1 -30
+          y: ${maxt_tmrt_but_tth_y}               #5      # ay1 3
+          pad_all: 0
+          text_letter_space: 0                    # 2  # dp0        
+          text_font:  "${maxt_tmrt_but_tth_font}" #RobotoCondensed_Medium_50 
+          text_color: "${maxt_tmrt_but_tth_colr}" # 0xf0f000    
+          #
+        - id: style_maxt_tmrt_but_tl  # Температура десятые
+          align: bottom_right
+          x: ${maxt_tmrt_but_ttl_x}               #-7    # ax1 -30
+          y: ${maxt_tmrt_but_ttl_y}               #-2      # ay1 3
+          pad_all: 0
+          text_letter_space: 0                    # 2  # dp0
+          text_font:  "${maxt_tmrt_but_ttl_font}" #RobotoCondensed_Regular_25  
+          text_color: "${maxt_tmrt_but_ttl_colr}" # 0xf0f000          
+      #but_up/dn 
+        - id: style_maxt_updn_but_nm   # icon + -     
+          text_font:  "${maxt_updn_but_nm_font}" #RobotoCondensed_Regular_16
+          text_color: "${maxt_updn_but_nm_colr}" #0x006000 # 0xf0f000 
+     #pg_sysi
+        - id: style_sysi_obj      # data
+          x:              ${sysi_x0}  # нач х
+          y:              ${sysi_y0}  # нач н
+          height:         ${sysi_he}  # высота xx 
+          width:          ${sysi_wi}  # ширина xx    
+          radius:         0           # округление углов
+          bg_color:       ${sysi_bg}  #0x000020      # цвет полотна
+          border_color:   ${sysi_bd}  # цвет   линии внутри
+          border_width:   ${sysi_bw}  # ширина линии внутри
+          pad_all:        0           # отступ по всем сторонам внутрь
+          scrollbar_mode: "off"     # прокрутка показывать ползунок "ACTIVE" / "off"                   
+        
+        - id: style_sysi_lab_n      # name
+          align:             TOP_RIGHT
+          pad_all:           0
+          text_font:        "${sysi_fnt_n}" #roboto_24
+          text_color:        ${sysi_clr_n} # 0x404030 #0xf0f000
+          text_letter_space: 0      
+        
+        - id: style_sysi_lab_d     # data
+          align:             TOP_LEFT
+          pad_all:           0
+          text_font:        "${sysi_fnt_d}" #roboto_24
+          text_color:        ${sysi_clr_d} # 0x404030 #0xf0f000
+          text_letter_space: 0   
+
+    on_idle:
+      timeout: 300s 
+      then:
+        - if:
+            condition:
+              lambda: |-
+                return id(pg_select)!=0;        
+            then:
+              - script.execute: top_select_change
+              - script.execute: play_beep1
+
+
+    top_layer:
+      widgets:
+        - obj:   # time
+            id: top_obj_time
+            scrollable: 'false' 
+            scrollbar_mode: 'off'          
+            x: ${tp_obj_px} #0
+            y: ${tp_obj_py} # 195
+            height: ${tp_obj_he} #40
+            width:  ${tp_obj_wi} #155
+            outline_width: 0
+            outline_color: 0x000000  # цвет внешнего контура
+            border_width: 0
+            border_color: 0x0000000 
+            bg_color: ${tp_obj_color_bg} #0x000000
+            widgets:
+              - label: # time_sec
+                  id: top_time_sec
+                  align: bottom_right
+                  x:  ${tp_time_sc_x} #11     
+                  y:  ${tp_time_sc_y} #19       
+                  pad_all: 0     
+                  text_font: "${tp_time_font_sc}" #RobotoCondensed_Regular_35
+                  text_color: ${tp_time_color}    #0x008000
+                  text: "xx"         
+              - label: # time_hour_min
+                  id: top_time_hour_min
+                  align: bottom_right
+                  x: ${tp_time_hm_x} #-23     
+                  y: ${tp_time_hm_y} # 23      
+                  pad_all: 0            
+                  text_font: "${tp_time_font_hm}" #RobotoCondensed_Medium_50  
+                  text_color: ${tp_time_color}    # 0x008000
+                  text: "xx:xx"  
+                  on_press:
+                    then:
+                      - lvgl.page.show: pg_sysi   
+                      - script.execute: play_beep1    #rtttl.play: ${beep2}   
+              - label: # lan status
+                  id: lan_status
+                  x: 175
+                  y: 14
+                  text_font: icon_28 
+                  text_color: 0xff00ff                
+                  text: "${wifi_off}"                            
+        
+        - label: # select
+            id: top_select
+            x: 255
+            y: 175
+            text_font: icon_65
+            text_color: 0x606000
+            text: "${next}"         
+            on_press:
+              then:
+                - script.execute: play_beep1    #rtttl.play: ${beep2}   
+                - lvgl.widget.hide: top_select                 
+                - delay: 0.5s
+            on_release:    
+              then:  
+                - lvgl.widget.show: top_select          
+                - script.execute: top_select_change       
+        - label: # info
+            id: top_info
+            x: 210
+            y: 205
+            text_font: icon_34
+            text_color: 0x606000
+            text: "\0"                             
+
+
+
+    pages:      
+      - id: pg_main
+        scrollbar_mode: "off" #"ACTIVE"  # показывать полосу прокрутки при прокрутке 
+        scrollable: 'false'        # можно прокручивать страницу
+        bg_color: 0x000000
+        widgets:           
+         #tmrt 
+          - button: #1 
+              id: main_tmrt_but1
+              x: ${main_tmrt_but1_x}
+              y: ${main_tmrt_but1_y}
+              styles: style_main_tmrt_but_bt 
+              on_press:
+                then:
+                  - script.execute: play_beep1    #rtttl.play: ${beep2}   
+                  - lvgl.widget.hide: main_tmrt_but1                 
+                  - delay: 0.5s
+              on_release:    
+                then:  
+                  - lvgl.widget.show: main_tmrt_but1          
+                  - script.execute: 
+                      id: pg_maxt_updata 
+                      s: 0                  
+                  - lvgl.page.show:
+                      id: pg_maxt               
+              widgets:
+                - label:
+                    styles: style_main_tmrt_but_nm
+                    text: "${main_tmrt_but1_n}" 
+                - label:
+                    id: main_tmrt_but1_th
+                    styles: style_main_tmrt_but_th
+                    text: "20" 
+                - label:
+                    id: main_tmrt_but1_tl
+                    styles: style_main_tmrt_but_tl
+                    text: "1"           
+          - button: #2 
+              id: main_tmrt_but2
+              x: ${main_tmrt_but2_x}
+              y: ${main_tmrt_but2_y}
+              styles: style_main_tmrt_but_bt               
+              on_press:
+                then:
+                  - script.execute: play_beep1    #rtttl.play: ${beep2}   
+                  - lvgl.widget.hide: main_tmrt_but2                 
+                  - delay: 0.5s
+              on_release:    
+                then:  
+                  - lvgl.widget.show: main_tmrt_but2          
+                  - script.execute: 
+                      id: pg_maxt_updata 
+                      s: 1
+                  - lvgl.page.show:
+                      id: pg_maxt              
+              widgets:
+                - label:
+                    styles: style_main_tmrt_but_nm
+                    text: "${main_tmrt_but2_n}"          
+                - label:
+                    id: main_tmrt_but2_th
+                    styles: style_main_tmrt_but_th
+                    text: "22" 
+                - label:
+                    id: main_tmrt_but2_tl
+                    styles: style_main_tmrt_but_tl
+                    text: "2"           
+          - button: #3 
+              id: main_tmrt_but3
+              x: ${main_tmrt_but3_x}
+              y: ${main_tmrt_but3_y}
+              styles: style_main_tmrt_but_bt 
+              on_press:
+                then:
+                  - script.execute: play_beep1    #rtttl.play: ${beep2}   
+                  - lvgl.widget.hide: main_tmrt_but3                 
+                  - delay: 0.5s
+              on_release:    
+                then:  
+                  - lvgl.widget.show: main_tmrt_but3          
+                  - script.execute: 
+                      id: pg_maxt_updata 
+                      s: 2                  
+                  - lvgl.page.show:
+                      id: pg_maxt              
+              widgets:
+                - label:
+                    styles: style_main_tmrt_but_nm
+                    text: "${main_tmrt_but3_n}"         
+                
+                - label:
+                    id: main_tmrt_but3_th
+                    styles: style_main_tmrt_but_th
+                    text: "20"                                         
+                - label:
+                    id: main_tmrt_but3_tl
+                    styles: style_main_tmrt_but_tl
+                    text: "3"          
+         #kotl: 
+          - button: #1
+              id: main_kotl_but1
+              x: ${main_kotl_but1_x}
+              y: ${main_kotl_but1_y}
+              styles: style_main_kotl_but_bt 
+              on_press:
+                then:
+                  - script.execute: play_beep2    #rtttl.play: ${beep2}   
+                  - lvgl.widget.hide: main_kotl_but1   
+                  - homeassistant.action:
+                      action: switch.toggle
+                      data:
+                        entity_id: ${main_kotl_but1_ss}              
+                  - delay: 0.5s
+                  - lvgl.widget.show: main_kotl_but1                 
+              widgets:
+                - label: #name
+                    styles: style_main_kotl_but_nm
+                    text: "${main_kotl_but1_nm}"         
+                - label: #icon
+                    id: main_kotl_but1_ic
+                    styles: style_main_kotl_but_ic
+                    text: "${main_kotl_but1_ic}" 
+                - label: #temperature
+                    id: main_kotl_but1_th
+                    styles: style_main_kotl_but_th
+                    text: "10" 
+                - label: #temperature
+                    id: main_kotl_but1_tl
+                    styles: style_main_kotl_but_tl
+                    text: "1"          
+          - button: #2
+              id: main_kotl_but2
+              x: ${main_kotl_but2_x}
+              y: ${main_kotl_but2_y}
+              styles: style_main_kotl_but_bt               
+              on_press:
+                then:
+                  - script.execute: play_beep2    #rtttl.play: ${beep2}   
+                  - lvgl.widget.hide: main_kotl_but2   
+                  - homeassistant.action:
+                      action: switch.toggle
+                      data:
+                        entity_id: ${main_kotl_but2_ss}              
+                  - delay: 0.5s
+                  - lvgl.widget.show: main_kotl_but2
+              widgets:
+                - label: #name
+                    styles: style_main_kotl_but_nm
+                    text: "${main_kotl_but2_nm}"         
+                - label: #icon
+                    id: main_kotl_but2_ic                   
+                    styles: style_main_kotl_but_ic
+                    text: "${main_kotl_but2_ic}"  
+                - label: #temperature
+                    id: main_kotl_but2_th
+                    styles: style_main_kotl_but_th
+                    text: "20" 
+                - label: #temperature
+                    id: main_kotl_but2_tl
+                    styles: style_main_kotl_but_tl
+                    text: "2"           
+          - button:  #3
+              id: main_kotl_but3
+              x: ${main_kotl_but3_x}
+              y: ${main_kotl_but3_y}
+              styles: style_main_kotl_but_bt 
+              on_press:
+                then:
+                  - script.execute: play_beep2    #rtttl.play: ${beep2}   
+                  - lvgl.widget.hide: main_kotl_but3   
+                  - homeassistant.action:
+                      action: switch.toggle
+                      data:
+                        entity_id: ${main_kotl_but3_ss}              
+                  - delay: 0.5s
+                  - lvgl.widget.show: main_kotl_but3               
+              widgets:
+                - label: #name
+                    styles: style_main_kotl_but_nm
+                    text: "${main_kotl_but3_nm}"         
+                - label: #icon
+                    id: main_kotl_but3_ic                    
+                    styles: style_main_kotl_but_ic
+                    text: "${main_kotl_but3_ic}" 
+                - label: #temperature
+                    id: main_kotl_but3_th
+                    styles: style_main_kotl_but_th
+                    text: "10" 
+                - label: #temperature
+                    id: main_kotl_but3_tl
+                    styles: style_main_kotl_but_tl
+                    text: "3" 
+           #- - - - - - - - -  - - - - - -       
+       #- - - - - - - - - - - - - - - - - -  - - 
+      - id: pg_svet
+        scrollbar_mode: "off" #"ACTIVE"  # показывать полосу прокрутки при прокрутке 
+        scrollable: 'false'        # можно прокручивать страницу
+        bg_color: 0x000000 
+        widgets: 
+         #but
+          - button: #1 
+              id: svet_but1
+              x: ${svet_but1_x}
+              y: ${svet_but1_y}
+              styles: style_svet_but_bt 
+              on_press:
+                then:
+                  - script.execute: play_beep2    #rtttl.play: ${beep2}   
+                  - lvgl.widget.hide: svet_but1   
+                  - homeassistant.action:
+                      action: switch.toggle
+                      data:
+                        entity_id: ${svet_but1_st}              
+                  - delay: 0.5s
+                  - lvgl.widget.show: svet_but1              
+              widgets:
+                - label:
+                    id: svet_but1_nm
+                    styles: style_svet_but_nm
+                    text: "${svet_but1_nm}" 
+                - label:
+                    id: svet_but1_ic
+                    styles: style_svet_but_ic
+                    text: "${svet_but1_ic}" 
+          - button: #2 
+              id: svet_but2
+              x: ${svet_but2_x}
+              y: ${svet_but2_y}
+              styles: style_svet_but_bt 
+              on_press:
+                then:
+                  - script.execute: play_beep2    #rtttl.play: ${beep2}   
+                  - lvgl.widget.hide: svet_but2   
+                  - homeassistant.action:
+                      action: switch.toggle
+                      data:
+                        entity_id: ${svet_but2_st}              
+                  - delay: 0.5s
+                  - lvgl.widget.show: svet_but2
+              widgets:
+                - label:
+                    id: svet_but2_nm
+                    styles: style_svet_but_nm
+                    text: "${svet_but2_nm}" 
+                - label:
+                    id: svet_but2_ic
+                    styles: style_svet_but_ic
+                    text: "${svet_but2_ic}"   
+          - button: #3 
+              id: svet_but3
+              x: ${svet_but3_x}
+              y: ${svet_but3_y}
+              styles: style_svet_but_bt 
+              on_press:
+                then:
+                  - script.execute: play_beep2    #rtttl.play: ${beep2}   
+                  - lvgl.widget.hide: svet_but3   
+                  - homeassistant.action:
+                      action: switch.toggle
+                      data:
+                        entity_id: ${svet_but3_st}              
+                  - delay: 0.5s
+                  - lvgl.widget.show: svet_but3
+              widgets:
+                - label:
+                    id: svet_but3_nm
+                    styles: style_svet_but_nm
+                    text: "${svet_but3_nm}" 
+                - label:
+                    id: svet_but3_ic
+                    styles: style_svet_but_ic
+                    text: "${svet_but3_ic}" 
+          - button: #4 
+              id: svet_but4
+              x: ${svet_but4_x}
+              y: ${svet_but4_y}
+              styles: style_svet_but_bt 
+              on_press:
+                then:
+                  - script.execute: play_beep2    #rtttl.play: ${beep2}   
+                  - lvgl.widget.hide: svet_but4  
+                  - homeassistant.action:
+                      action: switch.toggle
+                      data:
+                        entity_id: ${svet_but4_st}              
+                  - delay: 0.5s
+                  - lvgl.widget.show: svet_but4
+              widgets:
+                - label:
+                    id: svet_but4_nm
+                    styles: style_svet_but_nm
+                    text: "${svet_but4_nm}" 
+                - label:
+                    id: svet_but4_ic
+                    styles: style_svet_but_ic
+                    text: "${svet_but4_ic}"  
+          - button: #5 
+              id: svet_but5
+              x: ${svet_but5_x}
+              y: ${svet_but5_y}
+              styles: style_svet_but_bt 
+              on_press:
+                then:
+                  - script.execute: play_beep2    #rtttl.play: ${beep2}   
+                  - lvgl.widget.hide: svet_but5   
+                  - homeassistant.action:
+                      action: switch.toggle
+                      data:
+                        entity_id: ${svet_but5_st}              
+                  - delay: 0.5s
+                  - lvgl.widget.show: svet_but5
+              widgets:
+                - label:
+                    id: svet_but5_nm
+                    styles: style_svet_but_nm
+                    text: "${svet_but5_nm}" 
+                - label:
+                    id: svet_but5_ic
+                    styles: style_svet_but_ic
+                    text: "${svet_but5_ic}" 
+          - button: #6 
+              id: svet_but6
+              x: ${svet_but6_x}
+              y: ${svet_but6_y}
+              styles: style_svet_but_bt 
+
+              on_press:
+                then:
+                  - script.execute: play_beep2    #rtttl.play: ${beep2}   
+                  - lvgl.widget.hide: svet_but6  
+                  - homeassistant.action:
+                      action: switch.toggle
+                      data:
+                        entity_id: ${svet_but6_st}              
+                  - delay: 0.5s
+                  - lvgl.widget.show: svet_but6
+              widgets:
+                - label:
+                    id: svet_but6_nm
+                    styles: style_svet_but_nm
+                    text: "${svet_but6_nm}" 
+                - label:
+                    id: svet_but6_ic
+                    styles: style_svet_but_ic
+                    text: "${svet_but6_ic}"  
+          - button: #7 
+              id: svet_but7
+              x: ${svet_but7_x}
+              y: ${svet_but7_y}
+              styles: style_svet_but_bt 
+              on_press:
+                then:
+                  - script.execute: play_beep2    #rtttl.play: ${beep2}   
+                  - lvgl.widget.hide: svet_but7   
+                  - homeassistant.action:
+                      action: switch.toggle
+                      data:
+                        entity_id: ${svet_but7_st}              
+                  - delay: 0.5s
+                  - lvgl.widget.show: svet_but7
+              widgets:
+                - label:
+                    id: svet_but7_nm
+                    styles: style_svet_but_nm
+                    text: "${svet_but7_nm}" 
+                - label:
+                    id: svet_but7_ic
+                    styles: style_svet_but_ic
+                    text: "${svet_but7_ic}" 
+          - button: #8 
+              id: svet_but8
+              x: ${svet_but8_x}
+              y: ${svet_but8_y}
+              styles: style_svet_but_bt 
+              on_press:
+                then:
+                  - script.execute: play_beep2    #rtttl.play: ${beep2}   
+                  - lvgl.widget.hide: svet_but8   
+                  - homeassistant.action:
+                      action: switch.toggle
+                      data:
+                        entity_id: ${svet_but8_st}              
+                  - delay: 0.5s
+                  - lvgl.widget.show: svet_but8
+              widgets:
+                - label:
+                    id: svet_but8_nm
+                    styles: style_svet_but_nm
+                    text: "${svet_but8_nm}" 
+                - label:
+                    id: svet_but8_ic
+                    styles: style_svet_but_ic
+                    text: "${svet_but8_ic}"  
+      - id: pg_maxt
+        scrollbar_mode: "off" #"ACTIVE"  # показывать полосу прокрутки при прокрутке 
+        scrollable: 'false'        # можно прокручивать страницу
+        bg_color: 0x200000
+        widgets:   
+          - button: #maxt 
+              id: maxt_but
+              x: ${maxt_tmrt_but_x}
+              y: ${maxt_tmrt_but_y}
+              styles: style_maxt_tmrt_but_bt                            
+              widgets:
+                - label:
+                    id: maxt_but_nm
+                    styles: style_maxt_tmrt_but_nm
+                    text: "Морозилка"          
+                - label:
+                    id: maxt_but_th
+                    styles: style_maxt_tmrt_but_th
+                    text: "22" 
+                - label:
+                    id: maxt_but_tl
+                    styles: style_maxt_tmrt_but_tl
+                    text: "2"           
+          - label:  #but up
+              id: maxt_but_up
+              x: ${maxt_updn_but1_x}
+              y: ${maxt_updn_but1_y}
+              styles: style_maxt_updn_but_nm  
+              text: "${maxt_updn_but1_nm}"
+              on_press:
+                then:
+                  - script.execute: play_beep1    #rtttl.play: ${beep2}   
+                  - lvgl.widget.hide: maxt_but_up                 
+                  - script.execute:
+                      id: pg_maxt_change         
+                      i: 0.1                  
+                  - delay: 0.1s
+              on_release:    
+                then:  
+                  - lvgl.widget.show: maxt_but_up          
+          - label:  #but dn
+              id: maxt_but_dn
+              x: ${maxt_updn_but2_x}
+              y: ${maxt_updn_but2_y}
+              styles: style_maxt_updn_but_nm  
+              text: "${maxt_updn_but2_nm}"  
+              on_press:
+                then:
+                  - script.execute: play_beep1    #rtttl.play: ${beep2}   
+                  - lvgl.widget.hide: maxt_but_dn                 
+                  - script.execute:
+                      id: pg_maxt_change         
+                      i: -0.1              
+                  - delay: 0.1s              
+              on_release:    
+                then:  
+                  - lvgl.widget.show: maxt_but_dn          
+      - id: pg_sysi
+        bg_color: 0x000000       
+        widgets:
+          - obj:
+              id: obj_sysi             
+              hidden: false              # true=скрыть, false=показать
+              styles: style_sysi_obj  #              
+              scrollable: 'true'               
+              scrollbar_mode: 'off'
+              widgets:
+               #exit 
+                - label: # icon  exit 
+                    id: sysi_butt_exit
+                    x: ${sysi_exit_px}
+                    y: ${sysi_exit_py}
+                    text_color: 0xf0f000
+                    text_font: "${sysi_exit_ic}"  
+                    text: "${sysi_exit_bt}" # dom           
+                    on_press:
+                      then:
+                        - rtttl.play: ${beep1}                                      
+                    on_release:
+                      then:
+                        - lvgl.page.show: pg_main               
+               #1 
+                - label:
+                    id: sysi_lab_n1
+                    x: ${sysi_lab_n1x}
+                    y: ${sysi_lab_n1y}
+                    styles: style_sysi_lab_n
+                    text: "${sysi_lab_nm1}"
+                - label:
+                    id: sysi_lab_d1
+                    x: ${sysi_lab_d1x}
+                    y: ${sysi_lab_d1y}
+                    styles: style_sysi_lab_d
+                    text: "data1"                
+               #2 
+                - label:
+                    id: sysi_lab_n2
+                    x: ${sysi_lab_n2x}
+                    y: ${sysi_lab_n2y}
+                    styles: style_sysi_lab_n
+                    text: "${sysi_lab_nm2}"
+                - label:
+                    id: sysi_lab_d2
+                    x: ${sysi_lab_d2x}
+                    y: ${sysi_lab_d2y}
+                    styles: style_sysi_lab_d
+                    text: "data2"                
+               #3 
+                - label:
+                    id: sysi_lab_n3
+                    x: ${sysi_lab_n3x}
+                    y: ${sysi_lab_n3y}
+                    styles: style_sysi_lab_n
+                    text: "${sysi_lab_nm3}"
+                - label:
+                    id: sysi_lab_d3
+                    x: ${sysi_lab_d3x}
+                    y: ${sysi_lab_d3y}
+                    styles: style_sysi_lab_d
+                    text: "${sysi_lab_nd3}"              
+               #4 
+                - label:
+                    id: sysi_lab_n4
+                    x: ${sysi_lab_n4x}
+                    y: ${sysi_lab_n4y}
+                    styles: style_sysi_lab_n
+                    text: "${sysi_lab_nm4}"
+                - label:
+                    id: sysi_lab_d4
+                    x: ${sysi_lab_d4x}
+                    y: ${sysi_lab_d4y}
+                    styles: style_sysi_lab_d
+                    text: "${sysi_lab_nd4}"                
+               #5 
+                - label:
+                    id: sysi_lab_n5
+                    x: ${sysi_lab_n5x}
+                    y: ${sysi_lab_n5y}
+                    styles: style_sysi_lab_n
+                    text: "${sysi_lab_nm5}"
+                - label:
+                    id: sysi_lab_d5
+                    x: ${sysi_lab_d5x}
+                    y: ${sysi_lab_d5y}
+                    styles: style_sysi_lab_d
+                    text: "data5"                
+               #6
+                - label:
+                    id: sysi_lab_n6
+                    x: ${sysi_lab_n6x}
+                    y: ${sysi_lab_n6y}
+                    styles: style_sysi_lab_n
+                    text: "${sysi_lab_nm6}"
+                - label:
+                    id: sysi_lab_d6
+                    x: ${sysi_lab_d6x}
+                    y: ${sysi_lab_d6y}
+                    styles: style_sysi_lab_d
+                    text: "data6"                
+               #7
+                - label:
+                    id: sysi_lab_n7
+                    x: ${sysi_lab_n7x}
+                    y: ${sysi_lab_n7y}
+                    styles: style_sysi_lab_n
+                    text: "${sysi_lab_nm7}"
+                - label:
+                    id: sysi_lab_d7
+                    x: ${sysi_lab_d7x}
+                    y: ${sysi_lab_d7y}
+                    styles: style_sysi_lab_d
+                    text: "data7"               
+               #8
+                - label:
+                    id: sysi_lab_n8
+                    x: ${sysi_lab_n8x}
+                    y: ${sysi_lab_n8y}
+                    styles: style_sysi_lab_n
+                    text: "${sysi_lab_nm8}"
+                - label:
+                    id: sysi_lab_d8
+                    x: ${sysi_lab_d8x}
+                    y: ${sysi_lab_d8y}
+                    styles: style_sysi_lab_d
+                    text: "data8"               
+               #9
+                - label:
+                    id: sysi_lab_n9
+                    x: ${sysi_lab_n9x}
+                    y: ${sysi_lab_n9y}
+                    styles: style_sysi_lab_n
+                    text: "${sysi_lab_nm9}"
+                - label:
+                    id: sysi_lab_d9
+                    x: ${sysi_lab_d9x}
+                    y: ${sysi_lab_d9y}
+                    styles: style_sysi_lab_d
+                    text: "${sysi_lab_nd9}"     
+  
+
+  #- - - - - - - - - - - - - - - - - - -
+
+ #script,interval 
+  script:
+   #pg_updata:
+    - id: updata_updata
+      then:
+        - if:
+            condition:
+              lambda: |-
+                return !lv_obj_has_flag(id(pg_main).obj, LV_OBJ_FLAG_HIDDEN);
+            then:
+              - script.execute: pg_main_update          
+       #        - script.execute: flash_tmrt_err
+        - if:
+            condition:
+              lambda: |-
+                return !lv_obj_has_flag(id(pg_svet).obj, LV_OBJ_FLAG_HIDDEN);
+            then:
+              - script.execute: pg_svet_update   
+        - script.execute: top_info_update        
+      #- - - - - - - - - - - - - - - - 
+    - id: pg_main_update
+      then:
+        - lambda: |-
+            //
+
+              static char bufh[16];
+              static char bufl[16];
+              float p;
+              const int k=6;
+              const float err=-99;
+              static float s_tt[k]= {err+1,err+1,err+1,err+1,err+1,err+1};
+              static esphome::sensor::Sensor* sn_tt[]={                  // temperature 
+                                                id(main_tmrt_but1_tr),
+                                                id(main_tmrt_but2_tr),
+                                                id(main_tmrt_but3_tr),
+                                                id(main_kotl_but1_tr), 
+                                                id(main_kotl_but2_tr), 
+                                                id(main_kotl_but3_tr),
+                                                };  
+              static lv_obj_t* lv_th[] = {                                             //                   
+                                          id(main_tmrt_but1_th),
+                                          id(main_tmrt_but2_th),
+                                          id(main_tmrt_but3_th),
+                                          id(main_kotl_but1_th),
+                                          id(main_kotl_but2_th),                                
+                                          id(main_kotl_but3_th),                                 
+                                          }; 
+              static lv_obj_t* lv_tl[] = {                                             //                   
+                                          id(main_tmrt_but1_tl),
+                                          id(main_tmrt_but2_tl),
+                                          id(main_tmrt_but3_tl),
+                                          id(main_kotl_but1_tl),
+                                          id(main_kotl_but2_tl),                                
+                                          id(main_kotl_but3_tl),                                 
+                                          };   
+            //  
+               for(int i=0; i<k; i++){                 
+                  if( isnan(sn_tt[i]->state) ){p=err;}
+                    else{p=sn_tt[i]->state;}
+                  if(s_tt[i]!=p){
+                     s_tt[i]=p;
+                     if(p==err){strcpy(bufh, "--"); strcpy(bufl, "-");}         
+                        else{                
+                          int ph=int(p); 
+                          int pl=abs(int(10*p-10*ph));                    
+                          snprintf(bufh, sizeof(bufh), "%i", ph);
+                          snprintf(bufl, sizeof(bufl), "%i", pl);    
+                        }
+                     lv_label_set_text(lv_th[i], bufh ); 
+                     lv_label_set_text(lv_tl[i], bufl); 
+                  } // закрыли обновление печать              
+               } // закрыли цикл 
+            //  
+                static int but_ss[]={0,0,0}; //0-err, 1-ok, 2-on, 3-power
+                static bool but_sw[]={false,false,false,};
+                static bool but_av[]={false,false,false,};
+                static lv_obj_t* lv_b[] = {
+                                          id(main_kotl_but1),
+                                          id(main_kotl_but2),
+                                          id(main_kotl_but3), 
+                                           };
+                static lv_obj_t* lv_i[] = {
+                                          id(main_kotl_but1_ic),
+                                          id(main_kotl_but2_ic),
+                                          id(main_kotl_but3_ic), 
+                                           };                
+                static esphome::homeassistant::HomeassistantBinarySensor* bt_sw[]={   
+                                  id(main_kotl_but1_ss),
+                                  id(main_kotl_but2_ss),
+                                  id(main_kotl_but3_ss),
+                                };  
+                static esphome::homeassistant::HomeassistantBinarySensor*  bt_av[]={
+                                  id(main_kotl_but1_sa),
+                                  id(main_kotl_but2_sa),
+                                  id(main_kotl_but3_sa),
+                                };
+                static esphome::homeassistant::HomeassistantSensor*  bt_sp[]={
+                                  id(main_kotl_but1_sp),
+                                  id(main_kotl_but2_sp),
+                                  id(main_kotl_but3_sp),
+                                };              
+              
+              lv_color_t colr_bg;
+              lv_color_t colr_ic;
+              lv_color_t colr_bd;
+              for(int i=0; i<3; i++){
+                 int ss=1;                               // off
+                 if(!bt_av[i]->state){ss=0;}             // 0-err
+                  else{       
+                     if(bt_sw[i]->state){
+                           ss=2;                         //2-ON
+                          if(bt_sp[i]->state>5){ss=3;}   //3-power
+                     }
+                 } 
+                 if(but_ss[i]!=ss){
+                    but_ss[i] =ss;
+                    if(ss==0){     colr_bg= lv_color_hex(${main_kotl_but_colr_bg});
+                                   colr_ic= lv_color_hex(${main_kotl_but_colr_ic_er}); 
+                                   colr_bd= lv_color_hex(${main_kotl_but_colr_bd_er});
+                    } 
+                    else if(ss==1){colr_bg= lv_color_hex(${main_kotl_but_colr_bg});
+                                   colr_ic= lv_color_hex(${main_kotl_but_colr_ic});
+                                   colr_bd= lv_color_hex(${main_kotl_but_colr_bd});
+                    }
+                    else if(ss==2){colr_bg= lv_color_hex(${main_kotl_but_colr_bg_on});
+                                   colr_ic= lv_color_hex(${main_kotl_but_colr_ic});
+                                   colr_bd= lv_color_hex(${main_kotl_but_colr_bd_on});
+                    }
+                    else{          colr_bg= lv_color_hex(${main_kotl_but_colr_bg_pw});
+                                   colr_ic= lv_color_hex(${main_kotl_but_colr_ic});
+                                   colr_bd= lv_color_hex(${main_kotl_but_colr_bd_on});
+                    }
+                    lv_obj_set_style_text_color(  lv_i[i], colr_ic, LV_PART_MAIN); // 
+                    lv_obj_set_style_bg_color(    lv_b[i], colr_bg, LV_PART_MAIN); // 
+                    lv_obj_set_style_border_color(lv_b[i], colr_bd, LV_PART_MAIN); //
+                 }// new
+              } // for
+      #- - - - - - - - - - -  - - - - -  - - - - -  -
+    - id: pg_svet_update
+      then:  
+        - lambda: |-
+             //
+                static int bt_ss[]={0,0,0,0,0,0,0,0}; // 0-err,1-off,2-on
+                int ss;
+                lv_color_t colr_bg;                
+                lv_color_t colr_bd;                 
+                lv_color_t colr_ic;
+
+                static lv_obj_t* lv_bt[] = {
+                                          id(svet_but1),
+                                          id(svet_but2),
+                                          id(svet_but3),
+                                          id(svet_but4),
+                                          id(svet_but5), 
+                                          id(svet_but6),  
+                                          id(svet_but7), 
+                                          id(svet_but8),                                            
+                                           };                
+                static lv_obj_t* lv_ic[] = {
+                                          id(svet_but1_ic),
+                                          id(svet_but2_ic),
+                                          id(svet_but3_ic),
+                                          id(svet_but4_ic),
+                                          id(svet_but5_ic), 
+                                          id(svet_but6_ic),  
+                                          id(svet_but7_ic), 
+                                          id(svet_but8_ic),
+                                           };                          
+                static esphome::homeassistant::HomeassistantBinarySensor* bt_sw[]={   
+                                  id(svet_but1_st),
+                                  id(svet_but2_st),
+                                  id(svet_but3_st),
+                                  id(svet_but4_st),
+                                  id(svet_but5_st),
+                                  id(svet_but6_st),
+                                  id(svet_but7_st),
+                                  id(svet_but8_st),
+                                };      
+             // 
+                for(int i=0; i<8; i++){
+                    if(isnan(bt_sw[i]->state)){ss=0;} 
+                      else{ss=bt_sw[i]->state;
+                           if(ss){ss=2;}  // ON  
+                             else{ss=1;}  // OFF
+                    } 
+                    if(bt_ss[i]!=ss){
+                        bt_ss[i]=ss; 
+                        if(ss==0){     colr_bg=lv_color_hex(${svet_but_colr_bg});
+                                       colr_bd=lv_color_hex(${svet_but_colr_bd}); 
+                                       colr_ic=lv_color_hex(${svet_but_colr_ic_er});}  
+                        else if(ss==1){colr_bg=lv_color_hex(${svet_but_colr_bg});
+                                       colr_bd=lv_color_hex(${svet_but_colr_bd}); 
+                                       colr_ic=lv_color_hex(${svet_but_colr_ic});}                            
+                        else if(ss==2){colr_bg=lv_color_hex(${svet_but_colr_bg_on});                
+                                       colr_bd=lv_color_hex(${svet_but_colr_bd_on}); 
+                                       colr_ic=lv_color_hex(${svet_but_colr_ic_on});}                        
+                        lv_obj_set_style_text_color(  lv_ic[i], colr_ic, LV_PART_MAIN); // 
+                        lv_obj_set_style_bg_color(    lv_bt[i], colr_bg, LV_PART_MAIN); // 
+                        lv_obj_set_style_border_color(lv_bt[i], colr_bd, LV_PART_MAIN); //                      
+                    }
+                } 
+       
+      #- - - - - - - - - - - - - - - - - - -
+    - id: pg_maxt_updata
+      parameters:
+        s: int
+      then:
+        - lambda: |-
+             //
+              id(pg_select)=2;
+              char bufh[16];
+              char bufl[16];
+              const char* nm[]={
+                              "${main_tmrt_but1_n}",
+                              "${main_tmrt_but2_n}",
+                              "${main_tmrt_but3_n}",
+                                };
+              id(change_tmax)=s;
+              float p=id(t_max)[s];
+              int   ph=int(p); 
+              int   pl=abs(int(10*p-10*ph));                    
+              snprintf(bufh, sizeof(bufh), "%i", ph);
+              snprintf(bufl, sizeof(bufl), "%i", pl); 
+              lv_label_set_text(id(maxt_but_th), bufh ); 
+              lv_label_set_text(id(maxt_but_tl), bufl);
+              lv_label_set_text(id(maxt_but_nm), nm[s]) ;       
+    - id: pg_maxt_change
+      parameters:
+        i: float
+      then:
+        - lambda: |    
+            // 
+             id(t_max)[id(change_tmax)]+=i; 
+        - script.execute: 
+            id:  pg_maxt_updata    
+            s: !lambda 'return id(change_tmax);' 
+    - id: top_select_change
+      then:
+        - lambda: |-
+            if (     id(pg_select) == 0) {id(pg_select) =1; lv_scr_load((pg_svet)->obj);}     
+            else if (id(pg_select) == 1) {id(pg_select) =0; lv_scr_load((pg_main)->obj);} 
+            else if (id(pg_select) == 2) {id(pg_select) =0; lv_scr_load((pg_main)->obj);}
+    - id: top_info_update
+      then:
+        - lambda: |-
+             //    
+              static int ic=-1; // 0-no 1- svet,2-kotel
+              bool lh = id(svet_but1_st).state ||
+                           id(svet_but2_st).state ||
+                           id(svet_but3_st).state ||
+                           id(svet_but4_st).state ||
+                           id(svet_but5_st).state ||
+                           id(svet_but6_st).state ||
+                           id(svet_but7_st).state ;
+              
+              bool kt = id(main_kotl_but1_ss).state ||
+                        id(main_kotl_but2_ss).state ||
+                        id(main_kotl_but3_ss).state;
+              int is;
+              if((id(pg_select)==0) && lh){ // pg_main                
+                 is=1;    
+              }     
+              else if((id(pg_select)==1) && kt){ // pg_svet
+                 is=2;     
+              } 
+              else{is=0;}
+              if(ic!=is){
+                 ic=is;
+                 const char* text;
+                 if(     ic==0){text= "";}
+                 else if(ic==1){text= "${lightbulb_on}";} 
+                 else if(ic==2){text= "${fire}";}                 
+                lv_label_set_text(id(top_info),text);
+              }
+
+   #beep: 
+    - id: play_beep2
+      then:
+        - rtttl.play: ${beep2} 
+    - id: play_beep1
+      then:
+        - rtttl.play: ${beep1}      
+     #- - - - - - - - - -
+   #flash:
+    - id: chek_kotel_tr # f_flash[1],f_flash[2],
+      then:
+        - lambda: |-
+            //
+               bool is_low = (id(main_kotl_but3_tr).state < 70.0f)&& id(main_kotl_but3_ss).state;
+               id(f_flash)[1] = is_low;
+               id(f_flash)[2] = is_low; 
+      
+      #- - - - - - - -  - - - - - - - - - - - - - -          
+    - id: flash_err
+      then:
+        - lambda: |-
+            //        
+                static bool phase = false;
+                phase = !phase;       
+                static lv_obj_t* lv_lb[] = {              //                   
+                                            id(lan_status),           // 0 lan connect
+                                            id(main_kotl_but3_th),    // kotel gas tr
+                                            id(main_kotl_but3_tl),    // kotel gas tr                          
+                                            id(main_tmrt_but3_tl),    //
+                                            };                
+                
+                for(int i=0; i<4; i++){
+                  if (id(f_flash)[i] ) {
+                      if (phase){lv_obj_add_flag(lv_lb[i], LV_OBJ_FLAG_HIDDEN);}                 
+                       else {  lv_obj_clear_flag(lv_lb[i], LV_OBJ_FLAG_HIDDEN); }   
+                  } else {     lv_obj_clear_flag(lv_lb[i], LV_OBJ_FLAG_HIDDEN);} 
+                                      
+                }      
+      
+      #- - - - - - - -  - - - - - - - - - - - - - -     
+    - id: flash_tmrt_err
+      then:
+        - lambda: |-
+            //              
+                static bool phase = false;
+                phase = !phase;                
+                static esphome::sensor::Sensor* t_sen[]={ // temperature 
+                                                  id(main_tmrt_but1_tr),
+                                                  id(main_tmrt_but2_tr),
+                                                  id(main_tmrt_but3_tr),
+                                                  };                
+                static lv_obj_t* lv_th[] = {              //                   
+                                            id(main_tmrt_but1_th),
+                                            id(main_tmrt_but2_th),
+                                            id(main_tmrt_but3_th),                                
+                                            }; 
+                static lv_obj_t* lv_tl[] = {              //                   
+                                            id(main_tmrt_but1_tl),
+                                            id(main_tmrt_but2_tl),
+                                            id(main_tmrt_but3_tl),                               
+                                            };             
+            //  
+                for(int i=0; i<3; i++){
+                  if (t_sen[i]->state > id(t_max)[i]) {
+                      if (phase){
+                          lv_obj_add_flag(lv_th[i], LV_OBJ_FLAG_HIDDEN);
+                          lv_obj_add_flag(lv_tl[i], LV_OBJ_FLAG_HIDDEN);              
+                      } else {
+                          lv_obj_clear_flag(lv_th[i], LV_OBJ_FLAG_HIDDEN);
+                          lv_obj_clear_flag(lv_tl[i], LV_OBJ_FLAG_HIDDEN); 
+                      }
+                  } else {
+                      lv_obj_clear_flag(lv_th[i], LV_OBJ_FLAG_HIDDEN);
+                      lv_obj_clear_flag(lv_tl[i], LV_OBJ_FLAG_HIDDEN); 
+                  }               
+                }
+
+       
+      
+      #- - - - - - - -  - - - - - - - - - - - - - - 
+   #lan
+    - id: update_net_status
+      then:
+        - lambda: |-
+              
+              if (!id(wifi_component).is_connected()) {
+                // 🔴 нет Wi-Fi
+                lv_obj_set_style_text_color(id(lan_status), lv_color_hex(0xFF00FF), 0);
+                lv_label_set_text(id(lan_status), "${wifi_off}");
+                id(f_flash)[0]=true; //               
+              } else if (!id(ha_connected).state) {
+                // 🟡 Wi-Fi есть, HA нет
+                lv_obj_set_style_text_color(id(lan_status), lv_color_hex(0xFFFF00), 0);
+                lv_label_set_text(id(lan_status), "${lan_disconnect}");
+                id(f_flash)[0]=true; //               
+              } else {
+                // 🟢 всё ок
+                lv_obj_set_style_text_color(id(lan_status), lv_color_hex(0x303020), 0);
+                lv_label_set_text(id(lan_status), "${lan_connect}");
+                id(f_flash)[0]=false; //               
+              }    
+  interval:
+    - interval: 1s
+      then:
+          - lambda: |-
+                const int t=60;
+                static int  time=t;            
+                if (time==0) {id(updata_updata).execute();return;}                       
+                if (time>0)  {time=time-1;}
+                if (time==1) {lv_scr_load(id(pg_main).obj);return;}            
+                if (time==(t-1)){lv_scr_load(id(pg_sysi).obj);return;}
+     #- - - - - - - - - - - - - - - - - - - 
+    - interval: 700ms
+      then:
+        - script.execute: flash_err     #   - script.execute: flash_err         
+        - if:
+            condition:
+              lambda: |-
+                return !lv_obj_has_flag(id(pg_main).obj, LV_OBJ_FLAG_HIDDEN);
+            then:        
+              - script.execute: flash_tmrt_err     #   - script.execute: flash_tmrt_err 
+     #- - - - - - - - - - - - - - - - - - -     
+    - interval: 10s # chek
+      then:  
+        - script.execute: chek_kotel_tr
+   #- - - - - - - - - - - - - - - - - - - 
+
+
+
+ #sensor sensor, binary_sensor, text_sensor 
+  sensor:
+   #-sysi 
+      - platform: debug
+        free:
+         # name: "Free Heap"
+          id: free_memory
+          on_value: 
+            then:
+              - lambda: |-
+                  //if(lv_obj_has_flag( id(obj_sysi), LV_OBJ_FLAG_HIDDEN) ){return;} 
+                  static char buf[16];
+                  snprintf(buf, sizeof(buf), "%.0f byte", id(free_memory).state);
+                  lv_label_set_text(id(sysi_lab_d7), buf);       
+      #- platform: debug
+      #  block:
+      #    name: "Largest Free Block"
+      #- platform: debug
+      #  loop_time:
+      #    name: "Loop Time"
+      #    id: time_lp
+      #    on_value: 
+      #      then:
+      #        - lambda: |-
+      #              static char buf[16];
+      #              snprintf(buf, sizeof(buf), "%.0f ms", id(time_lp).state);
+      #              lv_label_set_text(id(error_api), buf);                   
+                  
+
+      - platform: template
+        name: "Free "
+      #  id: free_memory
+        unit_of_measurement: "B"
+        update_interval: 20s  
+        lambda: |-
+          return heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+      #  on_value: 
+      #    then:
+      #      - lambda: |-
+      #          if(lv_obj_has_flag( id(obj_sysi), LV_OBJ_FLAG_HIDDEN) ){return;} 
+      #          static char buf[16];
+      #          snprintf(buf, sizeof(buf), "%.0f byte", id(free_memory).state);
+      #          lv_label_set_text(id(sysi_lab_d7), buf); 
+      - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
+        name: "WiFi Signal dB"
+        id: wifi_signal_db
+        entity_category: "diagnostic"
+        update_interval: 30s    
+        on_value: 
+          then:
+            - lambda: |-
+                  static char buf[16];
+                  snprintf(buf, sizeof(buf), "%.0f dB", id(wifi_signal_db).state);
+                  lv_label_set_text(id(sysi_lab_d2), buf);
+    
+     #light_sensor 
+      - platform: adc  #
+        id: light_value
+        name: svet
+        pin: 34
+        update_interval: 2s
+        on_value:
+          then:
+            - lambda: |-
+                  if( id(light_value).state <0.09 ){ id(led_dsp).set_level(0.7);}
+                  if( id(light_value).state >0.11 ){ id(led_dsp).set_level(0.1);}
+   #edit:
+   #tmrt:
+     #my1   
+      - platform: dallas_temp   # tmpt_1t: холодильник "0x463ce1e381d6c428"
+        address: ${sn_tmrt1_adr}   
+        name: temperature1
+        id: main_tmrt_but1_tr
+        update_interval: 7s 
+        filters:
+          - lambda: return roundf(x * 10.0) / 10.0;
+          - delta: 0.1
+      
+     #my2 
+      - platform: dallas_temp   # tmpt_2t: морозилка   "0x433ceff64977c828 "
+        address: ${sn_tmrt2_adr}   
+        name: temperature2 
+        id: main_tmrt_but2_tr
+        update_interval: 7s 
+        filters:
+          - lambda: return roundf(x * 10.0) / 10.0;
+          - delta: 0.1
+      
+      - platform: homeassistant # <tprt_01>  [obj_main]-{text_t1} холодильник
+        id: main_tmrt_but3_tr
+        entity_id: ${main_tmrt_but3_tr}  
+        
+     #2 
+      - platform: homeassistant #  
+        id: main_kotl_but1_tr
+        entity_id: ${main_kotl_but1_tr}   
+        
+      - platform: homeassistant #  
+        id: main_kotl_but2_tr
+        entity_id: ${main_kotl_but2_tr}     
+        
+      - platform: homeassistant #  kotel gas tr
+        id: main_kotl_but3_tr
+        entity_id: ${main_kotl_but3_tr}       
+        
+        on_value: 
+          then:
+             - script.execute: chek_kotel_tr
+
+     #rz 
+      - platform: homeassistant # butt_1t: Kotel t_in  вода вход 
+        id: main_kotl_but1_sp
+        entity_id: ${main_kotl_but1_sp}
+      - platform: homeassistant # butt_2t: Kotel t_out вода выход
+        id: main_kotl_but2_sp
+        entity_id: ${main_kotl_but2_sp}     
+      - platform: homeassistant # butt_3t: Kotel t_gas горелка
+        id: main_kotl_but3_sp
+        entity_id: ${main_kotl_but3_sp}  
+        on_value: 
+          then:
+             - script.execute: chek_kotel_tr
+   #- - - - - - - - - - - - - - - - - - -
+  binary_sensor:
+   #kotl: 
+      #1
+    - platform: homeassistant #   
+      id: main_kotl_but1_ss
+      entity_id: ${main_kotl_but1_ss}
+    - platform: homeassistant #  
+      id: main_kotl_but1_sa
+      entity_id: ${main_kotl_but1_sa}  
+      #2
+    - platform: homeassistant #   
+      id: main_kotl_but2_ss
+      entity_id: ${main_kotl_but2_ss}
+    - platform: homeassistant #  
+      id: main_kotl_but2_sa
+      entity_id: ${main_kotl_but2_sa}
+      #3
+    - platform: homeassistant #   
+      id: main_kotl_but3_ss
+      entity_id: ${main_kotl_but3_ss}
+    - platform: homeassistant #  
+      id: main_kotl_but3_sa
+      entity_id: ${main_kotl_but3_sa}
+   #svet:
+      #1
+    - platform: homeassistant #  
+      id: svet_but1_st
+      entity_id: ${svet_but1_st}
+      #2
+    - platform: homeassistant #  
+      id: svet_but2_st
+      entity_id: ${svet_but2_st}
+      #3
+    - platform: homeassistant #  
+      id: svet_but3_st
+      entity_id: ${svet_but3_st}
+      #4
+    - platform: homeassistant #  
+      id: svet_but4_st
+      entity_id: ${svet_but4_st}
+      #5
+    - platform: homeassistant #  
+      id: svet_but5_st
+      entity_id: ${svet_but5_st}
+      #6
+    - platform: homeassistant #  
+      id: svet_but6_st
+      entity_id: ${svet_but6_st}
+      #7
+    - platform: homeassistant #  
+      id: svet_but7_st
+      entity_id: ${svet_but7_st}
+      #8
+    - platform: homeassistant #  
+      id: svet_but8_st
+      entity_id: ${svet_but8_st}
+    #- - - - - - - - - - - - - - - - - - -  
+   #lan
+    - platform: status
+      id: ha_connected
+      on_press:
+        - script.execute: update_net_status
+      on_release:
+        - script.execute: update_net_status   
+  #text_sensor:
+  text_sensor:
+   #sysi
+    - platform: version
+      name: "ESPHome Version"
+      id: esphome_version
+      on_value: 
+        then:
+          - lambda: |-
+                std::string s = id(esphome_version).state;
+
+                size_t start = s.find("(config hash");
+                size_t end = s.find("built");
+
+                if (start != std::string::npos && end != std::string::npos) {
+                  s.erase(start+1, end - start-1);
+                }
+                lv_label_set_text(id(sysi_lab_d8), s.c_str());               //
+                
+    - platform: template      # esphome_name
+      name: "esphome name"
+      id: esphome_name
+      lambda: |-
+         return App.get_name();
+      on_value: 
+        then:
+          - lambda: |-
+              lv_label_set_text(id(sysi_lab_d1), x.c_str());      
+      # - - - - - - - - - - - - - -  
+    - platform: wifi_info     # wifi
+      ip_address:
+        name: "IP Address"
+        id: ip_adress
+        on_value:
+          then:
+            - lambda: |-             
+                   lv_label_set_text(id(sysi_lab_d5), x.c_str()); 
+                    //static std::string  txt;
+                    //if(!id(ip_adress).has_state() || id(ip_adress).state.size() == 0){txt="error";}                                  
+                    //else{txt = id(ip_adress).state.c_str();} // text sensor     
+                    //lv_label_set_text(id(sysi_lab_d5), txt.c_str());                     
+      ssid:
+        name: "Connected SSID"
+        id: connected_ssid
+      bssid:
+        name: "BSSID"
+        id: bssid
+      mac_address:
+        name: "MAC Address"
+        id: mac_address
+        on_value: 
+          then:
+            - lambda: |-
+                lv_label_set_text(id(sysi_lab_d6), x.c_str());  
+  #- - - - - - - - - - - - - - - - - - -
+ 
+ #globals
+  globals:
+    - id: f_flash
+      type: bool[5]
+      restore_value: yes
+      initial_value: '{{true,false,false,false,false }}'    
+    - id: t_max
+      type: float[3]
+      restore_value: yes
+      initial_value: '{{8.0, -20.0, -20.0}}'
+    - id: change_tmax
+      type: int
+      restore_value: no
+    - id: pg_select
+      type: int
+      initial_value: '0'
+      restore_value: no
+ #font
+  font:
+   #icon
+    - file: "fonts/materialdesignicons-webfont.ttf"  # icon_28
+      id: icon_28      
+      bpp: 4
+      size: 28
+      glyphs: [
+               "${lan_connect}",
+               "${lan_disconnect}",
+               "${wifi_off}",
+              ]    
+
+    - file: "fonts/materialdesignicons-webfont.ttf"  # icon_34
+      id: icon_34      
+      bpp: 4
+      size: 34
+      glyphs: [
+          # "${close_co}", #close-circle-outline
+            "${fire}",       # mdi-fire                   КОТЕЛ
+          # "${car}",        # mdi-car-hatchback          ГАРАЖ
+            "${fan_1}",      #  mdi-fan-speed-1            Моторчик 1 
+            "${fan_2}",      # mdi-fan-speed-2            Моторчик 2
+            "${next}",         
+            "${cog}",
+            "${lightbulb_on}", 
+          # "${num_box1}",   # mdi-numeric-1-box-outline  Бойлер 1
+          # "${num_box2}",   # mdi-numeric-2-box-outline  Бойлер 2
+          # "${home_f2}",     # mdi-home-floor-2           ВХОД 2
+          # "${home_f1}",     # mdi-home-floor-1           ВХОД 1
+          # "${download}",    # mdi-download               ПОГРЕБ2          
+          # "${coach_lamp}",  #  mdi-coach-lamp             Сарай улица   
+          # "${fonar}",       #  mdi-coach-lamp             Сарай улица  
+          # "${fonar2}",      #  track-light
+          # "${numer_1}",    # mdi-numeric-1
+          # "${numer_2}",    # mdi-numeric-2
+          # "${fan}",             # mdi-pinwheel               охлаждение DEYE
+          # "${icn_solar_panl}",  # mdi-solar-panel
+          # "${icn_close}"        #    "U000F0156"  # mdi-close
+            ]
+
+    - file: "fonts/materialdesignicons-webfont.ttf"  # icon_65
+      id: icon_65      
+      bpp: 4
+      size: 65
+      glyphs: [
+             # "${close_co}", #close-circle-outline
+            "${fire}",       # mdi-fire                   КОТЕЛ
+            "${car}",        # mdi-car-hatchback          ГАРАЖ
+             # "${fan_1}",      #  mdi-fan-speed-1            Моторчик 1 
+             # "${fan_2}",      # mdi-fan-speed-2            Моторчик 2
+             # "${num_box1}",   # mdi-numeric-1-box-outline  Бойлер 1
+             # "${num_box2}",   # mdi-numeric-2-box-outline  Бойлер 2
+            "${home_f2}",     # mdi-home-floor-2           ВХОД 2
+            "${home_f1}",     # mdi-home-floor-1           ВХОД 1
+            "${download}",    # mdi-download               ПОГРЕБ2          
+            "${coach_lamp}",  #  mdi-coach-lamp             Сарай улица   
+            "${fonar}",       #  mdi-coach-lamp             Сарай улица  
+            "${fonar2}",      #  track-light
+            "${fonar3}",      #  track-light            
+            "${next}",
+            "${wall_sconce_round}",
+            "${minus_box_outline}",     
+            "${plus_box_outline}",                 
+            "${close_co}", #               "\U000F015A"  #close-circle-outline     
+            # "${numer_1}",    # mdi-numeric-1
+            # "${numer_2}",    # mdi-numeric-2
+            # "${fan}",             # mdi-pinwheel               охлаждение DEYE
+            # "${icn_solar_panl}",  # mdi-solar-panel
+            # "${icn_close}"        #    "U000F0156"  # mdi-close
+            ]  
+   #font
+    - file: "fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf"  # 45   - file: "gfonts://Roboto"         # s:30
+      bpp: 4
+      id: RobotoCondensed_Regular_16
+      size: 16 
+      glyphs: [#" ",".","-","=",":","°","+","(",")","[","]",
+              "0","1","2","3","4","5","6","7","8","9",
+              Б,В,Г,Д,З,К,М,Н,П,Р,С,Т,У,Х,Ч,
+              а,б,в,г,д,е,ж,з,и,й,к,л,м,п,н,о,т,с,р,у,ф,х,ч,ц,ш,щ,ы,ь,ю,я,
+              #a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,q,t,u,v,w,x,y,z,
+              #A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z
+              ":"," ",".","-",x
+              ]
+    - file: "fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf"  # 25   - file: "gfonts://Roboto"         # s:30
+      bpp: 4
+      id: RobotoCondensed_Regular_25
+      size: 25 
+      glyphs: [#" ",".","=",":","°","+","(",")","[","]",
+              "-", 
+              "0","1","2","3","4","5","6","7","8","9",
+              #Б,Д,П,З,К,М,Н,В,Т,С,Р,Х,Ч,
+              #а,б,в,г,д,е,ж,з,и,й,к,л,м,п,н,о,т,с,р,у,ф,х,ч,ц,ш,щ,ы,ь,я,
+              #a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,q,t,u,v,w,x,y,z,
+              #A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z
+              x
+              ] 
+    - file: "fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf"  # 30   - file: "gfonts://Roboto"         # s:30
+      id: roboto_30
+      #bpp: 4
+      size: 25 
+      glyphs: [" ",".","-","=",":","°","+","(",")","_","!",
+                "0","1","2","3","4","5","6","7","8","9",
+                Б,В,Д,К,М,Н,О,П,Р,С,Т,Ч,
+                а,б,в,г,д,е,ж,з,и,к,л,м,п,н,о,т,с,р,у,ф,х,ч,ц,ш,щ,ь,я,
+                a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,q,t,u,v,w,x,y,z,
+                A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z]
+
+
+    - file: "fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf"  # 35   - file: "gfonts://Roboto"         # s:30
+      bpp: 4
+      id: RobotoCondensed_Regular_35
+      size: 35 
+      glyphs: [#" ",".","-","=",":","°","+","(",")","[","]",
+              "0","1","2","3","4","5","6","7","8","9",
+              #Б,Д,П,З,К,М,Н,В,Т,С,Р,Х,Ч,
+              #а,б,в,г,д,е,ж,з,и,й,к,л,м,п,н,о,т,с,р,у,ф,х,ч,ц,ш,щ,ы,ь,я,
+              #a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,q,t,u,v,w,x,y,z,
+              #A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z
+              ":"," ",x
+              ]
+    - file: "fonts/Roboto_Condensed/static/RobotoCondensed-Medium.ttf"  # 45   - file: "gfonts://Roboto"         # s:30
+      bpp: 4
+      id: RobotoCondensed_Medium_50
+      size: 50 
+      glyphs: [#" ",".","-","=",":","°","+","(",")","[","]",
+              "0","1","2","3","4","5","6","7","8","9",
+              #Б,Д,П,З,К,М,Н,В,Т,С,Р,Х,Ч,
+              #а,б,в,г,д,е,ж,з,и,й,к,л,м,п,н,о,т,с,р,у,ф,х,ч,ц,ш,щ,ы,ь,я,
+              #a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,q,t,u,v,w,x,y,z,
+              #A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z
+              ":"," ","-","+",x
+              ]   
+    - file: "fonts/Roboto_Condensed/static/RobotoCondensed-Medium.ttf"  # 45   - file: "gfonts://Roboto"         # s:30
+      bpp: 4
+      id: RobotoCondensed_Medium_80
+      size: 80 
+      glyphs: [#" ",".","-","=",":","°","+","(",")","[","]",
+              "0","1","2","3","4","5","6","7","8","9",
+              #Б,Д,П,З,К,М,Н,В,Т,С,Р,Х,Ч,
+              #а,б,в,г,д,е,ж,з,и,й,к,л,м,п,н,о,т,с,р,у,ф,х,ч,ц,ш,щ,ы,ь,я,
+              #a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,q,t,u,v,w,x,y,z,
+              #A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z
+              ":"," ","-","+",x
+              ]  
+  #- - - - - - - - - - - - - - - - - - - 
+#-end-#
+#
+#

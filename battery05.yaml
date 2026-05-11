@@ -1,0 +1,4368 @@
+#setup: esphome, esp32, logger, api, ota, wifi
+  esphome:
+    name: battery05
+    friendly_name: battery05
+    comment: "Monitor JK-BMS 480x320 rept314" 
+    on_boot:
+      priority: 600
+      then:     
+        - output.turn_on: led_tft
+        - output.turn_on: led_red
+        - output.turn_on: led_grn
+        - output.turn_on: led_blu
+        - lambda: |-
+              id(led_tft).set_level(0.3);
+   # - - - - - - - - - - - - - - -  - -
+  esp32:
+    board: esp32dev
+    flash_size: 4MB
+    framework:
+      type: esp-idf
+   # - - - - - - - - - - - - - - -  - -
+   # Enable logging
+  logger:
+    level: WARN
+   # - - - - - - - - - - - - - - -  - 
+  api:
+    encryption:
+      key: "MXTepe9yTyKhIvvrs79m9aMYdjc2tZYWSddnHLEZTbY="
+   # - - - - - - - - - - - - - - -  - -
+  ota:
+    - platform: esphome
+      password: "2d9aa43e51168f3d5a4e31bdb333f03a"
+   # - - - - - - - - - - - - - - -  - -
+  wifi:
+    ssid: !secret wifi_ssid
+    password: !secret wifi_password    
+      #    networks:
+      #      - ssid: !secret wifi_ssid
+      #        password: !secret wifi_password
+      #      - ssid: dwt15
+      #        password: 0934876536     
+      #      - ssid: AndroidAP3E21
+      #        password: ifpw4803 
+      #      - ssid: "MERCUSYS_0BFF"
+      #        password: "66674818"       
+    reboot_timeout: 0s
+    on_connect:
+      then:
+       - lambda: |-
+           id(wifi_con) = true;
+    on_disconnect:
+      then:
+        - lambda: |-
+            id(wifi_con)= false;              
+   # - - - - - - - - - - - - - - -  - -
+#setup pin, .... var
+  substitutions:
+   #icon
+      i_wifi_on:  "\U000F05A9"  # mdi-wi-fi
+      i_wifi_off: "\U000F05AA"  # mdi-wi-fi-off  
+   #pin
+     #led
+      pin_led_red:   4
+      pin_led_grn:   17
+      pin_led_blu:   16
+     #dsp
+      pin_dsp_ld:    27    
+      pin_dsp_cs:    15
+      pin_dsp_dc:    2
+     #spi
+      pin_spi_clk:   14
+      pin_spi_mosi:  13 
+      pin_spi_miso:  12
+     #touch
+      pin_tch_cs:    33
+     #buzz
+      pin_buz:       26
+     #jkbms
+      pin_jkbms_tx:  1
+      pin_jkbms_rx:  3
+     #light
+      pin_light:     34  
+   #rtttl
+      beep1: "b:d=32,o=7,b=200: g#"
+   #main
+    #pos
+     #cell voltage  
+      wi_n:  "34"  # ширина поля для номера яч
+      he_n:  "30"  # вісота поля для номера яч
+      ps_x1: "0"   # Х позиция первого елемента
+      ps_y1: "330" # У позиция первого елемента
+      ps_xn: "5"   # позиция х номера внутри объекта  28: 3
+      ps_yn: "1"  # позиция у номера внутри объекта  28:-1  
+      dx_n:  "5"   # отсуп показания от номера
+      dx_cv: "90"  # Х растояние между значекниями по х
+      dy_cv: "10"  # У растояние между значекниями 
+     #bar v
+      dx_brv:  "5"   # растояние между столбами
+      max_brv: "100" # макс значение
+      min_brv: "0"   # мин  значение
+      he_brv:  "100" # высота
+      wi_brv:  "25"  # ширина wi_brv=30-dx_brv
+      px_brv:  "0"   # х поз 
+      py_brv:  "200" # у поз
+      ln_brv:  "250" # у поз для линии =py_brv+50
+    #jk bms info 
+      jk_bms_t1:  "name"                     # id: manufacturer
+      jk_bms_t2:  "Password"                 # id: password
+      jk_bms_t3:  "Total Time(h)"            # id: total_runtime
+      jk_bms_t4:  "Total Time(d)"            # id: total_runtime_formatted 
+      jk_bms_t5:  "Cycle Count"              # id: charging_cycles
+      jk_bms_t6:  "Cycle Capacity(Ah)"       # id: total_charging_cycle_capacity 
+      jk_bms_t7:  "Battery_type"             # id: battery_type  
+      jk_bms_t8:  "Balance Trig Volt(V)"     # id: balance_opening_pressure_difference 
+      jk_bms_t9:  "Start Balance Volt(V)"    # id: balance_starting_voltage 
+      jk_bms_t10: "Cell OVP(V)"              # id: cell_voltage_overvoltage_protection      *напряжение отключения Power OFF(V)
+      jk_bms_t11: "Cell VPR(V)"              # id: cell_voltage_overvoltage_recover
+      jk_bms_t12: "Cell UVPR(V)"             # id: cell_voltage_undervoltage_protection
+      jk_bms_t13: "Cell UVP(V)"              # id: cell_voltage_undervoltage_recovery
+      jk_bms_t14: "Charge Curr(A)"           # id: charging_overcurrent_protection
+      jk_bms_t15: "DisCharge Curr(A)"        # id: discharging_overcurrent_protection
+     #wifi
+      jk_bms_t1a: "wi-fi (db)"                # id: wifi_signal_db
+      jk_bms_t2a: "ip_adress"                # id: ip_adress
+      jk_bms_t3a: "ssid"                     # id: connected_ssid
+      jk_bms_t4a: "pass" #
+      jk_bms_t5a: "bsid" #
+      jk_bms_t6a: "host name" #
+      jk_bms_t7a: "MAC" #
+     #regist
+      jk_bms_t1r: "Change Curr max(A)"   #
+      jk_bms_t2r: "Dischg Curr max(A)"   #
+      jk_bms_t3r: "Total Voltage max(V)" #
+      jk_bms_t4r: "Total Voltage min(V)" #  
+      jk_bms_t5r: "Cell Voltage max(V)"  #
+      jk_bms_t6r: "Cell Voltage min(V)"  # 
+      jk_bms_t7r: "Delta Voltage max(V)" # 
+    #grafm
+     #main size pos 
+      grafm_wdx: "480"    # окно графика ширина
+      grafm_wdy: "320"    # окно графика высота
+      grafm_wbx: "0"      # верхний левый угол окна 
+      grafm_wby: "0"      # верхний левый угол окна 
+     #поле графика
+      grafm_pdx: "420"    # поле для данных по Х макс поз
+      grafm_pdy: "280"    # поле для данных по Y макс поз
+      grafm_pbx: "59"     # поз X
+      grafm_pby: "40"     # поз Y 
+      grafm_pdm: "240"    # максимальное значение функции по у пикс
+      grafm_pdi: "1440"   # максимальное кол-данніх
+      grafm_px0: "0"      # Точка 0 X
+      grafm_py0: "249"    # Точка 0 Y для расчета графиков
+     #горизонтали
+      grafm_lgk: "7"    # Кол-во гор линий 
+      grafm_lg0: "249"    # 0-линия координата Y
+      grafm_lg1: "209"    # 1-линия координата Y
+      grafm_lg2: "169"    # 2-линия координата Y
+      grafm_lg3: "129"    # 3-линия координата Y
+      grafm_lg4: "89"    # 4-линия координата Y
+      grafm_lg5: "49"    # 5-линия координата Y
+      grafm_lg6: "9"     # 6-линия координата Y
+      grafm_lgb: "0"       # начальная X
+      grafm_lge: "2880"    # конечная X
+     #вертикали
+      grafm_lvk: "13"    # Кол вертикальных линий
+      grafm_lv0: "${grafm_px0}"    # 0-линия координата X 0
+      grafm_lv1: "120"    # 1-линия координата X
+      grafm_lv2: "240"    # 1-линия координата X
+      grafm_lv3: "360"    # 1-линия координата X
+      grafm_lv4: "480"    # 1-линия координата X
+      grafm_lv5: "600"    # 1-линия координата X
+      grafm_lv6: "720"    # 1-линия координата X
+      grafm_lv7: "840"    # 1-линия координата X
+      grafm_lv8: "960"    # 1-линия координата X
+      grafm_lv9: "1080"    # 1-линия координата X
+      grafm_lv10: "1200"    # 1-линия координата X
+      grafm_lv11: "1320"    # 1-линия координата X
+      grafm_lv12: "1440"    # 1-линия координата X 1440
+      grafm_lv13: "1560"    # 1-линия координата X
+      grafm_lv14: "1680"    # 1-линия координата X
+      grafm_lv15: "1800"    # 1-линия координата X
+      grafm_lv16: "1920"    # 1-линия координата X
+      grafm_lv17: "2040"    # 1-линия координата X
+      grafm_lv18: "2160"    # 1-линия координата X
+      grafm_lv19: "2280"    # 1-линия координата X
+      grafm_lv20: "2400"    # 1-линия координата X
+      grafm_lv21: "2520"    # 1-линия координата X
+      grafm_lv22: "2640"    # 1-линия координата X
+      grafm_lv23: "2760"    # 1-линия координата X
+      grafm_lv24: "${grafm_lge}"    # 1-линия координата X 1440 2880   
+      
+      
+     #x 
+      grafm_lvb: "0"    # 1-линия координата X    
+      grafm_lve: "255"    # 1-линия координата X       
+     #metki""    #  
+      grafm_mdx: "55"    # ширина
+      grafm_mdy: "280"    # высота
+      grafm_mbx: "0"    # поз начальной метки масштаба X
+      grafm_mby: "0"    # поз начальной метки масштаба Y
+     #grafm_mde: "40"    # смещение  для остальных меток вверх по Y
+      grafm: ""    # 
+     #time""    # 
+      grafm_tmy: "255" 
+          # 
+      grafm_cgr: "0x800000" # цвет сетки
+      grafm_cff: "0x000000" # цвет поля поля    
+      grafm_cln: "0x008080" # цвет графика
+      grafm_cg0: "0xf00000" # цвет для данных 0
+      grafm_cg1: "0x00f000" # цвет для данных 1      
+      grafm_cg2: "0x0000f0" # цвет для данных 2      
+      grafm_cmt: "0xb0b060"
+   #-------------------------------------------------------------- 
+#set: external_components, output, spi, touch, display, rtttl, uart, jk_modbus, jk-bms, time 
+  external_components:
+        #- source: github://syssi/esphome-jk-bms@main # ${external_components_source}
+        #  refresh: 60s
+     - source:
+         type: local     
+         path: components/jk-bms
+   # - - - - - - - - - - - - - - -  - -
+  output:
+    - platform: ledc   # led_tft
+      pin: ${pin_dsp_ld}
+      id: led_tft  
+    - platform: ledc   # led red
+      pin: ${pin_led_red}
+      id: led_red 
+    - platform: ledc   # led gren
+      pin: ${pin_led_grn}
+      id: led_grn 
+    - platform: ledc   # led blue
+      pin: ${pin_led_blu}
+      id: led_blu
+    - platform: ledc   # buzzer
+      pin: ${pin_buz}   #27 
+      id: rtttl_out
+
+   # - - - - - - - - - - - - - - -  - -
+  spi:                
+    clk_pin:  ${pin_spi_clk}  #14
+    mosi_pin: ${pin_spi_mosi} #13 # output data мастер выдает помошник принимает
+    miso_pin: ${pin_spi_miso} #12 # input data мастер  принимает помошник выдает
+   # - - - - - - - - - - - - - - -  - -  #--------------
+  touchscreen:
+    platform: xpt2046
+    id: my_touch
+    cs_pin: ${pin_tch_cs}   #33 33
+    calibration:
+      x_min: 200
+      x_max: 3830
+      y_min: 320 #170
+      y_max: 3830 #3680
+    transform:
+      swap_xy: true #  для 2,8 красного true
+      mirror_x: false # для 2,8 красного false
+      mirror_y: true
+    #on_touch:
+    #    - lambda: |-
+    #        ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
+    #            touch.x,
+    #            touch.y,
+    #            touch.x_raw,
+    #            touch.y_raw
+    #          );   
+    on_release:                         # отпустил палец от екрана
+      then:
+        - if:                           # если
+            condition: lvgl.is_paused   # Проверяется, находится ли библиотека LVGL (графическая система) в режиме паузы.
+            then:
+              - lvgl.resume:            # Если LVGL действительно была «на паузе», эта команда возобновляет её работу.
+              - lvgl.widget.redraw:     # Эта команда перерисовывает все объекты LVGL      
+   
+   # - - - - - - - - - - - - - - -  - -  #--------------- 
+  display:
+    - platform: ili9xxx
+      model: ST7796   #ILI9341 #TFT 2.4
+      id: my_display1     
+      color_palette: 8BIT
+      invert_colors: false
+      cs_pin: ${pin_dsp_cs} #15  
+      dc_pin: ${pin_dsp_dc} #2   
+      #data_rate: 1MHz  # Установка частоты SPI на 40 МГц 
+      # reset_pin: -1
+      #    rotation: 270°
+      transform:      
+        mirror_x: true
+        mirror_y: true
+        swap_xy: true
+      dimensions: 480x320
+      #  height: 230 # 284 230 320
+      #  width: 480 #  388 480 345 
+      # update_interval: 5s 
+   # - - - - - - - - - - - - - - -  - -# --------------------
+  rtttl:
+    output: rtttl_out
+    id: my_rtttl
+    gain: 10%    
+  uart:
+    - id: uart_0
+      baud_rate: 115200
+      rx_buffer_size: 384
+      tx_pin: ${pin_jkbms_tx}
+      rx_pin: ${pin_jkbms_rx}
+    # - - - - - - - - - - - - - - - - - - - 
+  jk_modbus:
+    - id: modbus0      
+      uart_id: uart_0
+      rx_timeout: 50ms
+    # - - - - - - - - - - - - - - - - - - - 
+  jk_bms:
+    - id: bms0
+      jk_modbus_id: modbus0
+      update_interval: 30s
+    # - - - - - - - - - - - - - - - - - - -   
+  time:
+    - platform: sntp
+      id: my_time
+      timezone: "Europe/Kyiv"
+      servers:
+        - 0.pool.ntp.org
+        - 1.pool.ntp.org
+        - 2.pool.ntp.org
+      update_interval: 3600s  
+      on_time:
+        - hours: 2,3,4,5  # включается switch_antiburn
+          minutes: 5
+          seconds: 0      # Каждый день в 02:05, 03:05, 04:05 и 05:05
+          then:
+            - switch.turn_on: switch_antiburn # 05-й минуте каждого часа включается switch_antiburn
+        - hours: 2,3,4,5  # включается switch_antiburn
+          minutes: 35
+          seconds: 0  #
+          then:
+            - switch.turn_off: switch_antiburn  #   включается switch_antiburn  
+    # - - - - - - - - - - - - - - - - - - - - - - - 
+#sensor: binary_sensor, sensor, text_sensor,switch  
+  binary_sensor:
+    - platform: jk_bms
+      balancing:
+        name: "balancing"
+      balancing_switch:
+        name: "balancing switch"
+      charging:
+        name: "charging"
+      discharging:
+        name: "discharging"
+      dedicated_charger_switch:
+        name: "dedicated charger switch"
+      online_status:
+        name: "online status"
+   # -----------------
+  sensor:
+    - platform: adc
+      name: svet      
+      id: svet_0
+      pin: 34
+      update_interval: 2s  
+      filters:
+        - delta: 0.15
+      #- - - - - - - - - - - -  - - - 
+    - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
+      name: "WiFi Signal dB"
+      id: wifi_signal_db
+      entity_category: "diagnostic"
+      update_interval: 30s      
+      on_value:
+        then:
+          - lambda: |-
+               //if(isnan(id(wifi_signal_db).state)){return;}
+               id(wifi_control).execute();
+      #- - - - - - - - - - - -  - - - 
+    - platform: template
+      name: "grafm_index"
+      id: my_index
+      update_interval: 60s
+      unit_of_measurement: "m"      
+      lambda: |-
+        return id(grafm_index);
+      #- - - - - - - - - - - -  - - -      
+          #-edit 
+            #- platform: homeassistant #dp1
+            #  id: dp_1
+            #  entity_id: input_number.dp1
+            #  internal: true 
+            #  on_value:
+            #    then:
+            #      - lambda: |-                           
+            #          id(update_edit).execute();
+   # jk_bms
+    - platform: jk_bms
+      min_cell_voltage: # voltage
+        name: "min cell voltage"
+        id: min_cell_voltage 
+      max_cell_voltage: # voltage
+        name: "max cell voltage"
+        id: max_cell_voltage  
+      delta_cell_voltage: # voltage
+        name: "delta cell voltage"
+        id: delta_cell_voltage
+      average_cell_voltage:
+        name: "average cell voltage"
+        id: average_cell_voltage
+      cell_voltage_1:
+        name: "cell voltage 1"
+        id: cell_voltage_1
+      cell_voltage_2:
+        name: "cell voltage 2"
+        id: cell_voltage_2
+      cell_voltage_3:
+        name: "cell voltage 3"
+        id: cell_voltage_3
+      cell_voltage_4:
+        name: "cell voltage 4"
+        id: cell_voltage_4
+      cell_voltage_5:
+        name: "cell voltage 5"
+        id: cell_voltage_5      
+      cell_voltage_6:
+        name: "cell voltage 6"
+        id: cell_voltage_6     
+      cell_voltage_7:
+        name: "cell voltage 7"
+        id: cell_voltage_7     
+      cell_voltage_8:
+        name: "cell voltage 8"
+        id: cell_voltage_8       
+      cell_voltage_9:
+        name: "cell voltage 9"
+        id: cell_voltage_9   
+      cell_voltage_10:
+        name: "cell voltage 10"
+        id: cell_voltage_10    
+      cell_voltage_11:
+        name: "cell voltage 11"
+        id: cell_voltage_11    
+      cell_voltage_12:
+        name: "cell voltage 12"
+        id: cell_voltage_12      
+      cell_voltage_13:
+        name: "cell voltage 13"
+        id: cell_voltage_13        
+      cell_voltage_14:
+        name: "cell voltage 14"
+        id: cell_voltage_14   
+      cell_voltage_15:
+        name: "cell voltage 15"
+        id: cell_voltage_15    
+      cell_voltage_16:
+        name: "cell voltage 16"
+        id: cell_voltage_16 
+      power_tube_temperature:
+        name: "power tube temperature"
+        id: power_tube_temperature  
+      temperature_sensor_1:
+        name: "temperature sensor 1"
+        id: temperature_sensor_1      
+      temperature_sensor_2:
+        name: "temperature sensor 2"
+        id: temperature_sensor_2        
+      total_voltage:
+        name: "total voltage"  
+        id: total_voltage 
+        on_value:
+          then:
+            - lambda: |-
+                id(bms_bibi).execute();
+      current:
+        name: "current"
+        id: current            
+      power:
+        name: "power"
+        id: power 
+   # set   
+      charging_power:
+        name: "charging power"
+        id: charging_power      
+      discharging_power:
+        name: "discharging power"
+        id: discharging_power      
+      capacity_remaining: #  Ah%
+        name: "capacity remaining"
+        id: capacity_remaining   
+      capacity_remaining_derived: #  real Ah
+        name: "capacity remaining derived"
+        id: capacity_remaining_derived  
+      charging_cycles:
+        name: "charging cycles"
+        id: charging_cycles
+      total_charging_cycle_capacity:
+        name: "total charging cycle capacity"
+        id: total_charging_cycle_capacity
+      battery_strings:
+        name: "battery strings"
+        id: battery_strings
+      cell_voltage_overvoltage_protection:             # макс напряжение отключения
+        name: "cell voltage overvoltage protection"
+        id: cell_voltage_overvoltage_protection
+      cell_voltage_overvoltage_recovery:               # макс напряжение старт  после откл максим
+        name: "cell voltage overvoltage recovery"
+        id: cell_voltage_overvoltage_recovery
+      cell_voltage_undervoltage_protection:            # мин напряжение откл          
+        name: "cell voltage undervoltage protection"
+        id: cell_voltage_undervoltage_protection
+      cell_voltage_undervoltage_recovery:              # мин напряжение старт после откл мин
+        name: "cell voltage undervoltage recovery"
+        id: cell_voltage_undervoltage_recovery
+      discharging_overcurrent_protection:              # Макс ток разряда
+        name: "discharging overcurrent protection"
+        id: discharging_overcurrent_protection
+      charging_overcurrent_protection:                 # Макс ток заряда
+        name: "charging overcurrent protection"
+        id: charging_overcurrent_protection
+      balance_starting_voltage:                                 # Напряжение старт бал
+        name: "balance starting voltage" 
+        id: balance_starting_voltage
+      balance_opening_pressure_difference:                      # дельта напряжения для старта бал
+        name: "balance opening pressure difference"
+        id: balance_opening_pressure_difference
+      power_tube_temperature_protection:                        # макс темперадура для мосфета
+        name: "power tube temperature protection"
+        id: power_tube_temperature_protection
+      total_battery_capacity_setting:
+        name: "total battery capacity setting"
+        id: total_battery_capacity_setting
+      total_runtime:                        #   время работы в часах
+        name: "total runtime"
+        id: total_runtime
+
+    # --------------------    
+  text_sensor:
+    - platform: template      # esphome_name
+      name: "esphome name"
+      id: esphome_name
+      lambda: |-
+        return App.get_name();
+    - platform: template      # bms_name
+      name: "bms name"
+      id: bms_name
+      lambda: |-
+          std::string full = id(manufacturer).state ;
+          std::string prefix = "Input Userda";
+          if (full.rfind(prefix, 0) == 0) {
+              full=full.substr(prefix.length());
+          }    
+          return full;
+      # - - - - - - - - - - - - - -  
+    - platform: wifi_info     # wifi
+      ip_address:
+        name: "IP Address"
+        id: ip_adress
+      ssid:
+        name: "Connected SSID"
+        id: connected_ssid
+      bssid:
+        name: "BSSID"
+        id: bssid
+      mac_address:
+        name: "MAC Address"
+        id: mac_address
+     # - - - - - - 
+   # jk_bms text 
+    - platform: jk_bms
+      battery_type:                      # тип батареи
+        name: "battery type"
+        id: battery_type
+      password:                          # пароль
+        name: "password"
+        id: password    
+      manufacturer:                      # имя бмс
+        id: manufacturer                     
+      total_runtime_formatted:           # время работі в днях
+        name: "total runtime formatted"
+        id: total_runtime_formatted    
+     # - - - - - - - - -
+  switch:
+    - platform: jk_bms 
+      charging:
+        name: "charging"
+      discharging:
+        name: "discharging"
+     # - - - - - - - - - - - - - - - -  - - - 
+    - platform: template # Antiburn
+      name: Antiburn
+      id: switch_antiburn
+      icon: mdi:television-shimmer
+      optimistic: true
+      entity_category: "config"
+      turn_on_action:
+        - logger.log: "Starting Antiburn"
+        - if:
+            condition: lvgl.is_paused
+            then:
+              - lvgl.resume:
+              - lvgl.widget.redraw:
+        - lvgl.pause:
+            show_snow: true
+        - lambda: |-
+              id(led_tft).set_level(0.05);       
+      turn_off_action:
+        - logger.log: "Stopping Antiburn"
+        - if:
+            condition: lvgl.is_paused
+            then:
+              - lvgl.resume:
+              - lvgl.widget.redraw:
+     # - - - - - - - - - - - - - - - -  - - - 
+#globals
+  globals:
+   # sys
+    - id: wifi_con
+      type: bool 
+      restore_value: no
+      initial_value: 'false'
+   # напряжения общие 
+    - id: f_total_c     # ток 
+      type: bool    
+      initial_value: 'false'  
+      restore_value: no 
+      #  - - - - - - - - 
+    - id: f_total_v     # напяжение всего
+      type: bool    
+      initial_value: 'false'  
+      restore_value: no 
+      #  - - - - - - - - 
+    - id: f_max_v     # напяжение на ячейке макс
+      type: bool    
+      initial_value: 'false'  
+      #  - - - - - - - - 
+    - id: f_min_v     # напяжение на ячейке мин
+      type: bool
+      initial_value: 'false'  
+      #   - - - - - - - - 
+    - id: f_delta_v   # разбаланс
+      type: bool
+      initial_value: 'false'  
+      #  - - - - - - - - 
+    - id: f_average_v # среднее значение = общее/кол-во
+      type: bool
+      initial_value: 'false' 
+      restore_value: no 
+      #   - - - - - - - - ----
+   # regist
+    - id: change_curr_max # среднее значение = общее/кол-во
+      type: float
+      initial_value: '-1' 
+      restore_value: yes 
+    - id: dischange_curr_max # среднее значение = общее/кол-во
+      type: float
+      initial_value: '1000' 
+      restore_value: yes
+    - id: total_volt_max # среднее значение = общее/кол-во
+      type: float
+      initial_value: '-1' 
+      restore_value: yes
+    - id: total_volt_min # среднее значение = общее/кол-во
+      type: float
+      initial_value: '1000' 
+      restore_value: yes
+    - id: cell_volt_max # среднее значение = общее/кол-во
+      type: float
+      initial_value: '-1' 
+      restore_value: yes
+    - id: cell_volt_min # среднее значение = общее/кол-во
+      type: float
+      initial_value: '1000' 
+      restore_value: yes
+    - id: delta_volt_max # среднее значение = общее/кол-во
+      type: float
+      initial_value: '-1' 
+      restore_value: yes
+   # test
+    - id: y_line0     # ток 
+      type: float    
+      initial_value: '0'  
+      restore_value: no 
+    - id: y_line1     # ток 
+      type: float    
+      initial_value: '0'  
+      restore_value: no  
+    - id: y_line2     # ток 
+      type: float    
+      initial_value: '0'  
+      restore_value: False
+   # grafm      
+    - id: grafm_select_data    # вібор данніх 0 1 2 ()
+      type: int
+      initial_value: '0'
+      restore_value: False
+      # 
+    - id: grafm_select_interval    # вібор данніх "0"- сутки(1точка-6 мин)  "1"- час(6 точек - 1 мин)    "2"-3 часа (2 точки - 1 мин)
+      type: int
+      initial_value: '2'
+      restore_value: False
+    - id: grafm_hour_start    # начало время отсчета графика час
+      type: int
+      initial_value: '0'
+      restore_value: False  
+    - id: grafm_min_start    #  начало время отсчета графика мин
+      type: int
+      initial_value: '0'
+      restore_value: False 
+    - id: grafm_index          # текущий индекс полученніх данніх 0 - 1439 
+      type: int
+      initial_value: '-1'
+      restore_value: False
+      #
+    - id: grafm_select_page    # указатель что вібрана страница графика page: grafm_page 
+      type: bool
+      initial_value: 'false'
+      restore_value: False
+    - id: grafm_data # 0-1439, 1440-2879, 2880-4319
+      type: float[3*${grafm_pdi}]
+      restore_value: False
+    
+    # - - - - - - -  -
+#font
+  font: 
+    - file: "fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf"  # 20   - file: "gfonts://Roboto"         # s:30
+      id: RobotoCondensed_Regular_20
+      bpp: 4      
+      size: 20 
+      glyphs: [# " ",".","-","=",":","°","+","(",")","[","]","_",
+                "0","1","2","3","4","5","6","7","8","9",
+                " ","-",".",":",
+              #  a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,q,t,u,v,w,x,y,z,
+              #  A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z          
+            ] 
+    - file: "fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf"  # 24   - file: "gfonts://Roboto"         # s:30
+      id: RobotoCondensed_Regular_24
+      bpp: 4      
+      size: 24 
+      glyphs: [ " ",".","-","=",":","°","+","(",")","[","]","_",
+                "0","1","2","3","4","5","6","7","8","9",
+                #Б,Д,П,З,К,М,Н,В,Т,С,Р,Х,Ч,
+                #а,б,в,г,д,е,ж,з,и,й,к,л,м,п,н,о,т,с,р,у,ф,х,ч,ц,ш,щ,ы,ь,я,
+                a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,q,t,u,v,w,x,y,z,
+                A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z
+                #":"," ",x
+              ] 
+    - file: "fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf"  # 28   - file: "gfonts://Roboto"         # s:30
+      id: RobotoCondensed_Regular_28
+      bpp: 4      
+      size: 28 
+      glyphs: [ #" ",".","-","=",":","°","+","(",")","[","]","_",
+                ".","-",
+                "0","1","2","3","4","5","6","7","8","9",
+                #Б,Д,П,З,К,М,Н,В,Т,С,Р,Х,Ч,
+                #а,б,в,г,д,е,ж,з,и,й,к,л,м,п,н,о,т,с,р,у,ф,х,ч,ц,ш,щ,ы,ь,я,
+                a,c,e,g,h,i,l,n,o,p,r,s,t,u,x,y,
+                #a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,q,t,u,v,w,x,y,z,
+                A,C,E,R,U,V,
+                #A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z
+                #":"," ",x
+              ]  
+    - file: "fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf"  # 45   - file: "gfonts://Roboto"         # s:30
+      id: RobotoCondensed_Regular_40
+      bpp: 4      
+      size: 40 
+      glyphs: [ "0","1","2","3","4","5","6","7","8","9",
+                " ",".","-","%",
+                A,h,V,W,w,
+              # "=",":","°","+","(",")","[","]","_",  
+              # Б,Д,П,З,К,М,Н,В,Т,С,Р,Х,Ч,
+              # а,б,в,г,д,е,ж,з,и,й,к,л,м,п,н,о,т,с,р,у,ф,х,ч,ц,ш,щ,ы,ь,я,
+              # a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,q,t,u,v,w,x,y,z,
+              # A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z
+              ]
+     # - - - - - - - -  - - - - - -  - - - - - -  - - - - - - 
+    #- file: "fonts/Oswald/Oswald-SemiBold.ttf"                     # 40   - file: "gfonts://Bebas Neue@400"    # s:55    
+     #  id: Oswald_SemiBold_40  #bebasneue400_55             
+     #  #bpp: 4
+     #  size: 40
+     #  glyphs: ["-","+"]
+    - file: "fonts/Bebas_Neue/BebasNeue-Regular.ttf"                     # 45   - file: "gfonts://Bebas Neue@400"    # s:55    
+      id: BebasNeue_Regular_45              
+      bpp: 4
+      size: 45
+      glyphs: [#" ",":",".","-","=","°","+","%",
+               #"0","1","2","3","4","5","6","7","8","9",
+              #a,h,n,o,v,x,
+              A,V
+              ] 
+    - file: "fonts/Bebas_Neue/BebasNeue-Regular.ttf"                     # 55   - file: "gfonts://Bebas Neue@400"    # s:55    
+      id: BebasNeue_Regular_55              
+      bpp: 4
+      size: 55
+      glyphs: [".","-",
+              #"-","=","°","+","%"," ",":",
+              "0","1","2","3","4","5","6","7","8","9",
+              #a,n,o,v,x,
+              #A,I,P,U,V,W
+              ]    
+     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    - file: "fonts/materialdesignicons-webfont.ttf"  # icon_28 
+      id: icon_28      
+      bpp: 4
+      size: 28
+      glyphs: [  
+              "${i_wifi_on}",
+              "${i_wifi_off}"
+              ] 
+    # - - - - - - - - - 
+#lvgl
+  lvgl:
+    touchscreens:
+      - my_touch
+    displays:
+      - my_display1
+    buffer_size: 25%
+    bg_color: 0x200000
+    text_color: 0x00f000  
+    style_definitions:
+   # styles
+    # Volt, Amper , Ah 
+      - id: style_lab_va  #   "V", "A", "Ah"
+        text_font: RobotoCondensed_Regular_28 # 
+        text_color: 0xb0b0f0    
+      - id: style_val_va # значения "Volt", "curr", "Ah"
+        text_font: BebasNeue_Regular_55 # 
+        text_color: 0x00f000    
+        text_letter_space: 4
+    # cell
+      - id: style_cell_voltage
+        text_font: RobotoCondensed_Regular_28 # 
+        text_color: 0x00f000 
+      - id: style_cell_voltage_num
+        text_font: RobotoCondensed_Regular_24 # 
+        text_color: 0xb0b060       
+      - id: style_cell_voltage_num_obj
+        width:  "${wi_n}"
+        height: "${he_n}" 
+        radius: 10
+        bg_color: 0x204080
+        border_color: 0x000000
+        border_width: 0
+        outline_width: 0
+        shadow_width: 0
+        pad_all: 0                 
+    # bar 
+      - id: style_bar   
+        width:  "${wi_brv}"   # 20
+        height: "${he_brv}"  # 150
+        radius: 0
+        bg_color: 0x00ffff
+        bg_opa: 50%
+      - id: style_bar_i
+        radius: 0  
+        bg_color: 0x00FF00          # цвет залитой части (индикатора)
+      - id: style_bar_a   
+        width: 1000
+        height: 20
+        radius: 0
+        bg_color: 0x00ffff
+        bg_opa: 50%  
+    # serv
+      - id: style_serv1
+        text_font: RobotoCondensed_Regular_24 # 
+        text_color: 0xb0b060     
+      - id: style_serv2
+        text_font: RobotoCondensed_Regular_24 # 
+        text_color: 0x00f000 
+    # grafm
+      - id: style_grafm_grid # line gorizont & vertical
+        line_width: 1
+        line_color: "${grafm_cgr}" #0x202000
+        line_rounded: true      
+      - id: style_grafm_graf # line gorizont & vertical
+        line_width: 2
+        line_color: "${grafm_cln}" #0x202000
+        line_rounded: true 
+      - id: style_grafm_graf0 # line gorizont & vertical
+        line_width: 2
+        line_color: "${grafm_cg0}" #0x202000
+        line_rounded: true       
+      - id: style_grafm_graf1 # line gorizont & vertical
+        line_width: 2
+        line_color: "${grafm_cg1}" #0x202000
+        line_rounded: true       
+      - id: style_grafm_graf2 # line gorizont & vertical
+        line_width: 2
+        line_color: "${grafm_cg2}" #0x202000
+        line_rounded: true        
+      - id: style_grafm_0000000
+        align: TOP_RIGHT
+        x: 0
+        text_font: RobotoCondensed_Regular_20
+        text_color: "${grafm_cmt}"  #0xb0b060     
+     # button 
+      - id: style_grafm_buts
+        width: 90
+        height: 35
+        radius: 0
+        border_width: 0          
+        shadow_width: 0
+        #border_color: 0x0f0f0f
+        #outline_widht: 1
+        #outline_color: 0x0f0f0f    
+        pad_all: 0
+        bg_color: 0x000040
+      - id: style_grafm_butn
+        align: CENTER
+        text_color: 0x00f0f0
+        text_font: RobotoCondensed_Regular_24        
+     # metka
+      - id: style_grafm_metka
+        align: TOP_RIGHT
+        x: 0
+        text_font: RobotoCondensed_Regular_20
+        text_color: "${grafm_cmt}"  #0xb0b060     
+     # time
+      - id: style_grafm_time
+        y: "${grafm_tmy}"
+        text_font: RobotoCondensed_Regular_20
+        text_color: 0xb0b060      
+    # select graf 
+      - id: style_graf3_buts
+        width: 100
+        height: 35
+        radius: 0
+        border_width: 0          
+        shadow_width: 0
+        #border_color: 0x0f0f0f
+        #outline_widht: 1
+        #outline_color: 0x0f0f0f    
+        pad_all: 0
+        bg_color: 0x000040
+      - id: style_graf3_butn
+        align: CENTER
+        text_color: 0x00f0f0
+        text_font: RobotoCondensed_Regular_28
+   # pages
+    pages:
+      - id: main_page
+        scrollbar_mode: "ACTIVE"  # показывать полосу прокрутки при прокрутке 
+        scrollable: 'true'        # можно прокручивать страницу
+        widgets:
+        
+        # obj V, A, Ah% ,bat_Ah
+          - obj: # V          id: total_voltage                 
+              id: obj_total_v
+              x: 0
+              y: 30
+              height: 50
+              width: 170
+              scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+              scrollable: "false" #'true'       #'false' 
+              bg_color: 0x000000
+              outline_color: 0x000000
+              outline_width: 2
+              border_width: 0          
+              border_color: 0x000000             
+              widgets:
+              - label:
+                  x: -3
+                  y: -15
+                  text_font: BebasNeue_Regular_45 # 
+                  text_color: 0xb0b060   
+                  text: "V"
+                  on_click:
+                      then:
+                        - lambda: |-
+                            id(my_rtttl).play("${beep1}"); //(id(b_txt).state.c_str());
+                            id(grafm_select_page) = true;
+                            lv_scr_load((grafm_page)->obj);
+              - label: # total_voltage
+                  id: total_voltage_lab
+                  x: 0
+                  y: -20
+                  align: TOP_RIGHT
+                  text_font: BebasNeue_Regular_55 # 
+                  text_color: 0x00f000   
+                  text_letter_space: 5
+                  text: "--.--"                
+                  on_click:
+                      then:
+                        - lambda: |-
+                            id(my_rtttl).play("${beep1}");
+                            id(grafm_select_page) = true;
+                            lv_scr_load((grafm_page)->obj);  
+          - obj: # A          id: current                       
+              id: obj_total_a
+              x: 0
+              y: 82
+              scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+              scrollable: "false" #'true'       #'false'             
+              height: 50
+              width: 170
+              bg_color: 0x000000
+              outline_color: 0x000000
+              outline_width: 0
+              border_width: 0          
+              border_color: 0x000000             
+              widgets:
+              - label:
+                  x: -3
+                  y: -15
+                  text_font: BebasNeue_Regular_45 # 
+                  text_color: 0xb0b060   
+                  text: "A"
+                  on_click:
+                      then:
+                        - lambda: |-
+                            id(my_rtttl).play("${beep1}");
+                            id(grafm_select_page) = true;
+                            lv_scr_load((grafm_page)->obj);             
+              - label:
+                  id: current_lab
+                  x: 0
+                  y: -20
+                  align: TOP_RIGHT
+                  text_font: BebasNeue_Regular_55 # 
+                  text_color: 0x00f000   
+                  text_letter_space: 5
+                  text: "--.--"
+                  on_click:
+                      then:
+                        - lambda: |-
+                            id(my_rtttl).play("${beep1}");
+                            id(grafm_select_page) = true;
+                            lv_scr_load((grafm_page)->obj);            
+          - obj: # Ah_pr %    id: capacity_remaining            
+              id: obj_bat_ah_pr
+              x: 290
+              y: 30
+              scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+              scrollable: "false" #'true'       #'false'             
+              height: 50
+              width: 185
+              bg_color: 0x00000
+              outline_color: 0x000000
+              outline_width: 0
+              border_width: 0          
+              border_color: 0x000000             
+              widgets:
+              - label: # Ah_pr -capacity_remaining
+                  id: capacity_remaining_lab
+                  align: TOP_RIGHT 
+                  x: -50
+                  y: -20  
+                  text_font: BebasNeue_Regular_55 # 
+                  text_color: 0x00f000   
+                  text_letter_space: 5
+                  text: "--"       
+              - label: # "%" -
+                  align_to:
+                    id: capacity_remaining_lab
+                    align: OUT_RIGHT_TOP
+                    x: 15
+                    y: 10
+                  text_font: RobotoCondensed_Regular_40  # 
+                  text_color: 0xb0b060   
+                  text: "%"        
+          - obj: # bat_Ah     id: capacity_remaining_derive     
+              id: obj_bat_ah
+              x: 290
+              y: 82
+              scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+              scrollable: "false" #'true'       #'false'             
+              height: 50
+              width: 185
+              bg_color: 0x000000
+              outline_color: 0x000000
+              outline_width: 0
+              border_width: 0          
+              border_color: 0x000000             
+              widgets:
+              - label: # Ah -capacity_remaining_derived
+                  id: capacity_remaining_derived_lab
+                  align: TOP_RIGHT  # выравние 
+                  x: -50
+                  y: -20                
+                  text_font: BebasNeue_Regular_55 # 
+                  text_color: 0x00f000   
+                  text_letter_space: 5
+                  text: "--"             
+              - label: # "Ah" -
+                  align_to:
+                    id: capacity_remaining_derived_lab
+                    align: OUT_RIGHT_TOP
+                    x: 15
+                    y: 10
+                  text_font: RobotoCondensed_Regular_40  # 
+                  text_color: 0xb0b060   
+                  text: "Ah"
+        
+        
+        # obj servise
+          - obj:
+            # setup 
+              x: 0
+              y: 0
+              height: 25
+              width: 480
+              bg_color: 0x000000
+              outline_color: 0x808000
+              outline_width: 0
+              border_width: 0          
+              border_color: 0x000000             
+              scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+              scrollable: "false" #'true'       #'false'            
+              widgets:
+            # serv     
+              - label: # name jk_bms    manufacturer_lab
+                  id: wifi_status
+                  x: -10
+                  y: -15
+                  text_color: 0xe08040
+                  text_font: icon_28
+                  text: "${i_wifi_off}"             
+              - label: # name jk_bms    manufacturer_lab
+                  id: manufacturer_lab
+                  x: 20
+                  y: -15
+                  styles: style_serv1
+                  text: "- - - - - "            
+              - label: # bat type       battery_type_lab  
+                  id: battery_type_lab
+                  x: 185
+                  y: -15
+                  styles: style_serv2
+                  text: "- - - "
+              - label: # battery_set    battery_strings_lab    значение кол-во ячеек 
+                  id: battery_strings_lab
+                  align: TOP_RIGHT
+                  x: -170
+                  y: -15
+                  styles: style_serv2
+                  text: "-"
+              - label: # "S"          
+                  align_to:
+                    id: battery_strings_lab
+                    align: OUT_RIGHT_TOP 
+                    x: 3
+                    y: 0
+                  styles: style_serv1 #style_cell_voltage_num
+                  text: "S"             
+              - label: # max_cur -      discharging_overcurrent_protection_lab   макси ток при разрядке
+                  id: discharging_overcurrent_protection_lab
+                  align: TOP_RIGHT
+                  x: -100
+                  y: -15
+                  styles: style_serv2 #style_cell_voltage_num
+                  text: "--" 
+              - label: # "A"          
+                  align_to:
+                    id: discharging_overcurrent_protection_lab
+                    align: OUT_RIGHT_TOP 
+                    x: 3
+                    y: 0
+                  styles: style_serv1 # style_cell_voltage_num              
+                  text: "A" 
+              - label: # значение Ач    total_battery_capacity_setting_lab  текущее значение Ач
+                  id: total_battery_capacity_setting_lab
+                  align: TOP_RIGHT
+                  x: -35
+                  y: -15
+                  styles: style_serv2 #style_cell_voltage_num
+                  text: "--" 
+              - label: # "Ah"            
+                  align_to:
+                    id: total_battery_capacity_setting_lab
+                    align: OUT_RIGHT_TOP 
+                    x: 3
+                    y: 0
+                  styles: style_serv1 #style_cell_voltage_num            
+                  text: "Ah" 
+        # temperature  
+          - label: # "bat T1:"
+              id: bat_t1_lab
+              x: 0
+              y: 135
+              styles: style_cell_voltage_num #style_lab_va 
+              text: "batT1:      °C"
+          - label: # "bat T2:"
+              id: bat_t2_lab
+              x: 160
+              y: 135
+              styles: style_cell_voltage_num #style_lab_va 
+              text: "batT2:      °C"        
+          - label: # "mos T:"
+              id: mos_t_lab
+              x: 320
+              y: 135
+              styles: style_cell_voltage_num #style_lab_va 
+              text: "mosT:      °C"         
+          - label: # bat t1
+              id: bat_t1
+              align_to:  
+                id: bat_t1_lab
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: -3          
+                x: -53
+              styles: style_cell_voltage          
+              text: "--"
+          - label: # bat t2
+              id: bat_t2
+              align_to:  
+                id: bat_t2_lab
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: -3          
+                x: -53
+              styles: style_cell_voltage          
+              text: "--"
+          - label: # mos t
+              id: mos_t
+              align_to:  
+                id: mos_t_lab
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: -3          
+                x: -53
+              styles: style_cell_voltage           
+              text: "--"
+        # Vmax,Vmin,dV 
+          - label:  # "maxV:"    max_cell_voltage_name   
+              id: max_cell_voltage_name            
+              x: 0
+              y: 165
+              styles: style_cell_voltage_num #style_lab_va 
+              text: "maxV:"
+          - label:  # "minV:"    min_cell_voltage_name
+              id: min_cell_voltage_name
+              x: 160
+              y: 165
+              styles: style_cell_voltage_num #style_lab_va 
+              text: "minV:"         
+          - label:  # "deltaV:"  delta_cell_voltage_name
+              id: delta_cell_voltage_name
+              x: 320
+              y: 165
+              styles: style_cell_voltage_num #style_lab_va 
+              text: "deltaV:" 
+          - label:  # значения   max_cell_voltage_lab  
+              id: max_cell_voltage_lab
+              align_to:  
+                id: max_cell_voltage_name
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: 5
+              styles: style_cell_voltage          
+              text: "-.---" 
+          - label:  # значения   min_cell_voltage_lab 
+              id: min_cell_voltage_lab
+              align_to:  
+                id: min_cell_voltage_name
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: 5
+              styles: style_cell_voltage          
+              text: "-.---" 
+          - label:  # значения   delta_cell_voltage_lab 
+              id: delta_cell_voltage_lab
+              align_to:  
+                id: delta_cell_voltage_name
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: 5
+              styles: style_cell_voltage          
+              text: "-.---" 
+        # bar vertical
+          - bar: # bar_v1  
+              id: cell_voltage_1_bar
+              x: "${px_brv}" #0
+              y: "${py_brv}" #180           
+              value: 0
+              styles: style_bar 
+              min_value: "${min_brv}" # -2
+              max_value: "${max_brv}" # 100   
+              indicator:
+                styles: style_bar_i
+          - bar: # bar_v2  
+              id: cell_voltage_2_bar
+              align_to: 
+                id: cell_voltage_1_bar
+                align: OUT_RIGHT_TOP   
+                x: "${dx_brv}" #2        
+              value: 0
+              styles: style_bar 
+              min_value: "${min_brv}" # -2
+              max_value: "${max_brv}" # 100   
+              indicator:
+                styles: style_bar_i
+          - bar: # bar_v3  
+              id: cell_voltage_3_bar
+              align_to: 
+                id: cell_voltage_2_bar
+                align: OUT_RIGHT_TOP   
+                x: "${dx_brv}" #2           
+              value: 0
+              styles: style_bar 
+              min_value: "${min_brv}" # -2
+              max_value: "${max_brv}" # 100  
+              indicator:
+                styles: style_bar_i        
+          - bar: # bar_v4  
+              id: cell_voltage_4_bar
+              align_to: 
+                id: cell_voltage_3_bar
+                align: OUT_RIGHT_TOP   
+                x: "${dx_brv}" #2          
+              value: 0
+              styles: style_bar 
+              min_value: "${min_brv}" # -2
+              max_value: "${max_brv}" # 100   
+              indicator:
+                styles: style_bar_i
+          - bar: # bar_v5  
+              id: cell_voltage_5_bar
+              align_to: 
+                id: cell_voltage_4_bar
+                align: OUT_RIGHT_TOP   
+                x: "${dx_brv}" #2           
+              value: 0
+              styles: style_bar 
+              min_value: "${min_brv}" # -2
+              max_value: "${max_brv}" # 100  
+              indicator:
+                styles: style_bar_i 
+          - bar: # bar_v6  
+              id: cell_voltage_6_bar
+              align_to: 
+                id: cell_voltage_5_bar
+                align: OUT_RIGHT_TOP   
+                x: "${dx_brv}" #2          
+              value: 0
+              styles: style_bar 
+              min_value: "${min_brv}" # -2
+              max_value: "${max_brv}" # 100  
+              indicator:
+                styles: style_bar_i
+          - bar: # bar_v7  
+              id: cell_voltage_7_bar
+              align_to: 
+                id: cell_voltage_6_bar
+                align: OUT_RIGHT_TOP   
+                x: "${dx_brv}" #2           
+              value: 0
+              styles: style_bar 
+              min_value: "${min_brv}" # -2
+              max_value: "${max_brv}" # 100  
+              indicator:
+                styles: style_bar_i
+          - bar: # bar_v8  
+              id: cell_voltage_8_bar
+              align_to: 
+                id: cell_voltage_7_bar
+                align: OUT_RIGHT_TOP   
+                x: "${dx_brv}" #2         
+              value: 0
+              styles: style_bar 
+              min_value: "${min_brv}" # -2
+              max_value: "${max_brv}" # 100   
+              indicator:
+                styles: style_bar_i
+          - bar: # bar_v9  
+              id: cell_voltage_9_bar
+              align_to: 
+                id: cell_voltage_8_bar
+                align: OUT_RIGHT_TOP   
+                x: "${dx_brv}" #2            
+              value: 0
+              styles: style_bar 
+              min_value: "${min_brv}" # -2
+              max_value: "${max_brv}" # 100    
+              indicator:
+                styles: style_bar_i
+          - bar: # bar_v10  
+              id: cell_voltage_10_bar
+              align_to: 
+                id: cell_voltage_9_bar
+                align: OUT_RIGHT_TOP   
+                x: "${dx_brv}" #2            
+              value: 0
+              styles: style_bar 
+              min_value: "${min_brv}" # -2
+              max_value: "${max_brv}" # 100    
+              indicator:
+                styles: style_bar_i
+          - bar: # bar_v11  
+              id: cell_voltage_11_bar
+              align_to: 
+                id: cell_voltage_10_bar
+                align: OUT_RIGHT_TOP   
+                x: "${dx_brv}" #2            
+              value: 0
+              styles: style_bar 
+              min_value: "${min_brv}" # -2
+              max_value: "${max_brv}" # 100    
+              indicator:
+                styles: style_bar_i
+          - bar: # bar_v12  
+              id: cell_voltage_12_bar
+              align_to: 
+                id: cell_voltage_11_bar
+                align: OUT_RIGHT_TOP   
+                x: "${dx_brv}" #2            
+              value: 0
+              styles: style_bar 
+              min_value: "${min_brv}" # -2
+              max_value: "${max_brv}" # 100    
+              indicator:
+                styles: style_bar_i                              
+          - bar: # bar_v13  
+              id: cell_voltage_13_bar
+              align_to: 
+                id: cell_voltage_12_bar
+                align: OUT_RIGHT_TOP   
+                x: "${dx_brv}" #2            
+              value: 0
+              styles: style_bar 
+              min_value: "${min_brv}" # -2
+              max_value: "${max_brv}" # 100    
+              indicator:
+                styles: style_bar_i
+          - bar: # bar_v14  
+              id: cell_voltage_14_bar
+              align_to: 
+                id: cell_voltage_13_bar
+                align: OUT_RIGHT_TOP   
+                x: "${dx_brv}" #2            
+              value: 0
+              styles: style_bar 
+              min_value: "${min_brv}" # -2
+              max_value: "${max_brv}" # 100    
+              indicator:
+                styles: style_bar_i
+          - bar: # bar_v15  
+              id: cell_voltage_15_bar
+              align_to: 
+                id: cell_voltage_14_bar
+                align: OUT_RIGHT_TOP   
+                x: "${dx_brv}" #2            
+              value: 0
+              styles: style_bar 
+              min_value: "${min_brv}" # -2
+              max_value: "${max_brv}" # 100    
+              indicator:
+                styles: style_bar_i
+          - bar: # bar_v16  
+              id: cell_voltage_16_bar
+              align_to: 
+                id: cell_voltage_15_bar
+                align: OUT_RIGHT_TOP   
+                x: "${dx_brv}" #2            
+              value: 0
+              styles: style_bar 
+              min_value: "${min_brv}" # -2
+              max_value: "${max_brv}" # 100    
+              indicator:
+                styles: style_bar_i
+          - label:
+              id: gh
+              x: 5
+              y: 300
+              styles: style_cell_voltage_num
+              text_font: RobotoCondensed_Regular_20
+              text: '1    2    3    4    5    6    7    8    9   10  11  12  13  14  15  16'
+          - line:
+              id: line_vmin
+              points:
+              - x: 0
+                y: "${ln_brv}" # 150
+              - x: 479
+                y: "${ln_brv}" # 150
+              # - 5, 5
+              # - 70, 70
+              # - 120, 10
+              # - x: !lambda return random_uint32() % 100;
+              #   y: !lambda return random_uint32() % 100;
+              # - 230, 15
+              line_width: 1
+              line_color: 0x0000ff
+              line_rounded: true
+        # cell_voltage 
+          - obj:  # num 01
+              id: cell_voltage_num_01
+              x: "${ps_x1}" # start X
+              y: "${ps_y1}" # start Y
+              styles: style_cell_voltage_num_obj
+              scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+              scrollable: "false" #'true'       #'false'            
+              widgets:
+              - label: # 01
+                  x: "${ps_xn}"
+                  y: "${ps_yn}"
+                  styles: style_cell_voltage_num
+                  text: '01'                
+          - obj:  # num 02
+              id: cell_voltage_num_02
+              align_to:  
+                id: cell_voltage_num_01
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_cv}"            
+              styles: style_cell_voltage_num_obj
+              scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+              scrollable: "false" #'true'       #'false'             
+              widgets:
+              - label: # 02
+                  x: "${ps_xn}"
+                  y: "${ps_yn}"
+                  styles: style_cell_voltage_num
+                  text: '02'          
+          - obj:  # num 03
+              id: cell_voltage_num_03
+              align_to:  
+                id: cell_voltage_num_02
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_cv}"            
+              styles: style_cell_voltage_num_obj
+              scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+              scrollable: "false" #'true'       #'false'             
+              widgets:
+              - label: # 03
+                  x: "${ps_xn}"
+                  y: "${ps_yn}"
+                  styles: style_cell_voltage_num
+                  text: '03'
+          - obj:  # num 04
+              id: cell_voltage_num_04
+              align_to:  
+                id: cell_voltage_num_03
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_cv}"            
+              styles: style_cell_voltage_num_obj
+              scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+              scrollable: "false" #'true'       #'false'             
+              widgets:
+              - label: # 04
+                  x: "${ps_xn}"
+                  y: "${ps_yn}"
+                  styles: style_cell_voltage_num
+                  text: '04'
+          - obj:  # num 05
+              id: cell_voltage_num_05
+              align_to:  
+                id: cell_voltage_num_01
+                align: OUT_BOTTOM_LEFT # выравние вниз  
+                y: "${dy_cv}"         
+                x: 0            
+              styles: style_cell_voltage_num_obj
+              scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+              scrollable: "false" #'true'       #'false'             
+              widgets:
+              - label: # 05
+                  x: "${ps_xn}"
+                  y: "${ps_yn}"
+                  styles: style_cell_voltage_num
+                  text: '05'
+          - obj:  # num 06
+              id: cell_voltage_num_06
+              align_to:  
+                id: cell_voltage_num_05
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_cv}"            
+              styles: style_cell_voltage_num_obj
+              scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+              scrollable: "false" #'true'       #'false'             
+              widgets:
+              - label: # 06
+                  x: "${ps_xn}"
+                  y: "${ps_yn}"
+                  styles: style_cell_voltage_num
+                  text: '06'
+          - obj:  # num 07
+              id: cell_voltage_num_07
+              align_to:  
+                id: cell_voltage_num_06
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_cv}"            
+              styles: style_cell_voltage_num_obj
+              scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+              scrollable: "false" #'true'       #'false'             
+              widgets:
+              - label: # 07
+                  x: "${ps_xn}"
+                  y: "${ps_yn}"
+                  styles: style_cell_voltage_num
+                  text: '07'
+          - obj:  # num 08
+              id: cell_voltage_num_08
+              align_to:  
+                id: cell_voltage_num_07
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_cv}"            
+              styles: style_cell_voltage_num_obj
+              scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+              scrollable: "false" #'true'       #'false'             
+              widgets:
+              - label: # 08
+                  x: "${ps_xn}"
+                  y: "${ps_yn}"
+                  styles: style_cell_voltage_num
+                  text: '08'
+          - obj:  # num 09
+              id: cell_voltage_num_09
+              align_to:  
+                id: cell_voltage_num_05
+                align: OUT_BOTTOM_LEFT # выравние вниз  
+                y: "${dy_cv}"         
+                x: 0            
+              styles: style_cell_voltage_num_obj
+              scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+              scrollable: "false" #'true'       #'false'             
+              widgets:
+              - label: # 09
+                  x: "${ps_xn}"
+                  y: "${ps_yn}"
+                  styles: style_cell_voltage_num
+                  text: '09'
+          - obj:  # num 10
+              id: cell_voltage_num_10
+              align_to:  
+                id: cell_voltage_num_09
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_cv}"            
+              styles: style_cell_voltage_num_obj
+              scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+              scrollable: "false" #'true'       #'false'             
+              widgets:
+              - label: # 10
+                  x: "${ps_xn}"
+                  y: "${ps_yn}"
+                  styles: style_cell_voltage_num
+                  text: '10'
+          - obj:  # num 11
+              id: cell_voltage_num_11
+              align_to:  
+                id: cell_voltage_num_10
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_cv}"            
+              styles: style_cell_voltage_num_obj
+              scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+              scrollable: "false" #'true'       #'false'             
+              widgets:
+              - label: # 11
+                  x: "${ps_xn}"
+                  y: "${ps_yn}"
+                  styles: style_cell_voltage_num
+                  text: '11'
+          - obj:  # num 12
+              id: cell_voltage_num_12
+              align_to:  
+                id: cell_voltage_num_11
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_cv}"            
+              styles: style_cell_voltage_num_obj
+              scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+              scrollable: "false" #'true'       #'false'             
+              widgets:
+              - label: # 12
+                  x: "${ps_xn}"
+                  y: "${ps_yn}"
+                  styles: style_cell_voltage_num
+                  text: '12'
+          - obj:  # num 13
+              id: cell_voltage_num_13
+              align_to:  
+                id: cell_voltage_num_09
+                align: OUT_BOTTOM_LEFT # выравние вниз  
+                y: "${dy_cv}"         
+                x: 0            
+              styles: style_cell_voltage_num_obj
+              scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+              scrollable: "false" #'true'       #'false'             
+              widgets:
+              - label: # 13
+                  x: "${ps_xn}"
+                  y: "${ps_yn}"
+                  styles: style_cell_voltage_num
+                  text: '13'
+          - obj:  # num 14
+              id: cell_voltage_num_14
+              align_to:  
+                id: cell_voltage_num_13
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_cv}"            
+              styles: style_cell_voltage_num_obj
+              scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+              scrollable: "false" #'true'       #'false'             
+              widgets:
+              - label: # 14
+                  x: "${ps_xn}"
+                  y: "${ps_yn}"
+                  styles: style_cell_voltage_num
+                  text: '14'
+          - obj:  # num 15
+              id: cell_voltage_num_15
+              align_to:  
+                id: cell_voltage_num_14
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_cv}"            
+              styles: style_cell_voltage_num_obj
+              scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+              scrollable: "false" #'true'       #'false'             
+              widgets:
+              - label: # 15
+                  x: "${ps_xn}"
+                  y: "${ps_yn}"
+                  styles: style_cell_voltage_num
+                  text: '15'
+          - obj:  # num 16
+              id: cell_voltage_num_16
+              align_to:  
+                id: cell_voltage_num_15
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_cv}"            
+              styles: style_cell_voltage_num_obj
+              scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+              scrollable: "false" #'true'       #'false'             
+              widgets:
+              - label: # 16
+                  x: "${ps_xn}"
+                  y: "${ps_yn}"
+                  styles: style_cell_voltage_num
+                  text: '16'
+
+          - label: # cell_voltage_1_lab
+              id: cell_voltage_1_lab
+              align_to:  
+                id: cell_voltage_num_01
+                align: OUT_RIGHT_TOP  # выравние 
+                y: 0          
+                x: "${dx_n}"
+              styles: style_cell_voltage
+              text: "-.---"
+          - label: # cell_voltage_2_lab
+              id: cell_voltage_2_lab
+              align_to:  
+                id: cell_voltage_num_02
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_n}"
+              styles: style_cell_voltage
+              text: "-.---"
+          - label: # cell_voltage_3_lab
+              id: cell_voltage_3_lab
+              align_to:  
+                id: cell_voltage_num_03
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_n}"
+              styles: style_cell_voltage
+              text: "-.---"
+          - label: # cell_voltage_4_lab
+              id: cell_voltage_4_lab
+              align_to:  
+                id: cell_voltage_num_04
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_n}"
+              styles: style_cell_voltage
+              text: "-.---"
+          - label: # cell_vlt_05
+              id: cell_voltage_5_lab
+              align_to:  
+                id: cell_voltage_num_05
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_n}"
+              styles: style_cell_voltage
+              text: "-.---"
+          - label: # cell_vlt_06
+              id: cell_voltage_6_lab
+              align_to:  
+                id: cell_voltage_num_06
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_n}"
+              styles: style_cell_voltage
+              text: "-.---"
+          - label: # cell_vlt_07
+              id: cell_voltage_7_lab
+              align_to:  
+                id: cell_voltage_num_07
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_n}"
+              styles: style_cell_voltage
+              text: "-.---"
+          - label: # cell_vlt_08
+              id: cell_voltage_8_lab
+              align_to:  
+                id: cell_voltage_num_08
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_n}"
+              styles: style_cell_voltage
+              text: "-.---"
+          - label: # cell_vlt_09
+              id: cell_voltage_9_lab
+              align_to:  
+                id: cell_voltage_num_09
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_n}"
+              styles: style_cell_voltage
+              text: "-.---"
+          - label: # cell_vlt_10
+              id: cell_voltage_10_lab
+              align_to:  
+                id: cell_voltage_num_10
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_n}"
+              styles: style_cell_voltage
+              text: "-.---"
+          - label: # cell_vlt_11
+              id: cell_voltage_11_lab
+              align_to:  
+                id: cell_voltage_num_11
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_n}"
+              styles: style_cell_voltage
+              text: "-.---"
+          - label: # cell_vlt_12
+              id: cell_voltage_12_lab
+              align_to:  
+                id: cell_voltage_num_12
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_n}"
+              styles: style_cell_voltage
+              text: "-.---"
+          - label: # cell_vlt_13
+              id: cell_voltage_13_lab
+              align_to:  
+                id: cell_voltage_num_13
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_n}"
+              styles: style_cell_voltage
+              text: "-.---"
+          - label: # cell_vlt_14
+              id: cell_voltage_14_lab
+              align_to:  
+                id: cell_voltage_num_14
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_n}"
+              styles: style_cell_voltage
+              text: "-.---"
+          - label: # cell_vlt_15
+              id: cell_voltage_15_lab
+              align_to:  
+                id: cell_voltage_num_15
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_n}"
+              styles: style_cell_voltage
+              text: "-.---"
+          - label: # cell_vlt_16
+              id: cell_voltage_16_lab
+              align_to:  
+                id: cell_voltage_num_16
+                align: OUT_RIGHT_TOP  # выравние вниз
+                y: 0          
+                x: "${dx_n}"
+              styles: style_cell_voltage
+              text: "-.---"     
+        #  meter:
+          - meter: # pw
+              id: power_metr
+              height: 120
+              width: 120
+              bg_color: 0x000000
+              border_width: 0          
+              border_color: 0x000000
+              bg_opa: TRANSP
+              align: TOP_MID
+              x: 20
+              y: 30
+              scales:
+                - range_from: 0 # min
+                  range_to: 100    # max
+                  angle_range: 180 # sets the total angle to 180 = starts mid left and ends mid right
+                  ticks:
+                    count: 0                                  
+                  indicators:   
+                    #- line:
+                    #    id: val_needle
+                    #    width: 8
+                    #    r_mod: 12 # sets line length by this much difference from the scale default radius
+                    #    value: -2
+                    
+                    - arc: # first half of the scale background                                       
+                        color: 0x00b000
+                        r_mod: 10 # radius difference from the scale default radius
+                        width: 15
+                        start_value: 0
+                        end_value: 25
+                    - arc: # second half of the scale background
+                        color: 0x80FF00
+                        r_mod: 10
+                        width: 15
+                        start_value: 25
+                        end_value: 75                
+                    - arc: # second half of the scale background
+                        color: 0xFF0000
+                        r_mod: 10
+                        width: 15
+                        start_value: 75
+                        end_value: 100
+                    - arc: # second half of the scale background
+                        id: arc_1
+                        color: 0x000000
+                        r_mod: 8 #7
+                        width: 14 #13
+                        start_value: 0
+                        end_value: 100
+          - label: # "W"
+              align: TOP_MID
+              x: 20
+              y: 42
+              text_font: RobotoCondensed_Regular_40
+              text_color: 0xb0b060 
+              text: "w"
+          - label: #   id: power
+              id: power_lab
+              align: TOP_MID
+              x: 20
+              y: 85
+              text_font: RobotoCondensed_Regular_40
+              text_color: 0x00b000 
+              text: "1500"
+        # jk_bms info
+
+          - label: # t1
+              id: bms_t1
+              x: 150
+              y: 500
+              styles: style_serv1
+              text: "${jk_bms_t1}:"
+          - label: # s1
+              id: bms_s1
+              align_to:
+                id: bms_t1
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+
+          - label: # t2
+              id: bms_t2
+              align_to:
+                id: bms_t1
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t2}:"
+          - label: # s2
+              id: bms_s2
+              align_to:
+                id: bms_t2
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+
+          - label: # t3
+              id: bms_t3
+              align_to:
+                id: bms_t2
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t3}:"
+          - label: # s3
+              id: bms_s3
+              align_to:
+                id: bms_t3
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+
+          - label: # t4
+              id: bms_t4
+              align_to:
+                id: bms_t3
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t4}:"
+          - label: # s4
+              id: bms_s4
+              align_to:
+                id: bms_t4
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+
+          - label: # t5
+              id: bms_t5
+              align_to:
+                id: bms_t4
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t5}:"
+          - label: # s5
+              id: bms_s5
+              align_to:
+                id: bms_t5
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+
+          - label: # t6
+              id: bms_t6
+              align_to:
+                id: bms_t5
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t6}:"
+          - label: # s6
+              id: bms_s6
+              align_to:
+                id: bms_t6
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+
+          - label: # t7
+              id: bms_t7
+              align_to:
+                id: bms_t6
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t7}:"
+          - label: # s7
+              id: bms_s7
+              align_to:
+                id: bms_t7
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+
+          - label: # t8
+              id: bms_t8
+              align_to:
+                id: bms_t7
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t8}:"
+          - label: # s8
+              id: bms_s8
+              align_to:
+                id: bms_t8
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+
+          - label: # t9
+              id: bms_t9
+              align_to:
+                id: bms_t8
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t9}:"
+          - label: # s9
+              id: bms_s9
+              align_to:
+                id: bms_t9
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+
+          - label: # t10
+              id: bms_t10
+              align_to:
+                id: bms_t9
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t10}:"
+          - label: # s10
+              id: bms_s10
+              align_to:
+                id: bms_t10
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+
+          - label: # t11
+              id: bms_t11
+              align_to:
+                id: bms_t10
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t11}:"
+          - label: # s11
+              id: bms_s11
+              align_to:
+                id: bms_t11
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+
+          - label: # t12
+              id: bms_t12
+              align_to:
+                id: bms_t11
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t12}:"
+          - label: # s12
+              id: bms_s12
+              align_to:
+                id: bms_t12
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+
+          - label: # t13
+              id: bms_t13
+              align_to:
+                id: bms_t12
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t13}:"
+          - label: # s13
+              id: bms_s13
+              align_to:
+                id: bms_t13
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+
+          - label: # t14
+              id: bms_t14
+              align_to:
+                id: bms_t13
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t14}:"
+          - label: # s14
+              id: bms_s14
+              align_to:
+                id: bms_t14
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+
+          - label: # t15
+              id: bms_t15
+              align_to:
+                id: bms_t14
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t15}:"
+          - label: # s15
+              id: bms_s15
+              align_to:
+                id: bms_t15
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-" 
+        # wifi
+          - label: # t1a 
+              id: bms_t1a
+              align_to:
+                id: bms_t15
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t1a}:"
+          - label: # s1a
+              id: bms_s1a
+              align_to:
+                id: bms_t1a
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+
+          - label: # t2a 
+              id: bms_t2a
+              align_to:
+                id: bms_t1a
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t2a}:"
+          - label: # s2a
+              id: bms_s2a
+              align_to:
+                id: bms_t2a
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+
+          - label: # t3a 
+              id: bms_t3a
+              align_to:
+                id: bms_t2a
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t3a}:"
+          - label: # s3a
+              id: bms_s3a
+              align_to:
+                id: bms_t3a
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+
+          - label: # t4a 
+              id: bms_t4a
+              align_to:
+                id: bms_t3a
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t4a}:"
+          - label: # s3a
+              id: bms_s4a
+              align_to:
+                id: bms_t4a
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+
+          - label: # t5a 
+              id: bms_t5a
+              align_to:
+                id: bms_t4a
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t5a}:"
+          - label: # s5a
+              id: bms_s5a
+              align_to:
+                id: bms_t5a
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+
+          - label: # t6a 
+              id: bms_t6a
+              align_to:
+                id: bms_t5a
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t6a}:"
+          - label: # s6a
+              id: bms_s6a
+              align_to:
+                id: bms_t6a
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+
+          - label: # t7a 
+              id: bms_t7a
+              align_to:
+                id: bms_t6a
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t7a}:"
+          - label: # s7a
+              id: bms_s7a
+              align_to:
+                id: bms_t7a
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+        # reg
+          - label: # t1r 
+              id: bms_t1r
+              align_to:
+                id: bms_t7a
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t1r}:"
+          - label: # s1r
+              id: bms_s1r
+              align_to:
+                id: bms_t1r
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+          - label: # s1g
+              id: bms_s1g
+              align_to:
+                id: bms_t1r
+                align: OUT_RIGHT_TOP
+                x: 100
+                y: 0
+              styles: style_serv1
+              text: "-"
+
+          - label: # t2r 
+              id: bms_t2r
+              align_to:
+                id: bms_t1r
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t2r}:"
+          - label: # s2r
+              id: bms_s2r
+              align_to:
+                id: bms_t2r
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+          - label: # s2g
+              id: bms_s2g
+              align_to:
+                id: bms_t2r
+                align: OUT_RIGHT_TOP
+                x: 100
+                y: 0
+              styles: style_serv1
+              text: "-"
+
+          - label: # t3r 
+              id: bms_t3r
+              align_to:
+                id: bms_t2r
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t3r}:"
+          - label: # s3r
+              id: bms_s3r
+              align_to:
+                id: bms_t3r
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+          - label: # s3g
+              id: bms_s3g
+              align_to:
+                id: bms_t3r
+                align: OUT_RIGHT_TOP
+                x: 100
+                y: 0
+              styles: style_serv1
+              text: "-"
+
+          - label: # t4r 
+              id: bms_t4r
+              align_to:
+                id: bms_t3r
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t4r}:"
+          - label: # s4r
+              id: bms_s4r
+              align_to:
+                id: bms_t4r
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+          - label: # s4g
+              id: bms_s4g
+              align_to:
+                id: bms_t4r
+                align: OUT_RIGHT_TOP
+                x: 100
+                y: 0
+              styles: style_serv1
+              text: "-"
+
+          - label: # t5r 
+              id: bms_t5r
+              align_to:
+                id: bms_t4r
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t5r}:"
+          - label: # s5r
+              id: bms_s5r
+              align_to:
+                id: bms_t5r
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+          - label: # s5g
+              id: bms_s5g
+              align_to:
+                id: bms_t5r
+                align: OUT_RIGHT_TOP
+                x: 100
+                y: 0
+              styles: style_serv1
+              text: "-"
+
+          - label: # t6r 
+              id: bms_t6r
+              align_to:
+                id: bms_t5r
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t6r}:"
+          - label: # s6r
+              id: bms_s6r
+              align_to:
+                id: bms_t6r
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+          - label: # s6g
+              id: bms_s6g
+              align_to:
+                id: bms_t6r
+                align: OUT_RIGHT_TOP
+                x: 100
+                y: 0
+              styles: style_serv1
+              text: "-"
+
+
+          - label: # t7r 
+              id: bms_t7r
+              align_to:
+                id: bms_t6r
+                align: OUT_BOTTOM_RIGHT
+                x: 0
+                y: 5
+              styles: style_serv1
+              text: "${jk_bms_t7r}:"
+          - label: # s7r
+              id: bms_s7r
+              align_to:
+                id: bms_t7r
+                align: OUT_RIGHT_TOP
+                x: 5
+                y: 0
+              styles: style_serv2
+              text: "-"
+          - label: # s7g
+              id: bms_s7g
+              align_to:
+                id: bms_t7r
+                align: OUT_RIGHT_TOP
+                x: 100
+                y: 0
+              styles: style_serv1
+              text: "-"
+
+          - button: #res
+              id: but_reset
+              height: 50
+              width: 60
+              bg_color: 0x800000
+              border_width: 0          
+              border_color: 0x0f0f0f
+              #outline_widht: 2
+              #outline_color: 0x0f0f0f
+              align_to: 
+                id: bms_t7r
+                align: OUT_RIGHT_TOP  
+                x: 200
+                y: 0
+              pressed:
+                bg_color: 0xf0f0f0
+              on_click:
+                then:
+                  - lambda: |-
+                      id(my_rtttl).play("${beep1}");
+                      id(but_reset_click).execute();  
+              widgets:
+                - label:
+                    align: CENTER
+                    #x: 0
+                    #y: 0
+                    text_font: RobotoCondensed_Regular_28
+                    text_color: 0xf0f000
+                    text: "Res"
+          - button: # ret
+              id: but_retup
+              height: 50
+              width: 60
+              bg_color: 0x000080
+              border_width: 0          
+              border_color: 0x0f0f0f
+              #outline_widht: 2
+              #outline_color: 0x0f0f0f
+              align_to: 
+                id: bms_t7r
+                align: OUT_RIGHT_TOP  
+                x: 200
+                y: -100
+              on_click:
+                then:
+                  - lambda: |-
+                      id(my_rtttl).play("${beep1}");
+                      id(but_retup_click).execute(); 
+              widgets:
+                - label:
+                    align: CENTER
+                    #x: 0
+                    #y: 0
+                    text_font: RobotoCondensed_Regular_28
+                    text_color: 0xf0f000
+                    text: "Up"
+                     
+      - id: grafm_page
+        scrollbar_mode: "ACTIVE"  # показывать полосу прокрутки при прокрутке 
+        scrollable: 'true'        # можно прокручивать страницу
+        widgets:
+          - obj: #grafm_obj
+              id: grafm_obj
+              x: "${grafm_wbx}"  # pos x
+              y: "${grafm_wby}"  # pos y
+              width:  "${grafm_wdx}" #  ширина по x
+              height: "${grafm_wdy}"  # высота по y                           
+              bg_color: 0x000000      
+              border_color: 0x00f000
+              border_width: 1
+              shadow_width: 0
+              radius: 0
+              pad_all: 0
+              align: TOP_LEFT
+              scrollbar_mode: "ACTIVE"  # показывать полосу прокрутки при прокрутке 
+              scrollable: 'false'        # можно прокручивать страницу            
+              widgets:
+                - button: # "Voltage,V"
+                    id: grafm_but1
+                    x: 70
+                    y: 1
+                    styles: style_grafm_buts
+                    pressed:
+                      bg_color: 0xf0f0f0
+                    on_click:
+                      then:
+                        - delay: 100ms
+                        - lambda: |-                 
+                            id(my_rtttl).play("${beep1}");
+                            lv_obj_set_style_bg_color(id(grafm_but1),lv_color_make(255, 0,  0), LV_PART_MAIN);
+                            lv_obj_set_style_bg_color(id(grafm_but2),lv_color_make(  0, 0, 64), LV_PART_MAIN);
+                            lv_obj_set_style_bg_color(id(grafm_but3),lv_color_make(  0, 0, 64), LV_PART_MAIN);                         
+                            lv_label_set_text(id(grafm_lab_select),"V") ;
+                            id(grafm_select_data) = 0;
+                            id(grafm_out_graf).execute();
+                    widgets: # надпись
+                      - label:
+                          styles: style_grafm_butn
+                          text: "Voltage"
+                - button: # "Current, A"
+                    id: grafm_but2
+                    align_to:
+                        id: grafm_but1
+                        align: OUT_RIGHT_TOP
+                        x: 15
+                    styles: style_grafm_buts
+                    pressed:
+                      bg_color: 0xf0f0f0                 
+                    on_click:
+                      then:
+                        - delay: 100ms
+                        - lambda: |-               
+                            id(my_rtttl).play("${beep1}");
+                            lv_obj_set_style_bg_color(id(grafm_but1),lv_color_make(0,   0, 64), LV_PART_MAIN);
+                            lv_obj_set_style_bg_color(id(grafm_but2),lv_color_make(255, 0,  0), LV_PART_MAIN);
+                            lv_obj_set_style_bg_color(id(grafm_but3),lv_color_make(  0, 0, 64), LV_PART_MAIN);
+                            lv_label_set_text(id(grafm_lab_select),"A") ;
+                            id(grafm_select_data)= 1;
+                            id(grafm_out_graf).execute();
+                    widgets: # надпись
+                      - label:
+                          styles: style_grafm_butn
+                          text: "Current"
+                - button: # "Capacity, Ah"
+                    id: grafm_but3
+                    align_to:
+                        id: grafm_but2
+                        align: OUT_RIGHT_TOP
+                        x: 15
+                    styles: style_grafm_buts
+                    pressed:
+                      bg_color: 0xf0f0f0                
+                    on_click:
+                      then:
+                        - delay: 100ms
+                        - lambda: |-                         
+                            id(my_rtttl).play("${beep1}");
+                            lv_obj_set_style_bg_color(id(grafm_but1),lv_color_make(0,  0,64), LV_PART_MAIN);
+                            lv_obj_set_style_bg_color(id(grafm_but2),lv_color_make(0,  0,64), LV_PART_MAIN);
+                            lv_obj_set_style_bg_color(id(grafm_but3),lv_color_make(255,0, 0), LV_PART_MAIN);
+                            lv_label_set_text(id(grafm_lab_select),"Ah") ;
+                            id(grafm_select_data)= 2;
+                            id(grafm_out_graf).execute();
+                    widgets: # надпись
+                      - label:
+                          styles: style_grafm_butn
+                          text: "Capacity"
+                - button: # "Exit"
+                    id: grafm_but4
+                    align_to:
+                        id: grafm_but3
+                        align: OUT_RIGHT_TOP
+                        x: 15
+                    styles: style_grafm_buts
+                    pressed:
+                      bg_color: 0xf0f0f0                
+                    on_click:
+                      then:
+                        - delay: 100ms
+                        - lambda: |-                         
+                            id(my_rtttl).play("${beep1}");
+                            id(grafm_select_page)=false;
+                            lv_scr_load((main_page)->obj); 
+                    widgets: # надпись
+                      - label:
+                          styles: style_grafm_butn
+                          text: "Exit"                                
+                - obj: # grafm_pole поле графика
+                    id: grafm_pole                
+                    x: "${grafm_pbx}"
+                    y: "${grafm_pby}"
+                    width:  "${grafm_pdx}"
+                    height: "${grafm_pdy}"                              
+                    bg_color: 0x000000      
+                    border_color: 0x404030
+                    border_width: 0
+                    shadow_width: 0
+                    radius: 0
+                    pad_all: 0
+                    align: TOP_LEFT
+                    scrollbar_mode: "ACTIVE"  # показывать полосу прокрутки при прокрутке 
+                    scrollable: 'true'        # можно прокручивать страницу 
+                    widgets:
+                  # xline gorizonta
+                    - line: #gx0
+                        id: grafm_g0
+                        points:
+                        - x: "${grafm_lgb}"  #
+                          y: "${grafm_lg0}"  #
+                        - x: "${grafm_lge}"  #
+                          y: "${grafm_lg0}"  #
+                        styles: style_grafm_grid
+                    - line: #gx1
+                        id: grafm_g1
+                        points:
+                        - x: "${grafm_lgb}"
+                          y: "${grafm_lg1}"
+                        - x: "${grafm_lge}"
+                          y: "${grafm_lg1}"
+                        styles: style_grafm_grid           
+                    - line: #gx2
+                        id: grafm_g2
+                        points:
+                        - x: "${grafm_lgb}"
+                          y: "${grafm_lg2}"
+                        - x: "${grafm_lge}"
+                          y: "${grafm_lg2}"
+                        styles: style_grafm_grid 
+                    - line: #gx3
+                        id: grafm_g3                   
+                        points:
+                        - x: "${grafm_lgb}"
+                          y: "${grafm_lg3}"
+                        - x: "${grafm_lge}"
+                          y: "${grafm_lg3}"
+                        styles: style_grafm_grid
+                    - line: #gx4
+                        id: grafm_g4
+                        points:
+                        - x: "${grafm_lgb}"
+                          y: "${grafm_lg4}"
+                        - x: "${grafm_lge}"
+                          y: "${grafm_lg4}"
+                        styles: style_grafm_grid              
+                    - line: #lg5
+                        id: grafm_g5
+                        points:
+                        - x: "${grafm_lgb}"
+                          y: "${grafm_lg5}"
+                        - x: "${grafm_lge}"
+                          y: "${grafm_lg5}"
+                        styles: style_grafm_grid            
+                    - line: #lgxe
+                        id: grafm_g6
+                        points:
+                        - x: "${grafm_lgb}"
+                          y: "${grafm_lg6}"
+                        - x: "${grafm_lge}"
+                          y: "${grafm_lg6}"
+                        styles: style_grafm_grid                           
+                  # yline vertical
+                    - line: #vy0
+                        id: grafm_v0
+                        points:
+                        - x: "${grafm_lv0}" # x0
+                          y: "${grafm_lvb}" #fix
+                        - x: "${grafm_lv0}" # x0
+                          y: "${grafm_lve}" #fix
+                        styles: style_grafm_grid              
+                    - line: #vy1
+                        id: grafm_v1
+                        points:
+                        - x: "${grafm_lv1}" #
+                          y: "${grafm_lvb}" #
+                        - x: "${grafm_lv1}" #
+                          y: "${grafm_lve}" #
+                        styles: style_grafm_grid              
+                    - line: #vy2
+                        id: grafm_v2
+                        points:
+                        - x: "${grafm_lv2}" #
+                          y: "${grafm_lvb}" #
+                        - x: "${grafm_lv2}" #
+                          y: "${grafm_lve}" #
+                        styles: style_grafm_grid              
+                    - line: #lv3
+                        id: grafm_v3
+                        points:
+                        - x: "${grafm_lv3}" #
+                          y: "${grafm_lvb}" #
+                        - x: "${grafm_lv3}" #
+                          y: "${grafm_lve}" #
+                        styles: style_grafm_grid              
+                    - line: #lv4
+                        id: grafm_v4
+                        points:
+                        - x: "${grafm_lv4}" #
+                          y: "${grafm_lvb}" #
+                        - x: "${grafm_lv4}" #
+                          y: "${grafm_lve}" #
+                        styles: style_grafm_grid                      
+                    - line: #lvy5
+                        id: grafm_v5
+                        points:
+                        - x: "${grafm_lv5}" #
+                          y: "${grafm_lvb}" #
+                        - x: "${grafm_lv5}" #
+                          y: "${grafm_lve}" #
+                        styles: style_grafm_grid                    
+                    - line: #vy6
+                        id: grafm_v6
+                        points:
+                        - x: "${grafm_lv6}" #
+                          y: "${grafm_lvb}" #
+                        - x: "${grafm_lv6}" #
+                          y: "${grafm_lve}" #
+                        styles: style_grafm_grid  
+                    - line: #vy7
+                        id: grafm_v7
+                        points:
+                        - x: "${grafm_lv7}" #
+                          y: "${grafm_lvb}" #
+                        - x: "${grafm_lv7}" #
+                          y: "${grafm_lve}" #
+                        styles: style_grafm_grid  
+                    - line: #vy8
+                        id: grafm_v8
+                        points:
+                        - x: "${grafm_lv8}" #
+                          y: "${grafm_lvb}" #
+                        - x: "${grafm_lv8}" #
+                          y: "${grafm_lve}" #
+                        styles: style_grafm_grid  
+                    - line: #vy9
+                        id: grafm_v9
+                        points:
+                        - x: "${grafm_lv9}" #
+                          y: "${grafm_lvb}" #
+                        - x: "${grafm_lv9}" #
+                          y: "${grafm_lve}" #
+                        styles: style_grafm_grid  
+                    - line: #vy10
+                        id: grafm_v10
+                        points:
+                        - x: "${grafm_lv10}" #
+                          y: "${grafm_lvb}" #
+                        - x: "${grafm_lv10}" #
+                          y: "${grafm_lve}" #
+                        styles: style_grafm_grid  
+                    - line: #vy11
+                        id: grafm_v11
+                        points:
+                        - x: "${grafm_lv11}" #
+                          y: "${grafm_lvb}" #
+                        - x: "${grafm_lv11}" #
+                          y: "${grafm_lve}" #
+                        styles: style_grafm_grid  
+                    - line: #vy12
+                        id: grafm_v12
+                        points:
+                        - x: "${grafm_lv12}" #
+                          y: "${grafm_lvb}" #
+                        - x: "${grafm_lv12}" #
+                          y: "${grafm_lve}" #
+                        styles: style_grafm_grid  
+                    - line: #vy13
+                        id: grafm_v13
+                        points:
+                        - x: "${grafm_lv13}" #
+                          y: "${grafm_lvb}" #
+                        - x: "${grafm_lv13}" #
+                          y: "${grafm_lve}" #
+                        styles: style_grafm_grid                   
+                    - line: #vy14
+                        id: grafm_v14
+                        points:
+                        - x: "${grafm_lv14}" #
+                          y: "${grafm_lvb}" #
+                        - x: "${grafm_lv14}" #
+                          y: "${grafm_lve}" #
+                        styles: style_grafm_grid
+                    - line: #vy15
+                        id: grafm_v15
+                        points:
+                        - x: "${grafm_lv15}" #
+                          y: "${grafm_lvb}" #
+                        - x: "${grafm_lv15}" #
+                          y: "${grafm_lve}" #
+                        styles: style_grafm_grid
+                    - line: #vy16
+                        id: grafm_v16
+                        points:
+                        - x: "${grafm_lv16}" #
+                          y: "${grafm_lvb}" #
+                        - x: "${grafm_lv16}" #
+                          y: "${grafm_lve}" #
+                        styles: style_grafm_grid
+                    - line: #vy17
+                        id: grafm_v17
+                        points:
+                        - x: "${grafm_lv17}" #
+                          y: "${grafm_lvb}" #
+                        - x: "${grafm_lv17}" #
+                          y: "${grafm_lve}" #
+                        styles: style_grafm_grid
+                    - line: #vy18
+                        id: grafm_v18
+                        points:
+                        - x: "${grafm_lv18}" #
+                          y: "${grafm_lvb}" #
+                        - x: "${grafm_lv18}" #
+                          y: "${grafm_lve}" #
+                        styles: style_grafm_grid
+                    - line: #vy19
+                        id: grafm_v19
+                        points:
+                        - x: "${grafm_lv19}" #
+                          y: "${grafm_lvb}" #
+                        - x: "${grafm_lv19}" #
+                          y: "${grafm_lve}" #
+                        styles: style_grafm_grid
+                    - line: #vy20
+                        id: grafm_v20
+                        points:
+                        - x: "${grafm_lv20}" #
+                          y: "${grafm_lvb}" #
+                        - x: "${grafm_lv20}" #
+                          y: "${grafm_lve}" #
+                        styles: style_grafm_grid
+                    - line: #vy21
+                        id: grafm_v21
+                        points:
+                        - x: "${grafm_lv21}" #
+                          y: "${grafm_lvb}" #
+                        - x: "${grafm_lv21}" #
+                          y: "${grafm_lve}" #
+                        styles: style_grafm_grid
+                    - line: #vy22
+                        id: grafm_v22
+                        points:
+                        - x: "${grafm_lv22}" #
+                          y: "${grafm_lvb}" #
+                        - x: "${grafm_lv22}" #
+                          y: "${grafm_lve}" #
+                        styles: style_grafm_grid
+                    - line: #vy23
+                        id: grafm_v23
+                        points:
+                        - x: "${grafm_lv23}" #
+                          y: "${grafm_lvb}" #
+                        - x: "${grafm_lv23}" #
+                          y: "${grafm_lve}" #
+                        styles: style_grafm_grid
+                    - line: #vy24
+                        id: grafm_v24
+                        points:
+                        - x: "${grafm_lv24}" #
+                          y: "${grafm_lvb}" #
+                        - x: "${grafm_lv24}" #
+                          y: "${grafm_lve}" #
+                        styles: style_grafm_grid
+                  # grafm_graf график                    
+                    - line: # grafm_graf 
+                        id: grafm_graf
+                        points:
+                        - x: 0
+                          y: 0 
+                        - x: 20
+                          y: 20
+                        styles: style_grafm_graf
+                  # time  
+                    - label: # grafm_tm0 
+                        id: grafm_time0
+                        x: "${grafm_lv0}"
+                        styles: style_grafm_time
+                        text: "00:00"
+                    - label: # grafm_tm1 
+                        id: grafm_time1
+                        x: "${grafm_lv1}"
+                        styles: style_grafm_time                         
+                        text: "01:00"                          
+                    - label: # grafm_tm2 
+                        id: grafm_time2
+                        x: "${grafm_lv2}"
+                        styles: style_grafm_time
+                        text: "02:00"
+                    - label: # grafm_tm3 
+                        id: grafm_time3
+                        x: "${grafm_lv3}"
+                        styles: style_grafm_time                        
+                        text: "03:00"                
+                    - label: # grafm_tm4 
+                        id: grafm_time4
+                        x: "${grafm_lv4}"
+                        styles: style_grafm_time
+                        text: "04:00"
+                    - label: # grafm_tm5 
+                        id: grafm_time5
+                        x: "${grafm_lv5}"
+                        styles: style_grafm_time                         
+                        text: "05:00"                          
+                    - label: # grafm_tm6 
+                        id: grafm_time6
+                        x: "${grafm_lv6}"
+                        styles: style_grafm_time
+                        text: "06:00"
+                    - label: # grafm_tm7 
+                        id: grafm_time7
+                        x: "${grafm_lv7}"
+                        styles: style_grafm_time                         
+                        text: "07:00"  
+                    - label: # grafm_tm8 
+                        id: grafm_time8
+                        x: "${grafm_lv8}"
+                        styles: style_grafm_time                         
+                        text: "08:00"                          
+                    - label: # grafm_tm9 
+                        id: grafm_time9
+                        x: "${grafm_lv9}"
+                        styles: style_grafm_time
+                        text: "09:00"
+                    - label: # grafm_tm10 
+                        id: grafm_time10
+                        x: "${grafm_lv10}"
+                        styles: style_grafm_time                         
+                        text: "10:00"  
+                    - label: # grafm_tm11
+                        id: grafm_time11
+                        x: "${grafm_lv11}"
+                        styles: style_grafm_time                         
+                        text: "11:00"
+                    - label: # grafm_tm12 
+                        id: grafm_time12
+                        x: "${grafm_lv12}"
+                        styles: style_grafm_time                         
+                        text: "12:00"
+                    - label: # grafm_tm13 
+                        id: grafm_time13
+                        x: "${grafm_lv13}"
+                        styles: style_grafm_time                         
+                        text: "13:00"                
+                    - label: # grafm_tm14 
+                        id: grafm_time14
+                        x: "${grafm_lv14}"
+                        styles: style_grafm_time                         
+                        text: "14:00"                
+                    - label: # grafm_tm15 
+                        id: grafm_time15
+                        x: "${grafm_lv15}"
+                        styles: style_grafm_time                         
+                        text: "15:00"                
+                    - label: # grafm_tm16 
+                        id: grafm_time16
+                        x: "${grafm_lv16}"
+                        styles: style_grafm_time                         
+                        text: "16:00"                
+                    - label: # grafm_tm17 
+                        id: grafm_time17
+                        x: "${grafm_lv17}"
+                        styles: style_grafm_time                         
+                        text: "17:00"                
+                    - label: # grafm_tm18 
+                        id: grafm_time18
+                        x: "${grafm_lv18}"
+                        styles: style_grafm_time                         
+                        text: "18:00"                
+                    - label: # grafm_tm19 
+                        id: grafm_time19
+                        x: "${grafm_lv19}"
+                        styles: style_grafm_time                         
+                        text: "19:00"                 
+                    - label: # grafm_tm20 
+                        id: grafm_time20
+                        x: "${grafm_lv20}"
+                        styles: style_grafm_time                         
+                        text: "20:00" 
+                    - label: # grafm_tm21 
+                        id: grafm_time21
+                        x: "${grafm_lv21}"
+                        styles: style_grafm_time                         
+                        text: "21:00" 
+                    - label: # grafm_tm22 
+                        id: grafm_time22
+                        x: "${grafm_lv22}"
+                        styles: style_grafm_time                         
+                        text: "22:00" 
+                    - label: # grafm_tm23 
+                        id: grafm_time23
+                        x: "${grafm_lv23}"
+                        styles: style_grafm_time                         
+                        text: "23:00" 
+                    - label: # grafm_tm24 
+                        id: grafm_time24
+                        x: "${grafm_lv24}"
+                        styles: style_grafm_time                         
+                        text: "24:00" 
+                - obj: # grafm_metka метки значений
+                    id: grafm_metka
+                    align_to:
+                      id: grafm_pole
+                      align: OUT_LEFT_TOP
+                      x: -10
+                      y: -10
+                    width:  "${grafm_mdx}"
+                    height: "${grafm_mdy}"                              
+                    bg_color: 0x000000      
+                    border_color: 0x000000
+                    border_width: 0
+                    shadow_width: 0
+                    radius: 0
+                    pad_all: 0
+                    align: TOP_LEFT
+                    scrollbar_mode: "ACTIVE"  # показывать полосу прокрутки при прокрутке 
+                    scrollable: 'true'        # можно прокручивать страницу              
+                    clickable: true
+                    on_click:
+                      then:
+                        - lambda: |-
+                            //
+                            id(my_rtttl).play("${beep1}");
+                            id(grafm_change_intrvl).execute();
+                      # - - - - - - - - - - -                     
+                    widgets:          
+  
+                  #
+                    - label: # grafm_m0
+                        id: grafm_m0
+                        y: "${grafm_lg0}"
+                        styles: style_grafm_metka
+                        text: "57.00"
+                    - label:
+                        id: grafm_m1
+                        y: "${grafm_lg1}"
+                        styles: style_grafm_metka
+                        text: "57.01"                  
+                    - label:
+                        id: grafm_m2
+                        y: "${grafm_lg2}"
+                        styles: style_grafm_metka
+                        text: "57.02"                  
+                    - label:
+                        id: grafm_m3
+                        y: "${grafm_lg3}"
+                        styles: style_grafm_metka
+                        text: "57.03"                  
+                    - label:
+                        id: grafm_m4
+                        y: "${grafm_lg4}"
+                        styles: style_grafm_metka
+                        text: "57.04"                  
+                    - label:
+                        id: grafm_m5
+                        y: "${grafm_lg5}"
+                        styles: style_grafm_metka
+                        text: "57.05"                   
+                    - label: # graf2_me
+                        id: grafm_m6                                          
+                        y: "${grafm_lg6}"
+                        styles: style_grafm_metka
+                        text: "57.06"
+                
+                - label: # V, A, Ah
+                    id: grafm_lab_select
+                    x: 15
+                    y: 5                   
+                    text_color: 0xf0f000
+                    text_font: RobotoCondensed_Regular_28
+                    text: "-"                                 
+#script
+  script: 
+    - id: update_main         # переменные для редактирования виджетов
+      then:
+        - lambda: |-
+            // 
+             // if(!id(f_total_v)){return;}
+                id(f_total_v) = false;
+             ESP_LOGW("tag", "updata display");
+              
+              
+            // setup variable
+              lv_color_t color_okk       = lv_color_make(0,  240,   0); // gren 
+              lv_color_t color_max       = lv_color_make(0,    0, 240); // blue
+              lv_color_t color_min       = lv_color_make(240,  0,   0); // red          
+              lv_color_t color_change    = lv_color_make(0,  240,   0); // red  
+              lv_color_t color_dischange = lv_color_make(255, 128,   64); //   
+              lv_color_t color_cell_v;           // = lv_color_make(240,  0, 0); // red 
+              lv_color_t color_cur;//
+              
+              std::string txt;
+              static char buf[16];
+              static float p,vs ;        //               
+              static int s_v, s;         //           
+             // temperature 
+              static float bat_t[]={-999,-999,-999};
+              static esphome::sensor::Sensor*  bat_tsensor[]={             // id sensor 
+                                      id(temperature_sensor_2),     // t1
+                                      id(temperature_sensor_2),     // t2
+                                      id(power_tube_temperature)};  // mosfet
+              static lv_obj_t*  bat_tlabel[] ={                     // id label  
+                                    id(bat_t1),
+                                    id(bat_t2),
+                                    id(mos_t)};              
+             // cells               
+              static float c_v[]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; // cells voltage
+              static int   i_v[]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; // ink voltage
+              static esphome::sensor::Sensor*  cell_voltage[]={     // id sensor  
+                                            id(cell_voltage_1),
+                                            id(cell_voltage_2),
+                                            id(cell_voltage_3),
+                                            id(cell_voltage_4),
+                                            id(cell_voltage_5),
+                                            id(cell_voltage_6),
+                                            id(cell_voltage_7),
+                                            id(cell_voltage_8),
+                                            id(cell_voltage_9),
+                                            id(cell_voltage_10),
+                                            id(cell_voltage_11),
+                                            id(cell_voltage_12),
+                                            id(cell_voltage_13),
+                                            id(cell_voltage_14),
+                                            id(cell_voltage_15),
+                                            id(cell_voltage_16)};
+              static lv_obj_t*  cell_voltage_bar[] ={               // id bar     
+                             id(cell_voltage_1_bar),
+                             id(cell_voltage_2_bar),
+                             id(cell_voltage_3_bar),
+                             id(cell_voltage_4_bar),
+                             id(cell_voltage_5_bar),
+                             id(cell_voltage_6_bar),
+                             id(cell_voltage_7_bar),
+                             id(cell_voltage_8_bar),
+                             id(cell_voltage_9_bar),
+                             id(cell_voltage_10_bar),
+                             id(cell_voltage_11_bar),
+                             id(cell_voltage_12_bar),
+                             id(cell_voltage_13_bar),
+                             id(cell_voltage_14_bar),
+                             id(cell_voltage_15_bar),
+                             id(cell_voltage_16_bar)};
+              static lv_obj_t*  cell_voltage_lab[] ={               // id label   
+                              id(cell_voltage_1_lab),
+                              id(cell_voltage_2_lab),
+                              id(cell_voltage_3_lab),
+                              id(cell_voltage_4_lab),
+                              id(cell_voltage_5_lab),
+                              id(cell_voltage_6_lab),
+                              id(cell_voltage_7_lab),
+                              id(cell_voltage_8_lab),
+                              id(cell_voltage_9_lab),
+                              id(cell_voltage_10_lab),
+                              id(cell_voltage_11_lab),
+                              id(cell_voltage_12_lab),
+                              id(cell_voltage_13_lab),
+                              id(cell_voltage_14_lab),
+                              id(cell_voltage_15_lab),
+                              id(cell_voltage_16_lab)};
+            
+            // minv, maxv, dv
+            
+              static bool sdv = true;      // флаг надо красить
+              static bool dv = false;      // флаг изменилась дельта напряжения            
+              static bool f_maxv = false;  // new maxv
+              static bool f_minv = false;  // new minv          
+              static float maxv = 100;     // max voltage cell
+              static float minv =-100;     // min voltage cell
+            
+              if(!isnan(id(delta_cell_voltage).state) &&
+                !isnan(id(balance_opening_pressure_difference).state)){            
+                dv = (id(delta_cell_voltage).state > id(balance_opening_pressure_difference).state ); // разбег больше стартаового разбега для баланса
+              } 
+              if(!dv && sdv){ 
+                  dv = true;
+                  sdv= false;
+                ESP_LOGW("tag", "-- красим  ostanij raz");
+                }
+              else if(dv && !sdv){ sdv = true;ESP_LOGI("tag", "--  budem красиn");} //  
+                
+                           
+              if(!isnan(id(min_cell_voltage).state)){
+                  p=id(min_cell_voltage).state;
+                  if(minv != p){
+                     minv = p;
+                     f_minv = true;
+                  }
+              }
+              if(!isnan(id(max_cell_voltage).state)){
+                  p=id(max_cell_voltage).state;
+                  if(maxv != p){
+                     maxv = p;
+                     f_maxv = true;
+                  }
+              }              
+                          
+              if(f_minv or f_maxv){
+                f_minv = false;
+                f_maxv = false;
+                  
+                vs = (minv+maxv)/2;              
+                
+                snprintf(buf, sizeof(buf), "%.3f", minv);
+                lv_label_set_text(id(min_cell_voltage_lab), buf);                             
+                snprintf(buf, sizeof(buf), "%.3f", maxv);
+                lv_label_set_text(id(max_cell_voltage_lab), buf);            
+                p = id(delta_cell_voltage).state;
+                snprintf(buf, sizeof(buf), "%.3f", p);
+                lv_label_set_text(id(delta_cell_voltage_lab), buf);
+              }
+            // cells 
+                for(int i=0; i<16; i++){
+                  // voltage
+                   if(cell_voltage[i]->has_state() != false &&
+                      !isnan(cell_voltage[i]->state)){       
+                      p = cell_voltage[i]->state;                
+                      if(c_v[i] != p){               
+                         c_v[i]  = p;           
+                         snprintf(buf, sizeof(buf), "%0.3f", p); 
+                         lv_label_set_text( cell_voltage_lab[i], buf );
+                         s = int(50+1000*(p-vs));                        
+                         lv_bar_set_value( cell_voltage_bar[i], s, LV_ANIM_OFF);
+                         ESP_LOGW("tag",   "cell_%d:%0.3fv",i+1,p);
+                      }   // закрыли печать значения если обновилось
+                      if(dv){ s_v=0 ;
+                        if(sdv){ if(cell_voltage[i]->state == minv){ s_v = 1;}  //  id(min_cell_voltage).state                        
+                          else if(  cell_voltage[i]->state == maxv){ s_v = 2;}  // id(max_cell_voltage).state 
+                        } // выясняем во что красить
+                        if(i_v[i] != s_v){   // color ink voltage
+                           i_v[i] =  s_v;
+                           if(     s_v == 0){color_cell_v = color_okk;}
+                           else if(s_v == 1){color_cell_v = color_min;}
+                           else if(s_v == 2){color_cell_v = color_max;}              
+                           lv_obj_set_style_text_color(cell_voltage_lab[i], color_cell_v, LV_PART_MAIN);
+                           ESP_LOGW("tag", "color cell_%d",i+1);
+                        } // покрасили если надо                   
+                      }   // закрыли покраску
+                   }      // закрыли обработку  сенсора           
+                }         // закрыли цикл              
+            // temperature t1, t2, mosfet
+                for(int i=0; i<3; i++){
+                    if(isnan(bat_tsensor[i]->state)){ 
+                           p = -999;}
+                     else{ p= bat_tsensor[i]->state;}
+                    if(bat_t[i] != p){
+                       bat_t[i] = p;
+                       if(p == -999){strcpy(buf, "-x-");}
+                        else{snprintf(buf, sizeof(buf), "%.0f", p);}                  
+                       lv_label_set_text( bat_tlabel[i], buf);
+                       ESP_LOGW("tag", "temperature_%d:%0.1f °C",i,p);
+                    }
+                }
+            // parametry total
+             // jk_bms name  id: manufacturer
+                static   std::string c_jk_bms = "";              
+                if(!id(manufacturer).has_state() || 
+                    id(manufacturer).state.empty()){
+                      txt ="-x-";}              
+                 else{txt = id(manufacturer).state;} // text
+                if(c_jk_bms != txt){
+                    c_jk_bms = txt;
+                    std::string prefix = "Input Userda";
+                    if (txt.rfind(prefix, 0) == 0) {         // если начинается с префикса
+                        txt = txt.substr(prefix.length());}   // удалить префикс                 
+                    lv_label_set_text(id(manufacturer_lab), txt.c_str());                              
+                    ESP_LOGW("tag", "bms name:%s",txt.c_str());
+                }
+             // btype      battery_type
+                static   std::string c_btype = "";              
+                std::string btype = id(battery_type).state; // text sensor
+              if(c_btype != btype){
+                  c_btype = btype;
+                  if(c_btype =="Lithium Iron Phosphate"){lv_label_set_text(id(battery_type_lab), "LiFePo");}
+                  else{lv_label_set_text(id(battery_type_lab), "WARNING");}
+                  ESP_LOGW("tag", "battery_type: LiFePo");
+              }          
+             // S           - id: battery_strings_lab  
+              static float c_bats = -998;
+              if(isnan(id(battery_strings).state)){ p = -999;}
+               else{p= id(battery_strings).state;}
+              if(c_bats != p){
+                  c_bats = p;
+                  if(p == -999){strcpy(buf, "-x-");}
+                   else{snprintf(buf, sizeof(buf), "%.0f", p);}
+                  lv_label_set_text(id(battery_strings_lab), buf);
+                  ESP_LOGW("tag", "battery_strings: %.0f S",p);
+              }
+             // A  max A    - id: discharging_overcurrent_protection_lab  
+              static float c_maxcur = -998;
+              if(isnan(id(discharging_overcurrent_protection).state)){ p = -999;}
+               else{p= id(discharging_overcurrent_protection).state;}
+              if(c_maxcur != p){
+                  c_maxcur = p;
+                  if(p == -999){strcpy(buf, "-x-");}
+                   else{snprintf(buf, sizeof(buf), "%.0f", p);}
+                  lv_label_set_text(id(discharging_overcurrent_protection_lab), buf);
+                  ESP_LOGW("tag", "max A:%.0f A",p);
+              }                      
+             // Ah set      - id: total_battery_capacity_setting_lab      
+              static float c_batah = -998;
+              if(isnan(id(total_battery_capacity_setting).state)){ p = -999;}
+               else{p= id(total_battery_capacity_setting).state;}
+              if(c_batah != p){
+                  c_batah = p;
+                  if(p == -999){strcpy(buf, "-x-");}
+                   else{snprintf(buf, sizeof(buf), "%.0f", p);}
+                  lv_label_set_text(id(total_battery_capacity_setting_lab), buf);
+                  ESP_LOGW("tag", "total_battery_capacity_setting: %.0f Ah",p);
+              }           
+             // V volt      - id: total_voltage_lab               
+              static float c_batvolt = -998;
+              if(isnan(id(total_voltage).state)){ p = -999;}
+               else{p= id(total_voltage).state;}
+              if(c_batvolt != p){
+                  c_batvolt = p;
+                  if(p == -999){strcpy(buf, "-x-");}
+                   else{
+                   snprintf(buf, sizeof(buf), "%.2f", p);}
+                  lv_label_set_text(id(total_voltage_lab), buf);
+                  ESP_LOGW("tag", "total_volt:%0.2fv",p);
+              }    
+             // A  cur      - id: current_lab                     
+              static float c_batcur = -98765;
+              static bool change = true; // + -
+              if(isnan(id(current).state)){ p = -98760;}
+               else{p= id(current).state;}
+              if(c_batcur != p){
+                  c_batcur = p;                 
+                  if(p == -98760){strcpy(buf, "-x-");}
+                   else{
+                     p = fabs (p);
+                     if(p > 99.99){snprintf(buf, sizeof(buf), "%.0f", p);}
+                     else if(p > 9.99){snprintf(buf, sizeof(buf), "%.1f",p);}
+                     else {snprintf(buf, sizeof(buf), "%.2f", p);}
+                  }
+                  lv_label_set_text(id(current_lab), buf);
+                  ESP_LOGW("tag", "total_cur: %.2fA",p);
+                  if(c_batcur > 0 && !change || c_batcur < 0 && change ){
+                  change = !change;
+                  if(change){color_cur = color_change;}    //
+                  else{      color_cur = color_dischange;} //
+                  lv_obj_set_style_text_color(id(current_lab), color_cur, LV_PART_MAIN);
+                  ESP_LOGW("tag", "красим  total_cur ok");
+                  }
+              }    
+             // W power
+              static float c_power = -98765;
+              static bool s_power = true; // + -
+              if(isnan(id(power).state)){ p = -98760;}
+               else{p= id(power).state;}
+              if(c_power != p){
+                  c_power = p;
+                  if(p == -98760){strcpy(buf, "-x-");}
+                   else{
+                     p = fabs (p);
+                     if(p > 99.99){snprintf(buf, sizeof(buf), "%.0f", p);}
+                     else if(p > 9.99){snprintf(buf, sizeof(buf), "%.1f",p);}
+                     else {snprintf(buf, sizeof(buf), "%.2f", p);}
+                  }                 
+                  lv_label_set_text(id(power_lab), buf);
+                  ESP_LOGW("tag", "power: %.2fW",p);
+                  if(c_power > 0 && !s_power || c_power < 0 && s_power ){
+                    s_power = !s_power;
+                    if(s_power){color_cur = color_change;}    //
+                    else{      color_cur = color_dischange;} //
+                    lv_obj_set_style_text_color(id(power_lab), color_cur, LV_PART_MAIN);
+                    ESP_LOGW("tag", "красим  power ok");
+                  }
+                  // meter power
+                  p = p * 100 / (id(discharging_overcurrent_protection).state * id(total_voltage).state);  
+                  lv_meter_set_indicator_start_value(id(power_metr), id(arc_1), p);
+                    //lv_meter_set_indicator_end_value(  id(power_metr), id(arc_1), 99); 
+                    
+              }                     
+             // Ah %        - id: capacity_remaining_lab          
+              static float c_batahp = -998;
+              if(isnan(id(capacity_remaining).state)){ p = -999;} 
+               else{p= id(capacity_remaining).state;}
+              if(c_batahp != p){
+                  c_batahp = p;
+                  if(p == -999){strcpy(buf, "-x-");}
+                   else{snprintf(buf, sizeof(buf), "%.0f", p);}
+                  lv_label_set_text(id(capacity_remaining_lab), buf);
+                  ESP_LOGW("tag", "capacity_remaining:%.0f %%",p);
+              }     
+             // Ah real     - id: capacity_remaining_derived_lab  
+              static float c_batahr = -998;
+              if(isnan(id(capacity_remaining_derived).state)){ p = -999;}
+               else{p= id(capacity_remaining_derived).state;}
+              if(c_batahr != p){
+                  c_batahr = p;
+                  if(p == -999){strcpy(buf, "-x-");}
+                   else{snprintf(buf, sizeof(buf), "%.0f", p);}
+                  lv_label_set_text(id(capacity_remaining_derived_lab), buf);
+                  ESP_LOGW("tag", "capacity_remaining_derived:%.0f Ah",p);
+              }     
+            // jk_bms_info      
+              id(jk_bms_info).execute();  
+      # - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+    - id: wifi_control
+      then:
+        - lambda: |-
+            //
+            static bool s_wifi = false;
+                if (id(wifi_con)) {
+                    id(wifi_data).execute();
+                  if(!s_wifi){
+                      s_wifi= true; 
+                      lv_label_set_text(id(wifi_status), "${i_wifi_on}");
+                      lv_obj_set_style_text_color( id(wifi_status),lv_color_make(0, 160,  240), LV_PART_MAIN);} // on  
+                } else {
+                  if(s_wifi){
+                      s_wifi = false;
+                      lv_label_set_text(id(wifi_status), "${i_wifi_off}");
+                      lv_obj_set_style_text_color( id(wifi_status),lv_color_make(255, 128, 64 ), LV_PART_MAIN);} // off  
+                }             
+      # - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+    - id: wifi_data
+      then:
+        - lambda: |-
+            //
+            static float        p;
+            static char         buf[16];
+            static std::string  txt;
+            
+            // s1a wifi_signal_db       * wifi db     
+               static   float c_wsd = -555;                
+                if(isnan(id(wifi_signal_db).state)){ p= -555;}
+                  else{p = id(wifi_signal_db).state;} //
+                  if(c_wsd != p){
+                      c_wsd =  p;    
+                      if(p == -555){strcpy(buf, "-x-");}
+                       else{snprintf(buf, sizeof(buf), "%.0f", p);}
+                      lv_label_set_text(id(bms_s1a), buf);
+                      ESP_LOGW("wifi", "wifi_signal_db: %s", buf);
+                  }
+                                
+            // s2a ip_adress            * ip
+                static   std::string c_ipa = "-x-";              
+                if(!id(ip_adress).has_state() || id(ip_adress).state.size() == 0){txt="error";}        //id(ip_adress).state.empty()){                                              
+                 else{txt = id(ip_adress).state.c_str();} // text sensor
+                if(c_ipa != txt){
+                    c_ipa =  txt;
+                    lv_label_set_text(id(bms_s2a), txt.c_str());
+                    ESP_LOGW("wifi", "ip_adress: %s",txt.c_str());
+                }
+            // s3a ssid                 * ssid
+                static   std::string c_css = " ";              
+                if(!id(connected_ssid).has_state() || id(connected_ssid).state.size() == 0){txt="error";} // id(connected_ssid).state.empty()){ 
+                 else{txt = id(connected_ssid).state;} // text sensor
+                if(c_css != txt){
+                    c_css =  txt;
+                    lv_label_set_text(id(bms_s3a), txt.c_str());
+                    ESP_LOGW("wifi", "ssid: %s",txt.c_str());
+                }                                 
+            // s4a пароль               * pass
+                static   std::string c_cpw = " ";              
+                txt ="Rdy9oSw7";                // id(connected_ssid).state; // text sensor
+                if(c_cpw != txt){
+                    c_cpw =  txt;
+                    lv_label_set_text(id(bms_s4a), txt.c_str());
+                    ESP_LOGW("wifi", "пароль: %s",txt.c_str());
+                }              
+            // s5a bssid                * bssid
+                static   std::string c_bss = " ";              
+                if(!id(bssid).has_state() || id(bssid).state.size() == 0){txt="error";} //id(bssid).state.empty()){        
+                 else{txt = id(bssid).state.c_str();} // text sensor
+                if(c_bss != txt){
+                    c_bss =  txt;
+                    lv_label_set_text(id(bms_s5a), txt.c_str());
+                    ESP_LOGW("wifi", "bssid: %s",txt.c_str());
+                }           
+            // s6a host_name            * host_name
+                static   std::string c_hn = " ";                            
+                  txt = App.get_name();
+                  if(c_hn != txt){
+                      c_hn =  txt;
+                      lv_label_set_text(id(bms_s6a), txt.c_str());
+                      ESP_LOGW("wifi", "host_name: %s",txt.c_str());
+                  }    
+            // s7a MAC                  * mac_address
+                static   std::string c_mac = " ";              
+                if(!id(mac_address).has_state() || id(mac_address).state.size() == 0){txt="error";}  //id(mac_address).state.empty()){                                
+                 else{txt = id(mac_address).state;}                          
+                if(c_mac != txt){
+                    c_mac =  txt;
+                    lv_label_set_text(id(bms_s7a), txt.c_str());
+                    ESP_LOGW("wifi", "MAC: %s",txt.c_str());
+                }      
+      #-------------------------  
+    - id: jk_bms_info
+      then:
+        - lambda: |-
+            //
+            
+            std::string txt; // loger_info
+            char buf[16];
+            float p;
+            
+            // s1   name bms                               * имя бмс                              t1:  "name"
+              static   std::string c_jk_bms = " ";              
+              if(!id(bms_name).has_state() || 
+                  id(bms_name).state.empty()){
+                    txt ="-x-";}
+               else{txt = id(bms_name).state;} // text senso
+              if(c_jk_bms != txt){
+                 c_jk_bms =  txt;               
+                 lv_label_set_text(id(bms_s1), txt.c_str());
+                 ESP_LOGW("jk_bms_info", "name bms:%s",txt.c_str());
+              }              
+            // s2   password                               * пароль                               t2:  "Password"  
+              static   std::string c_pasw = " ";              
+              if(!id(password).has_state() ||
+                  id(password).state.empty()){
+                      txt ="-x-";}
+               else{  txt = id(password).state;} // text sensor
+              if(c_pasw != txt){
+                 c_pasw =  txt;
+                 lv_label_set_text(id(bms_s2), txt.c_str());
+                 ESP_LOGW("jk_bms_info", "password:%s",txt.c_str());
+              }          
+            // s3   total_runtime                          * время работы в часах                 t3:  "Total Time(h)" 
+              static   float c_tr = -998;              
+              if(isnan(id(total_runtime).state)){p =-999;}
+               else{p = id(total_runtime).state;}  
+              if(fabs(c_tr - p) >= 1.0f){
+                  c_tr =  p;    
+                  if(p == -999){strcpy(buf, "-x-");}
+                   else{snprintf(buf, sizeof(buf), "%.0f", p);}
+                  lv_label_set_text(id(bms_s3), buf);
+                  ESP_LOGW("jk_bms_info", "total_runtime:%.0f h",p);
+              } 
+            // s4   total_runtime_formatted                * время работы в d                     t4:  "Total Time(d)" 
+              static   std::string c_trfd ="f";              
+              if(!id(total_runtime_formatted).has_state() ||
+                  id(total_runtime_formatted).state.empty()){
+                    txt ="-x-";} 
+               else{txt = id(total_runtime_formatted).state;}  
+              if(c_trfd != txt){
+                  c_trfd =  txt;                     
+                  lv_label_set_text(id(bms_s4), txt.c_str());
+                  ESP_LOGW("jk_bms_info", "total_runtime_formatted:%s",txt.c_str());
+              }                   
+            // s5   charging_cycles                        * кол циклов                           t5:  "Cycle Count"
+              static   float c_cycle = -998;                
+              if(isnan(id(charging_cycles).state)){p =-999;}  
+               else{p = id(charging_cycles).state;}  
+              if(c_cycle != p){
+                  c_cycle =  p;    
+                  if(p == -999){strcpy(buf, "-x-");}
+                   else{snprintf(buf, sizeof(buf), "%.0f", p);}
+                  lv_label_set_text(id(bms_s5), buf);
+                  ESP_LOGW("jk_bms_info", "charging_cycles:%.0f",p);
+              }           
+            // s6   total_charging_cycle_capacity          * общее кол заряда принято             t6:  "Cycle Capacity(Ah)" 
+              static   float c_tccc = -998;                 //              
+              if(isnan(id(total_charging_cycle_capacity).state)){p = -999;} 
+               else{p = id(total_charging_cycle_capacity).state;} // text sensor
+              if(c_tccc != p){
+                  c_tccc =  p;    
+                  if(p == -999){strcpy(buf, "-x-");}
+                   else{snprintf(buf, sizeof(buf), "%.0f", p);}
+                  lv_label_set_text(id(bms_s6), buf);
+                  ESP_LOGW("jk_bms_info", "total_charging_cycle_capacit:%.0f Ah",p);
+              } 
+            // s7   battery_type                           * тип батареи                          t7:  "Battery_type"
+              static   std::string c_bty = " ";              
+              if(!id(battery_type).has_state() ||
+                  id(battery_type).state.empty()){               
+                    txt ="-x-";} 
+               else{txt = id(battery_type).state;} // text sensor
+              if(c_bty != txt){
+                  c_bty =  txt;
+                  lv_label_set_text(id(bms_s7), txt.c_str());
+                  ESP_LOGW("tag", "battery_type ok  ");
+              }
+            // s8   balance_opening_pressure_difference    * дельта напряжение для стаота баланса t8:  "Balance Trig Volt(V)"       
+              static   float c_bop = -998;                 //               
+              if(isnan(id(balance_opening_pressure_difference).state)){p =-999;}  
+               else{p = id(balance_opening_pressure_difference).state;} // sensor
+              if(c_bop != p){
+                  c_bop =  p;    
+                  if(p == -999){strcpy(buf, "-x-");}
+                   else{snprintf(buf, sizeof(buf), "%.3f", p);}
+                  lv_label_set_text(id(bms_s8), buf);
+                  ESP_LOGW("jk_bms_info", "balance_opening_pressure_difference:%.3fv",p);
+              } 
+            // s9   balance_starting_voltage               * напр начала бал                      t9:  "Start Balance Volt(V)"  
+              static   float c_bsv = -998;                  //              
+              if(isnan(id(balance_starting_voltage).state)){p =-999;}  
+               else{p = id(balance_starting_voltage).state;} //  sensor
+              if(c_bsv != p){
+                  c_bsv =  p;    
+                  if(p == -999){strcpy(buf, "-x-");} 
+                   else{snprintf(buf, sizeof(buf), "%.3f", p);}
+                  lv_label_set_text(id(bms_s9), buf);
+                  ESP_LOGW("jk_bms_info", "balance_starting_voltage:%.3fv",p);
+              }                            
+            // s10  cell_voltage_overvoltage_protection    * MAX напряжение отключения            t10: "Cell OVP(V)"     
+              static   float c_cvop = -998;                      //            
+              if(isnan(id(cell_voltage_overvoltage_protection).state)){p =-999;}  
+               else{p = id(cell_voltage_overvoltage_protection).state;} //   sensor
+              if(c_cvop != p){
+                  c_cvop =  p;    
+                  if(p == -999){strcpy(buf, "-x-");} 
+                   else{snprintf(buf, sizeof(buf), "%.3f", p);}                                     
+                  lv_label_set_text(id(bms_s10), buf);
+                  ESP_LOGW("jk_bms_info", "cell_voltage_overvoltage_protection:%.3fv",p);
+              } 
+            // s11  cell_voltage_overvoltage_recovery      * max Напряжение рестарта              t11: "Cell VPR(V)"    
+              static   float c_cvor = -998;              
+              if(isnan(id(cell_voltage_overvoltage_recovery).state)){p =-999;}  
+               else{p = id(cell_voltage_overvoltage_recovery).state;} //   sensor
+              if(c_cvor != p){
+                  c_cvor =  p;    
+                  if(p == -999){strcpy(buf, "-x-");} 
+                   else{snprintf(buf, sizeof(buf), "%.3f", p);}                  
+                  lv_label_set_text(id(bms_s11), buf);
+                  ESP_LOGW("jk_bms_info", "cell_voltage_overvoltage_recovery:%.3fv",p);
+              }               
+            // s12  cell_voltage_undervoltage_protection   * Мин напряжения откл                  t12: "Cell UVPR(V)"    
+              static   float c_cvup = -998;               
+              if(isnan(id(cell_voltage_undervoltage_protection).state)){p =-999;}  
+               else{p = id(cell_voltage_undervoltage_protection).state;} //   sensor
+              if(c_cvup != p){
+                  c_cvup =  p;    
+                  if(p == -999){strcpy(buf, "-x-");} 
+                   else{snprintf(buf, sizeof(buf), "%.3f", p);}
+                  lv_label_set_text(id(bms_s12), buf);
+                  ESP_LOGW("jk_bms_info", "cell_voltage_undervoltage_protection:%.3fv",p);
+              }                  
+            // s13  cell_voltage_undervoltage_recovery     * min Напряжение рестарта              t13: "Cell UVP(V)"     
+              static   float c_cvur = -998;                
+              if(isnan(id(cell_voltage_undervoltage_recovery).state)){p =-999;}  
+               else{p = id(cell_voltage_undervoltage_recovery).state;} //   sensor
+              if(c_cvur != p){
+                  c_cvur =  p;    
+                  if(p == -999){strcpy(buf, "-x-");} 
+                   else{snprintf(buf, sizeof(buf), "%.3f", p);}                  
+                  lv_label_set_text(id(bms_s13), buf);
+                  ESP_LOGW("jk_bms_info", "cell_voltage_undervoltage_recovery:%.3fv",p);
+              }                     
+            // s14  charging_overcurrent_protection        * min Напряжение рестарта              t14: "Charge Curr(A)"      
+              static   float c_cop = -998;                
+              if(isnan(id(charging_overcurrent_protection).state)){p =-999;}  
+               else{p = id(charging_overcurrent_protection).state;} // t  sensor
+              if(c_cop != p){
+                  c_cop =  p;    
+                  if(p == -999){strcpy(buf, "-x-");} 
+                   else{snprintf(buf, sizeof(buf), "%.3f", p);}                  
+                  lv_label_set_text(id(bms_s14), buf);
+                  ESP_LOGW("jk_bms_info", "charging_overcurrent_protection:%.3fA",p);
+              }                         
+            // s15  discharging_overcurrent_protection     * min Напряжение рестарта              t15: "DisCharge Curr(A)"     
+              static   float c_dop = -998;                
+              if(isnan(id(discharging_overcurrent_protection).state)){p =-999;}  
+               else{p = id(discharging_overcurrent_protection).state;} //   sensor
+              if(c_dop != p){
+                  c_dop =  p;    
+                  if(p == -999){strcpy(buf, "-x-");} 
+                   else{snprintf(buf, sizeof(buf), "%.3f", p);}
+                  lv_label_set_text(id(bms_s15), buf);
+                  ESP_LOGW("jk_bms_info", "discharging_overcurrent_protection:%.3fA",p);
+              }            
+              
+            // registr
+            // Change maxA                                                                       t1r: "Change Curr max(A)"     
+              static float c_cma = 0;
+              static bool  s_cma = true;
+              if(!isnan(id(current).state)){  
+                    p = id(current).state;
+                    if(c_cma < p){
+                        c_cma = p;   
+                        snprintf(buf, sizeof(buf), "%.2f", p);
+                        lv_label_set_text(id(bms_s1r), buf);
+                        ESP_LOGW("reg", "Change maxA:%.2fA  r",p);             
+                    }                
+                    if(id(change_curr_max) < p){             
+                        id(change_curr_max) = p;
+                        s_cma = true;
+                    }   
+                    if(s_cma){ 
+                        s_cma = false;
+                        snprintf(buf, sizeof(buf), "%.2f", id(change_curr_max));
+                        lv_label_set_text(id(bms_s1g), buf);                 
+                        ESP_LOGW("reg", "Change maxA:%.2fA  g",p); 
+                    }             
+              }
+            // DisChange maxA                                                                    t2r: "Dischg Curr max(A)"    
+              static float c_dcma = 0;
+              static bool  s_dcma = true;
+              if(!isnan(id(current).state)){ 
+                    p = id(current).state;
+                    if(c_dcma > p){
+                       c_dcma = p;   
+                       snprintf(buf, sizeof(buf), "%.2f", p);
+                       lv_label_set_text(id(bms_s2r), buf);
+                       ESP_LOGW("reg", "DisChange maxA:%.2fA  r",p);             
+                    }   
+                    if(id(dischange_curr_max) > p){             
+                       id(dischange_curr_max) = p;
+                       s_dcma = true;
+                    }      
+                    if(s_dcma){ 
+                       s_dcma = false;            
+                       snprintf(buf, sizeof(buf), "%.2f", id(dischange_curr_max));
+                       lv_label_set_text(id(bms_s2g), buf);                 
+                       ESP_LOGW("reg", "DisChange maxA:%.2fA  g",p);
+                    }                  
+              }
+            // Total Voltage maxV                                                                t3r: "Total Voltage max(V)"      
+              static float c_tvmax = 0;
+              static bool  s_tvmax = true;
+              if(!isnan(id(total_voltage).state)){
+                    p = id(total_voltage).state;
+                    if(c_tvmax < p){
+                       c_tvmax = p;   
+                       snprintf(buf, sizeof(buf), "%.2f", p);
+                       lv_label_set_text(id(bms_s3r), buf);
+                       ESP_LOGW("reg", "Total Voltage maxV:%.2fV  r",p);             
+                    }   
+                    if(id(total_volt_max) < p){             
+                       id(total_volt_max) = p;
+                       s_tvmax = true;
+                    }   
+                    if(s_tvmax){ 
+                       s_tvmax = false;
+                       snprintf(buf, sizeof(buf), "%.2f", id(total_volt_max));
+                       lv_label_set_text(id(bms_s3g), buf);                 
+                       ESP_LOGW("reg", "Total Voltage maxV:%.2fV  g",p);
+                    }                  
+              }            
+            // Total Voltage minV                                                                t4r: "Total Voltage min(V)"     
+              static float c_tvmin = 100;
+              static bool  s_tvmin = true;             
+              if(!isnan(id(total_voltage).state)){
+                    p = id(total_voltage).state;
+                    if(c_tvmin > p){
+                       c_tvmin = p;   
+                       snprintf(buf, sizeof(buf), "%.2f", p);
+                       lv_label_set_text(id(bms_s4r), buf);
+                       ESP_LOGW("reg", "Total Voltage minV:%.2fV  r",p);             
+                    }      
+                    if(id(total_volt_min) > p){             
+                       id(total_volt_min) = p;
+                       s_tvmin = true;
+                    }   
+                    if(s_tvmin){ 
+                       s_tvmin = false;
+                       snprintf(buf, sizeof(buf), "%.2f", id(total_volt_min));
+                       lv_label_set_text(id(bms_s4g), buf);                 
+                       ESP_LOGW("reg", "Total Voltage minV:%.2fV  g",p);              
+                    }     
+              }
+            // Cell Voltage maxV                                                                 t5r: "Cell Voltage max(V)"   
+                static float c_cvmax = 0;
+                static bool  s_cvmax = true;
+                if(!isnan(id(max_cell_voltage).state)){
+                      p = id(max_cell_voltage).state;
+                      if(c_cvmax < p){
+                         c_cvmax = p;   
+                         snprintf(buf, sizeof(buf), "%.3f", p);
+                         lv_label_set_text(id(bms_s5r), buf);
+                         ESP_LOGW("reg", "Cell Voltage maxV:%.3fV  r",p);             
+                      }  
+                      if(id(cell_volt_max) < p){             
+                         id(cell_volt_max) = p;
+                         s_cvmax = true;
+                      }
+                      if(s_cvmax){   
+                         s_cvmax = false;
+                         snprintf(buf, sizeof(buf), "%.3f", id(cell_volt_max));
+                         lv_label_set_text(id(bms_s5g), buf);                 
+                         ESP_LOGW("reg", "Cell Voltage maxV:%.3fV  g",p);                                
+                      }    
+                }
+            // Cell Voltage minV                                                                 t6r: "Cell Voltage min(V)" 
+                static float c_cvmin = 10;
+                static bool  s_cvmin = true;              
+                if(!isnan(id(min_cell_voltage).state)){
+                      p = id(min_cell_voltage).state;
+                      if(c_cvmin > p){
+                         c_cvmin = p;   
+                         snprintf(buf, sizeof(buf), "%.3f", p);
+                         lv_label_set_text(id(bms_s6r), buf);
+                         ESP_LOGW("reg", "Cell Voltage minV:%.3fV  r",p);             
+                      }   
+                      if(id(cell_volt_min) > p){             
+                         id(cell_volt_min) = p;
+                         s_cvmin = true;
+                      }  
+                      if(s_cvmin){
+                         s_cvmin = false;
+                         snprintf(buf, sizeof(buf), "%.3f", id(cell_volt_min));
+                         lv_label_set_text(id(bms_s6g), buf);                 
+                         ESP_LOGW("reg", "Cell Voltage minV:%.3fV  g",p);  
+                      }                                
+                }
+            // Delta Voltage maxV                                                                t7r: "Delta Voltage max(V)"
+                static float c_dvmax = 0;
+                static bool  s_dvmax = true;
+                if(!isnan(id(delta_cell_voltage).state)){
+                      p = id(delta_cell_voltage).state;
+                      if(c_dvmax < p){
+                        c_dvmax = p;                    
+                        snprintf(buf, sizeof(buf), "%.3f", p);
+                        lv_label_set_text(id(bms_s7r), buf);  
+                        ESP_LOGW("reg", "Delta Voltage maxV:%.3fV  r",p);             
+                      }                                    
+                      if(id(delta_volt_max) < p){             
+                        id(delta_volt_max) = p;
+                        s_dvmax = true; 
+                      }
+                      if(s_dvmax){ 
+                        s_dvmax = false;                        
+                        snprintf(buf, sizeof(buf), "%.3f", id(delta_volt_max));
+                        lv_label_set_text(id(bms_s7g), buf);                 
+                        ESP_LOGW("reg", "Delta Voltage maxV:%.3fV  g",p);
+                      }               
+                }
+                 
+      #---------------------------------------   
+    - id: update_edit
+      then:
+        - lambda: |-
+              //float val = id(dp_1).state;
+              //lv_meter_set_indicator_start_value(id(power_metr), id(arc_1), val);
+              //lv_meter_set_indicator_end_value(id(power_metr), id(arc_1), 99);     
+      # - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+    - id: but_reset_click
+      then:
+        - lambda: |-
+            // reset static data
+            id(change_curr_max)    = -0.0001;
+            id(dischange_curr_max) =  0.0001;
+            id(total_volt_max)     = 0;
+            id(total_volt_min)     = 100;
+            id(cell_volt_max)      = 0;
+            id(cell_volt_min)      = 100;            
+            id(delta_volt_max)     = 0;
+            id(jk_bms_info).execute(); 
+      #--------------------------------------
+    - id: but_retup_click
+      then:
+        - lambda: |-      
+            //
+            lv_obj_scroll_to(id(main_page).obj, 0, 0, LV_ANIM_OFF);
+      # - - - - - - - - - - - - - - - - - - - - - - - - - - - -        
+    - id: grafm_input_data
+      then:
+        - lambda: |-
+            //
+              if( isnan(id(total_voltage).state) ){return;} // не подключена к бмс
+
+              static int i_max  = ${grafm_pdi};                  // максималльное кол-во точек данніх 1440
+              static int i_last = i_max-1; 
+              static int s_bl0  = 0*i_max;                      // 0      0:    0-1439  
+              static int s_bl1  = 1*i_max;                      // 1440   1:  1440-2879
+              static int s_bl2  = 2*i_max;                      // 2880   2:  2880-4319        
+             // увеличиваем индекс и проверяем допустимый макс предел 
+              if( id(grafm_index)< i_last){id(grafm_index)++;}   //  макс 1439          
+               else{
+                // добрались до последнего елемента больше не увеличиваем делаем сдвиг 
+                 for(int i=0; i<i_last; i++){   //  макс 1438   
+                     id(grafm_data)[s_bl0+i] = id(grafm_data)[s_bl0+i+1];
+                     id(grafm_data)[s_bl1+i] = id(grafm_data)[s_bl1+i+1];
+                     id(grafm_data)[s_bl2+i] = id(grafm_data)[s_bl2+i+1];
+                     //ESP_LOGW("tag", "index: %d",i);
+                 }              
+              } 
+             // сохраняем данные  в полученный индекс учитываем смещение для типов данных
+               ESP_LOGW("tag", "index: %d",id(grafm_index));
+               if(!isnan(id(total_voltage).state)){
+                     id(grafm_data)[s_bl0+id(grafm_index)] = id(total_voltage).state;}
+                else{id(grafm_data)[s_bl0+id(grafm_index)] = 0;}                                    //             
+               if(!isnan(id(current).state)){ 
+                     id(grafm_data)[s_bl1+id(grafm_index)] = id(current).state;}                    //            
+                else{id(grafm_data)[s_bl1+id(grafm_index)] = 0;}
+               if(!isnan(id(capacity_remaining_derived).state)){                                      //
+                     id(grafm_data)[s_bl2+id(grafm_index)] = id(capacity_remaining_derived).state;}
+                else{id(grafm_data)[s_bl2+id(grafm_index)] = 0;}
+             // время                    
+               id(grafm_time).execute();     
+      # - - - -- - - - - - - - - - - - ------------      
+    - id: grafm_time
+      then:
+       - lambda: |-
+           // 
+              auto now = id(my_time).now();
+              static int g_timep[] = {0, 60, 120, 180, 240,  300,  360,  420,  480,  540,  600,  660,  720,
+                                        780, 840, 900, 960, 1020, 1080, 1140, 1200, 1260, 1320, 1380, 1439};
+              static int min;
+              static int hour;
+           
+           // попадание в точку контроля времени  
+              for(int i=24; i>-1; i--){                                    
+                  if(g_timep[i] == id(grafm_index)){
+                    if (!now.is_valid()){hour=0; min=1;}
+                     else{min = now.minute;                 
+                         hour = now.hour;                                  
+                    }   
+                    hour = hour-i;
+                    if(hour<0 ){hour=hour+24;}                   
+                    id(grafm_hour_start)= hour;
+                    id(grafm_min_start) = min;
+                    id(grafm_out_mtime).execute();                                   
+                 }               
+              }                
+      # - - - - - - - - - - - - - - - -  -- - - - - -  - - - - -  - -  
+    - id: grafm_out_mtime
+      then:
+        - lambda: |-
+            //
+            
+            static char buf[20];                     
+            static lv_obj_t*  g_time[] = {id(grafm_time0), id(grafm_time1), id(grafm_time2), id(grafm_time3), id(grafm_time4), 
+                                          id(grafm_time5), id(grafm_time6), id(grafm_time7), id(grafm_time8), id(grafm_time9),
+                                          id(grafm_time10),id(grafm_time11),id(grafm_time12),id(grafm_time13),id(grafm_time14),
+                                          id(grafm_time15),id(grafm_time16),id(grafm_time17),id(grafm_time18),id(grafm_time19),
+                                          id(grafm_time20),id(grafm_time21),id(grafm_time22),id(grafm_time23),id(grafm_time24)};
+             int hour= id(grafm_hour_start);
+             int min = id(grafm_min_start);
+            
+               //ESP_LOGI("tag", "hour: %d  min: %d ",hour,min); 
+            // "2" statndart 1 hour
+              if(id(grafm_select_interval) == 2){ 
+                 for(int i=0; i<25; i++){     
+                    snprintf(buf, sizeof(buf), "%2d:%02d", hour,  min);
+                    lv_label_set_text(g_time[i], buf);
+                    hour++;
+                    if(hour>23){hour=0;}
+                 } 
+              }
+            // "0"   day  8 hour   
+               if(id(grafm_select_interval) == 0){
+                  for(int i=0; i<4; i++){     
+                     snprintf(buf, sizeof(buf), "%2d:%02d", hour,  min);
+                     lv_label_set_text(g_time[i], buf);
+                     if(hour<16){hour=hour+8;}
+                     else{hour=hour-16;}
+                  }                                            
+               } 
+
+
+      # - - - - - - - - - - - - -  -       
+    - id: grafm_out_graf
+      then:
+        - lambda: |-
+            //
+            if(!id(grafm_select_page) || id(grafm_index) < 1 ){return;} // страница не вібрана или имеем только первій елемент данніх делать ничего не надо
+            
+            static char buf[16];
+            static int ip;             // порядковый номер последнего елемента данных 
+            static int select=-1;       // выбор тип данных
+            static int i_select=0;     // смещение для участка в массиве данным
+                    //
+            static int   m_lgk =${grafm_lgk}; // кол-во линий гор разметки по 7
+            static int   s_max =${grafm_pdm}; // кол пикселей для отображения макс значения 240 
+            static int   s_mtk = m_lgk-1;     // кол шкалы 7-1=6
+            static float s_pix =s_max/s_mtk;   // кол пикс в одном шаге шкалы
+            static float m_def;               // масштаб (размер) шага шкалы
+            static float k_def;               // вычисляемый коэфициент значения/пиксель
+            static float d_def;               // разница между макс и мин 
+            static float c_def;               // кратность шага какие могут біть начальніе значения в зависимостиот размера шага       
+            static float d_max;               // максимальное значение
+            static float d_min;               // минимальное значение     
+            static float g_max;               // максимальное значение метки размера        
+            static float g_kff;               // коефициент перевода значения в кол пикселей
+            
+            static float metka;               //          
+            static float p;
+            static int scr_x;   // скрол по графику
+            static int i_beg;   // номер начального элемента который отображается на графике перво
+            static int i_end;   // номер последнего видимого елемента
+            static int s_intrvl; // номер интервала
+                    
+            static lv_point_t g_point[${grafm_pdi}];  // масив точек для построения линии 1440
+            static lv_obj_t*  g_metka[] = {id(grafm_m0), id(grafm_m1), id(grafm_m2),     // перечень меток размера                                          
+                                                id(grafm_m3), id(grafm_m4), id(grafm_m5),
+                                                id(grafm_m6)};
+
+            ip = id(grafm_index); // берем текущий последний номер елемента данных
+            
+            // смена графика  
+              if(select != id(grafm_select_data)){ // проверяем сменился тип данных
+                  select  = id(grafm_select_data); 
+                // замена цвета линии  вычисление смещения в массиве  данных
+                  if(select == 0){ i_select = 0*${grafm_pdi};
+                    lv_obj_set_style_line_color(id(grafm_graf).obj,lv_color_hex(${grafm_cg0}),LV_PART_MAIN);}
+                  if(select == 1){ i_select = 1*${grafm_pdi};
+                    lv_obj_set_style_line_color(id(grafm_graf).obj, lv_color_hex(${grafm_cg1}),LV_PART_MAIN);}
+                  if(select == 2){ i_select = 2*${grafm_pdi};
+                    lv_obj_set_style_line_color(id(grafm_graf).obj, lv_color_hex(${grafm_cg2}),LV_PART_MAIN);}
+              }                
+            // ищем макс мин    и   вічисляем кфф
+              // учитываем скролинг для определения области поиска макс и мин в видимой области m_lgk
+                scr_x = lv_obj_get_scroll_x(id(grafm_pole)); // анализируем скролинг на obj: grafm_pole
+                
+                if(scr_x<0){scr_x = 0;}                      // нельзя случайно получить отрицательное число скролинга
+                if(scr_x == 0){i_beg = 0;}
+                 else{
+                   i_beg = 1+ int(scr_x/2) ;                              // первій елемент для начала поиска
+                }
+                
+                if(i_beg>ip) {i_beg = ip-1;}                 // если сильно уехали в право то берем первім елементом предедущий последнему
+                i_end = scr_x + ${grafm_pdx};                // кол елементов  на видимом поле   420
+                
+                if(id(grafm_select_interval) == 2){i_end = i_beg + 420/2;} // standart
+                if(id(grafm_select_interval) == 0){i_end = ip;}            // day
+                if(i_end >ip){i_end=ip;}                     // последний елемент не должен біть старше настоящему последнему
+              
+              
+              // присваиваем начальніе значени мин и макс перебираем по порядку
+                d_min = id(grafm_data)[i_select + i_beg ];   
+                d_max = id(grafm_data)[i_select + i_beg ];   
+                for( int i=i_beg; i<i_end; i++){            
+                    float val = id(grafm_data)[i_select+i+1];
+                    if(d_min > val){d_min = val;}                                     
+                    if(d_max < val){d_max = val;}  
+                }
+                
+                // ищем деф и единицу шкалы     400        
+                d_def = d_max - d_min;  // деф
+                c_def =d_def/s_mtk;              //6 ;        // деление шкалы примерное     
+                if(     c_def  ==   0) {m_def = 0.01; k_def=0.01;} // размер шкалы              
+                else if(c_def <= 0.010){m_def = 0.01; k_def=0.01;} // размер шкалы
+                else if(c_def <= 0.050){m_def = 0.05; k_def=0.05;} // размер шкалы
+                else if(c_def <= 0.100){m_def = 0.10; k_def=0.10;} // размер шкалы
+                else if(c_def <= 0.200){m_def = 0.20; k_def=0.10;} // размер шкалы
+                else if(c_def <= 0.300){m_def = 0.30; k_def=0.10;} // размер шкалы
+                else if(c_def <= 0.500){m_def = 0.50; k_def=0.50;} // размер шкалы
+                else if(c_def <= 1    ){m_def = 1;    k_def=1;}    // размер шкалы
+                else if(c_def <= 2    ){m_def = 2;    k_def=1;}    // размер шкалы
+                else if(c_def <= 3    ){m_def = 3;    k_def=1;}    // размер шкалы
+                else if(c_def <= 5    ){m_def = 5;    k_def=5;}    // размер шкалы
+                else if(c_def <= 10   ){m_def = 10;   k_def=5;}    // размер шкалы
+                else if(c_def <= 15   ){m_def = 15;   k_def=5;}    // размер шкалы
+                else if(c_def <= 20   ){m_def = 20;   k_def=5;}    // размер шкалы
+                else if(c_def <= 25   ){m_def = 25;   k_def=5;}    // размер шкалы               
+                else if(c_def <= 30   ){m_def = 30;   k_def=5;}    // размер шкалы                
+                else if(c_def <= 50   ){m_def = 50;   k_def=5;}    // размер шкалы                
+                else if(c_def <= 100  ){m_def = 60;   k_def=5;}    // размер шкалы                               
+                // вычисляем макс показание шкалы 
+                if(c_def == 0){g_max = d_max+0.03;}
+                else if(c_def == m_def){g_max = d_max;}
+                      else{                        
+                       p = d_max/k_def;
+                       if(p>0){ p = p + 1;}
+                       g_max = k_def*int(p);
+                      }
+                  g_kff = s_pix/m_def; // сколько значения в одном пикселе        40/                                
+                // замена шкалы 
+                  // для наряж и емкости подвинуть шкалу убрать отриц значения 
+                    if(select == 0 || select == 2 ){  
+                      if(g_max < s_mtk*m_def && select != 1){g_max= s_mtk*m_def;} 
+                    }  
+                  // пересчет значений для меток  
+                    for(int i=0; i<=s_mtk; i++){  // s_mtk=6  
+                        metka = g_max-(s_mtk-i)*m_def;                           ///m_def*(int(1+d_max/k_def)-i);
+                        if(k_def < 0.1){snprintf(buf, sizeof(buf), "%.2f", metka);}
+                        else if(k_def < 1){snprintf(buf, sizeof(buf), "%.1f", metka);} 
+                        else{snprintf(buf, sizeof(buf), "%.0f", metka);}
+                        lv_label_set_text(g_metka[i], buf); 
+                    }                     
+                // расчеты
+                  // float dd= id(grafm_data)[i_select+ip];
+                  // ESP_LOGI("tag", "i_select: %d  Mscr_x: %d   min: %f  max: %f  k_def: %f  g_max: %f  g_kff: %f  i_beg: %d  i_end: %d  ip: %d  data: %f",
+                  //                  i_select, scr_x,       d_min,    d_max,  k_def,     g_max,     g_kff,      i_beg,     i_end,    ip, dd);             
+            // выводим график                             
+                if(s_intrvl != id(grafm_select_interval)){ // обнуляем массив
+                    s_intrvl = id(grafm_select_interval);
+                    for(int i=0; i<(${grafm_pdi}-1);i++){
+                        g_point[i].x=0;
+                        g_point[i].y=0;
+                    }  
+                } 
+                for(int i=0; i<ip+1; i++){                    
+                    if(id(grafm_select_interval) == 2){  // 1 минута = 2 точкам 
+                      g_point[i].x = i*2;                    
+                      int y= 9 + int(g_kff*(g_max - id(grafm_data)[i_select + i]));
+                      g_point[i].y = y;                    
+                    }
+                    if(id(grafm_select_interval) == 0){  // 4 njxrb = 1 точкам 
+                      g_point[i].x = int(i/4);                    
+                      int y= 9 + int(g_kff*(g_max - id(grafm_data)[i_select + i]));
+                      g_point[i].y = y;                     
+                    
+                    }
+                    
+                    //ESP_LOGI("tag", "i: %d  y: %d   data: %f", i, y, id(grafm_data)[i_select + i]);                                      
+                }
+                lv_line_set_points(id(grafm_graf).obj, g_point, ip+1); // ip =
+               
+           
+      # - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+    - id: grafm_select_intrvl
+      then:
+        - lambda: |-
+            //
+             static lv_point_t line_points[7][2] ;
+            static int y_vals[] = {${grafm_lg0}, ${grafm_lg1}, ${grafm_lg2}, ${grafm_lg3}, 
+                                   ${grafm_lg4}, ${grafm_lg5}, ${grafm_lg6}};
+            
+            static lv_obj_t* g_lines[] = {id(grafm_g0).obj, id(grafm_g1).obj, id(grafm_g2).obj, id(grafm_g3).obj,             
+                                          id(grafm_g4).obj, id(grafm_g5).obj, id(grafm_g6).obj};
+
+            static lv_obj_t* v_lines[] = {id(grafm_v0).obj, id(grafm_v1).obj, id(grafm_v2).obj, id(grafm_v3).obj, id(grafm_v4).obj,             
+                                          id(grafm_v5).obj, id(grafm_v6).obj, id(grafm_v7).obj, id(grafm_v8).obj, id(grafm_v9).obj,
+                                          id(grafm_v10).obj,id(grafm_v11).obj,id(grafm_v12).obj,id(grafm_v13).obj,id(grafm_v14).obj, 
+                                          id(grafm_v15).obj,id(grafm_v16).obj,id(grafm_v17).obj,id(grafm_v18).obj,id(grafm_v19).obj,
+                                          id(grafm_v20).obj,id(grafm_v21).obj,id(grafm_v22).obj,id(grafm_v23).obj,id(grafm_v24).obj};            
+            
+            static lv_obj_t* m_times[] = {id(grafm_time0), id(grafm_time1), id(grafm_time2), id(grafm_time3), id(grafm_time4),             
+                                          id(grafm_time5), id(grafm_time6), id(grafm_time7), id(grafm_time8), id(grafm_time9),
+                                          id(grafm_time10),id(grafm_time11),id(grafm_time12),id(grafm_time13),id(grafm_time14), 
+                                          id(grafm_time15),id(grafm_time16),id(grafm_time17),id(grafm_time18),id(grafm_time19),
+                                          id(grafm_time20),id(grafm_time21),id(grafm_time22),id(grafm_time23),id(grafm_time24)};
+            
+            lv_obj_scroll_to(id(grafm_pole), 0, 0, LV_ANIM_OFF);
+            // "0" day               
+              if (id(grafm_select_interval) == 0){
+                 // g-line            
+                   lv_style_set_line_color(id(style_grafm_grid), lv_color_make(64, 64, 48));
+                  for(int i=0; i<7; i++){
+                      line_points[i][0].x = 0;
+                      line_points[i][1].x = 420;                       
+                      line_points[i][0].y = y_vals[i]; 
+                      line_points[i][1].y = y_vals[i];
+                      lv_line_set_points(g_lines[i], line_points[i], 2);
+                  }              
+                 // v-line m-time
+                    for(int i=4; i<25; i++){
+                      lv_obj_add_flag(v_lines[i], LV_OBJ_FLAG_HIDDEN); // скрыть лишние линии 
+                      lv_obj_add_flag(m_times[i], LV_OBJ_FLAG_HIDDEN); // скрыть лишние метки времени                   
+                    }
+              }
+            
+            // "1" 
+              if (id(grafm_select_interval) == 1){
+              }            
+            // "2" standart
+              if(id(grafm_select_interval) == 2){
+                lv_style_set_line_color(id(style_grafm_grid), lv_color_make(128, 0, 0));
+                // g-line
+                  for(int i=0; i<7; i++){
+                      line_points[i][0].x = 0;
+                      line_points[i][1].x = 2880;                      
+                      line_points[i][0].y = y_vals[i];
+                      line_points[i][1].y = y_vals[i];
+                      lv_line_set_points(g_lines[i], line_points[i], 2);
+                  }
+                // v-line and m-time
+                  for(int i=0; i<25; i++){
+                      lv_obj_clear_flag(v_lines[i], LV_OBJ_FLAG_HIDDEN); // показать вертикальные лини
+                      lv_obj_clear_flag(m_times[i], LV_OBJ_FLAG_HIDDEN); // показать метки времени
+                  }           
+                
+                  
+              }
+
+
+      #- - - - - - - - - - - - - -
+    - id: grafm_change_intrvl
+      then:
+        - lambda: |-
+            //
+              if(id(grafm_select_interval) ==2){id(grafm_select_interval)=0;}
+              else{id(grafm_select_interval)=2;}
+              ESP_LOGW("tag", "grafm_select_interval: %d   ",   id(grafm_select_interval) ); 
+              id(grafm_select_intrvl).execute();
+              id(grafm_out_mtime).execute();
+              id(grafm_out_graf).execute();      
+      # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -      
+    - id: scrl_1
+      then:
+        - lambda: |-
+            // 
+            int s_x = lv_obj_get_scroll_x(id(main_page).obj);
+            if( (s_x>0) ){lv_obj_scroll_to(id(main_page).obj, 0, 0, LV_ANIM_OFF);}      
+    - id: bms_bibi
+      then:
+        - delay: 200ms
+        - lambda: |-
+              id(update_main).execute(); 
+      # - - - - - - - - - - - -  - - - - - - - -  -
+#interval
+  interval:
+    - interval: 0.5s
+      then:
+        - lambda: |-
+            //            
+            if(!grafm_select_page){return;} // страница не вібрана делать ничего не надо
+            static int scrl_x = 0 ;
+            int x = lv_obj_get_scroll_x(id(grafm_pole)); 
+            if(scrl_x != x){
+               scrl_x  = x;
+              // перерисовываем график с учетом сдвига
+               id(grafm_out_graf).execute();
+            }          
+     # - - - - - - - - - - - - - - - - - - - - 
+    - interval: 3s  
+      then:
+        - lambda: |-           
+            //id(update_main).execute();  
+     # - - - - - - - - - - - - - - - - - - - - 
+    - interval: 10s  
+      then:
+        - lambda: |-             
+            //id(wifi_control).execute();  
+     # - - - - - - - - - - - - - - - - - - - - 
+    - interval: 2min
+      startup_delay: 30s      
+      then:
+ #        - delay: 30s
+        - if:
+            condition:
+              not: wifi.connected
+            then:
+              - wifi.disable:      # выключаем WiFi стек
+              - delay: 5min       # 10 минуты работаем автономно
+              - wifi.enable:       # снова пробуем
+              - delay: 30s
+      # - - - - - - - - - - - - - - - - - - - - 
+    - interval: 10min          
+      then: 
+        - lambda: |-            
+            if( lv_obj_get_scroll_y(id(main_page).obj) > 0 ){
+                lv_obj_scroll_to(id(main_page).obj, 0, 0, LV_ANIM_OFF);
+            } 
+      # - - - - -- - - - - - - - - - - -  - -          
+    - interval: 60s
+      startup_delay: 60s
+      then:
+        - lambda: |-
+            // сбор данных и построение графика
+            id(grafm_input_data).execute();               
+            id(grafm_out_graf).execute(); 
+      # - - - - - - - - - - - - - - -- - - - - - 
+#---- end ----------------------------
+    

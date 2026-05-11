@@ -1,0 +1,89 @@
+font:
+ # показатели 1 колонка my_font1
+  - file: "gfonts://Roboto"
+    id: my_font1
+    size: 25
+    glyphs: [" ",".","-","=",0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f,g,i,j,k,l,m,n,o,p,r,s,t,u,v,w,x,y,z,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z]
+ # показатели 2 колонка my_font1a
+  - file: "gfonts://Roboto"
+    id: my_font1a
+    size: 22   
+
+  #- file: "gfonts://Kosugi Maru"
+  #  id: my_font1a1
+  #  size: 22 
+  #- file: "gfonts://IBM Plex Mono"
+  #  id: my_font1a2
+  #  size: 22 
+  #- file: "gfonts://Signika Negative"
+  #  id: my_font1a3
+  #  size: 22 
+  - file: "gfonts://Reddit Mono"
+    id: my_font1a4
+    size: 22 
+  #- file: "gfonts://Source Code Pro"
+  #  id: my_font1a5
+  #  size: 22 
+  #- file: "gfonts://Sono"
+  #  id: my_font1a6
+  #  size: 22 
+  #- file: "gfonts://Azeret Mono"
+  #  id: my_font1a7
+  #  size: 22 
+  #- file: "gfonts://Martian Mono"
+  #  id: my_font1a8
+  #  size: 22 
+  - file: "gfonts://Reddit Mono"
+    id: my_font1a9
+    size: 30 
+
+
+  #    glyphs: [" ",".","-",0,1,2,3,4,5,6,7,8,9,a,n,o]
+ # размерность
+  - file: "gfonts://Roboto"
+    id: my_font2
+    size: 12
+    glyphs: [" ",".","-",0,1,2,3,4,5,6,7,8,9,
+             A,V,W,h,k,w,n,o]
+ #   my_font3
+  - file:
+      type: gfonts
+      family: Roboto
+      weight: 700
+    id: my_font3
+    size: 30
+    # glyphs: [" ",".","-",0,1,2,3,4,5,6,7,8,9,a,n,o]
+ # my_font4
+  - file: "gfonts://Roboto"
+    id: my_font4
+    size: 17
+    glyphs: [
+      1,2,3,4,5,6,7,8,9,"+","-"," ",
+      А,Б,В,Г,Д,Е,Ё,Ж,З,И,Й,К,Л,М,Н,О,П,Р,С,Т,У,Ф,Х,Ч,Ш,Щ,Ь,Ъ,Э,Ю,Я,
+      а,б,в,г,д,е,ё,ж,з,и,й,к,л,м,н,о,п,р,с,т,у,ф,х,ч,ш,щ,ь,ъ,э,ю,я]
+ # показатели мощности розеток
+  - file: "gfonts://Roboto"
+    id: my_font5
+    size: 17
+  #  glyphs: [" ",".","-",0,1,2,3,4,5,6,7,8,9,a,n,o]
+#-------------------------------------    
+  - file:  "gfonts://Roboto@500" #"gfonts://Oswald@500" #"gfonts://Rubik@400" # "gfonts://Rubik@400" #  "gfonts://Oswald@600" #  
+    id: my_font1_a
+    size: 38  
+    glyphs: [" ",".","-",0,1,2,3,4,5,6,7,8,9,a,n,o]
+  - file: "gfonts://Bebas Neue@400" # "gfonts://Rubik@400" # "gfonts://Roboto" # "gfonts://Oswald@600" #   
+    id: my_font2_a
+    size: 35
+    glyphs: [" ",".","-",0,1,2,3,4,5,6,7,8,9,a,n,o]
+  - file:  "gfonts://Roboto@500" #"gfonts://Oswald@500" #"gfonts://Rubik@400" # "gfonts://Rubik@400" #  "gfonts://Oswald@600" #  
+    id: my_font1_b
+    size: 60  
+    glyphs: [" ",".","-",0,1,2,3,4,5,6,7,8,9,a,n,o]
+  - file: "gfonts://Bebas Neue@400" # "gfonts://Rubik@400" # "gfonts://Roboto" # "gfonts://Oswald@600" #   
+    id: my_font2_b
+    size: 50
+    glyphs: [" ",".","-",0,1,2,3,4,5,6,7,8,9,a,n,o]
+
+
+
+#--------------------------------------

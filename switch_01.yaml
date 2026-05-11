@@ -1,0 +1,12 @@
+- switch:
+   id: switch_01 #  
+   x: 700
+   y: 170
+   height: 30
+   width: 60
+   bg_color: 0x000000 # цвет внутри когда off
+   border_color: 0x00f0f0 
+   outline_color: 0x0000f0  # цвет внешнего контура
+   outline_width: 2         # толщина внешнего контура
+   outline_pad: 2           # отступ между краем и контуром
+         

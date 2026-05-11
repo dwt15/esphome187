@@ -1,0 +1,42 @@
+text_sensor:
+
+  - platform: homeassistant # <moon_phase> [] {}
+    id: moon_phase
+    entity_id: sensor.moon_phase
+    on_value:
+        then:
+          - lambda: |-
+               ESP_LOGI("weather", "Текущее состояние погоды: %s", x.c_str());
+               if (id(moon_phase).state  == "new_moon")        {lv_img_set_src(id(img_imgm), id(img_moon_new));}
+               if (id(moon_phase).state  == "waxing_crescent") {lv_img_set_src(id(img_imgm), id(img_moon_waxing_crescent));}
+               if (id(moon_phase).state  == "first_quarter")   {lv_img_set_src(id(img_imgm), id(img_moon_first_quarter));}
+               if (id(moon_phase).state  == "waxing_gibbous")  {lv_img_set_src(id(img_imgm), id(img_moon_waxing_gibbous));}                                       
+               if (id(moon_phase).state  == "full_moon")       {lv_img_set_src(id(img_imgm), id(img_moon_full));}
+               if (id(moon_phase).state  == "waning_gibbous")  {lv_img_set_src(id(img_imgm), id(img_moon_waning_gibbous));}
+               if (id(moon_phase).state  == "last_quarter")    {lv_img_set_src(id(img_imgm), id(img_moon_last_quarter));}
+               if (id(moon_phase).state  == "waning_crescent") {lv_img_set_src(id(img_imgm), id(img_moon_waning_crescent));}  
+  - platform: homeassistant # weather_state.forecast_home   [meteo] {meteo_img_pogoda}
+    id: weather_state
+    entity_id: weather.forecast_home #_assistant
+    name: "статус"
+    on_value:
+       then:
+         - lambda: |-
+              std::string state = x;
+              ESP_LOGI("weather", "Текущее состояние погоды: %s", x.c_str());
+              if (state == "partlycloudy")         { lv_img_set_src(id(meteo_img_pogoda), id(img_partlycloudy)); } //
+              else if (state == "clear-night")     { lv_img_set_src(id(meteo_img_pogoda), id(img_clear_night)); }  //
+              else if (state == "cloudy")          { lv_img_set_src(id(meteo_img_pogoda), id(img_cloudy)); }       //
+              else if (state == "fog")             { lv_img_set_src(id(meteo_img_pogoda), id(img_fog)); }          //
+              else if (state == "sunny")           { lv_img_set_src(id(meteo_img_pogoda), id(img_sunny)); }
+              else if (state == "rainy")           { lv_img_set_src(id(meteo_img_pogoda), id(img_rainy)); }
+              else if (state == "lightning")       { lv_img_set_src(id(meteo_img_pogoda), id(img_lightning)); }
+              else if (state == "lightning-rainy") { lv_img_set_src(id(meteo_img_pogoda), id(img_lightning_rainy)); }
+              else if (state == "pouring")         { lv_img_set_src(id(meteo_img_pogoda), id(img_pouring)); }
+              else if (state == "hail")            { lv_img_set_src(id(meteo_img_pogoda), id(img_hail)); }
+              else if (state == "snowy")           { lv_img_set_src(id(meteo_img_pogoda), id(img_snowy)); }
+              else if (state == "snowy-rainy")     { lv_img_set_src(id(meteo_img_pogoda), id(img_snowy_rainy)); }          
+              else if (state == "windy")           { lv_img_set_src(id(meteo_img_pogoda), id(img_windy)); }
+              else if (state == "windy-variant")   { lv_img_set_src(id(meteo_img_pogoda), id(img_windy_variant)); }
+              else if (state == "exceptional")     { lv_img_set_src(id(meteo_img_pogoda), id(img_exceptional)); }
+    #----------------------------------------------------------------------------------------------------------------------------

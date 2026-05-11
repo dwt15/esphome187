@@ -1,0 +1,985 @@
+sensor: 
+    
+    - platform: template # "Slider Value"
+      name: "Slider Value"
+      id: slider_value
+      unit_of_measurement: "l"
+      accuracy_decimals: 2
+      update_interval: never
+      on_value:
+        then:
+  
+  # pv --------------------------------   
+    - platform: homeassistant # <pv_watt>   [obj_main]-{main_pv_watt}
+      id: pv_watt 
+      entity_id: ${pv_watt} 
+      on_value: 
+        then:
+          - lambda: |-         
+              if (isnan(x)) { lv_label_set_text( id(main_pv_watt), "----" );
+              id(msg_1).execute(111); // служебное сообщение в лог
+              return; }
+              else{
+              char buf[16];
+              snprintf(buf, sizeof(buf), "%0.0f", x); lv_label_set_text( id(main_pv_watt), buf );       
+              id(msg_1).execute(100); // служебное сообщение в лог
+              }
+      #------------------------------------------------------------------------
+    - platform: homeassistant # <pv_day>    [obj_main]-{main_pv_dayi}&{main_pv_dayd}
+      id: pv_day  # сутки генерация
+      entity_id: ${pv_day}
+      on_value: 
+        then:
+          - lambda: |-             
+              if (isnan(x)) {
+              lv_label_set_text( id(main_pv_dayi), "--.");
+              lv_label_set_text( id(main_pv_dayd), "-");
+              id(msg_1).execute(211); // служебное сообщение в лог
+              return; }
+              else{    
+              char buf[16];
+              int fi,fd;             
+              fi=int(x); fd=int(10*(x-fi)); // fi-цел fd-дес                         
+              snprintf(buf, sizeof(buf), "%i.", fi);lv_label_set_text( id(main_pv_dayi), buf); // {main_pv_dayi} 
+              snprintf(buf, sizeof(buf), "%i",  fd);lv_label_set_text( id(main_pv_dayd), buf); // {main_pv_dayd}                  
+              id(msg_1).execute(200); // служебное сообщение в лог
+              }
+      #-----------------------------------------------------------------------------------    
+    - platform: homeassistant # <pv1_watt>    [obj_pv]-{srv_pv1_watt}  
+      id: pv1_watt 
+      entity_id: ${pv1_watt}
+      on_value: 
+        then:
+          - lambda: |-
+              if (isnan(x)) { lv_label_set_text( id(srv_pv1_watt), "----" );
+                id(msg_1).execute(311); // служебное сообщение в лог
+                return; }
+              else{            
+                char buf[16]; 
+                snprintf(buf, sizeof(buf), "%0.0f", x);
+                lv_label_set_text( id(srv_pv1_watt), buf );   
+                id(msg_1).execute(300); // служебное сообщение в лог
+              }    
+      #----------------------------------------------------------------------
+    - platform: homeassistant # <pv2_watt>    [obj_pv]-{srv_pv2_watt} 
+      id: pv2_watt 
+      entity_id: ${pv2_watt} 
+      on_value: 
+        then:
+          - lambda: |-
+              if (isnan(x)) { lv_label_set_text( id(srv_pv2_watt), "----" );
+                id(msg_1).execute(411); // служебное сообщение в лог
+                return; }
+              else{
+                char buf[16]; 
+                snprintf(buf, sizeof(buf), "%0.0f", x);
+                lv_label_set_text( id(srv_pv2_watt), buf );  //  {srv_pv2_watt}
+                id(msg_1).execute(400); // служебное сообщение в лог
+              } 
+      #----------------------------------------------------------------------
+    - platform: homeassistant # <pv1_volt>    [obj_pv]-{srv_pv1_volt}  
+      id: pv1_volt 
+      entity_id: ${pv1_volt}
+      on_value: 
+        then:
+          - lambda: |-
+              if (isnan(x)) { lv_label_set_text( id(srv_pv1_volt), "----" );
+                id(msg_1).execute(511); // служебное сообщение в лог
+                return; }
+              else{            
+                char buf[10];
+                snprintf(buf, sizeof(buf), "%0.0f", x);
+                lv_label_set_text( id(srv_pv1_volt), buf );  //  
+                id(msg_1).execute(500); // служебное сообщение в лог
+              } 
+      #----------------------------------------------------------------------
+    - platform: homeassistant # <pv2_volt>    [obj_pv]-{srv_pv2_volt}  
+      id: pv2_volt 
+      entity_id: ${pv2_volt}   
+      on_value: 
+        then:
+          - lambda: |-
+              if (isnan(x)) { lv_label_set_text( id(srv_pv2_volt), "----" );
+                id(msg_1).execute(611); // служебное сообщение в лог
+                return; }
+              else{            
+                char buf[10];
+                snprintf(buf, sizeof(buf), "%0.0f", x);
+                lv_label_set_text( id(srv_pv2_volt), buf );  //   
+                id(msg_1).execute(600); // служебное сообщение в лог
+              } 
+      #----------------------------------------------------------------------
+    - platform: homeassistant # <pv1_cur>     [obj_pv]-{srv_pv1_cur}   
+      id: pv1_cur 
+      entity_id: ${pv1_cur}
+      on_value: 
+        then:
+          - lambda: |-
+              if (isnan(x)) { lv_label_set_text( id(srv_pv1_cur), "--.-" );
+                id(msg_1).execute(711); // служебное сообщение в лог
+                return; }
+              else{            
+                char buf[10];
+                snprintf(buf, sizeof(buf), "%0.1f", x);
+                lv_label_set_text( id(srv_pv1_cur), buf );  //   
+                id(msg_1).execute(700); // служебное сообщение в лог
+              } 
+      #---------------------------------------------------------------------- 
+    - platform: homeassistant # <pv2_cur>     [obj_pv]-{srv_pv2_cur}
+      id: pv2_cur 
+      entity_id: ${pv2_cur}  
+      on_value: 
+        then:
+          - lambda: |-
+              if (isnan(x)) { lv_label_set_text( id(srv_pv2_cur), "--.-" );
+                id(msg_1).execute(811); // служебное сообщение в лог
+                return; }
+              else{            
+                char buf[10];
+                snprintf(buf, sizeof(buf), "%0.1f", x);
+                lv_label_set_text( id(srv_pv2_cur), buf );  //   
+                id(msg_1).execute(800); // служебное сообщение в лог
+              } 
+      #---------------------------------------------------------------------- 
+  # grid --------------------------------   
+    - platform: homeassistant #    [obj_main]-{main_grid_watt}
+      id: grid_watt
+      entity_id: ${grid_watt} # потребление с внешней сети    
+      on_value: 
+        then:
+          - lambda: |-
+              if (!isnan(x)) {
+                if( id(grid_state).state ) {
+                // обновлять если свич включен
+                 char buf[16]; snprintf(buf, sizeof(buf), "%0.0f", x);
+                 lv_label_set_text( id(main_grid_watt), buf ); //              
+                 lv_label_set_text( id(srv_grid_watt) , buf );  //
+                 id(msg_2).execute(100); // служебное сообщение в лог
+                }
+              }
+      #------------------------------------------------------------------------ 
+    - platform: homeassistant # grid_volt   [obj_grid]-{srv_grid_volt} [obj_main]-{main_grid_watt}Хmain_grid_watt
+      id: grid_volt
+      entity_id: ${grid_volt}  
+      on_value: 
+        then:
+          - lambda: |-
+              if (isnan(x) || x<170) { 
+              // потеря сенсора 
+                lv_label_set_text( id(srv_grid_volt), "---" );
+                id(msg_2).execute(211); // служебное сообщение в лог   
+              } else { 
+                // обновление  метки 
+                 char buf[16];
+                 snprintf(buf, sizeof(buf), "%0.0f", x);           
+                 lv_label_set_text( id(srv_grid_volt), buf ); 
+                 id(msg_2).execute(200); // служебное сообщение в лог 
+              }  
+      #------------------------------------------------------------------------ 
+    - platform: homeassistant # <grid_cur>  [obj_grid]-{srv_grid_cur} 
+      id: grid_cur
+      entity_id: ${grid_cur}  
+      on_value: 
+        then:
+          - lambda: |-
+              if (isnan(x)) { 
+               lv_label_set_text( id(srv_grid_cur), "--.-" );
+                id(msg_2).execute(311); // служебное сообщение в лог
+                return; }
+              else{ 
+                char buf[16];
+                snprintf(buf, sizeof(buf), "%0.1f", x);           
+                lv_label_set_text( id(srv_grid_cur), buf ); 
+                id(msg_2).execute(300); // служебное сообщение в лог
+              } 
+      #------------------------------------------------------------------------
+    - platform: homeassistant # <grid_day>  [obj_main]-{main_grid_dayi}&{main_grid_dayd}
+      entity_id: ${grid_day}
+      id: grid_day  
+      on_value: 
+        then:
+          - lambda: |-             
+              if (isnan(x)) {
+              lv_label_set_text( id(main_grid_dayi), "--.");
+              lv_label_set_text( id(main_grid_dayd), "-");
+              id(msg_2).execute(411); // служебное сообщение в лог
+              return; }
+              else{    
+              char buf[16];
+              int fi,fd;            
+              fi=int(x); fd=int(10*(x-fi)); // fi-цел fd-дес                         
+              snprintf(buf, sizeof(buf), "%i.", fi);lv_label_set_text( id(main_grid_dayi), buf); // {main_grid_dayi} 
+              snprintf(buf, sizeof(buf), "%i",  fd);lv_label_set_text( id(main_grid_dayd), buf); // {main_grid_dayd}                  
+              id(msg_2).execute(400); // служебное сообщение в лог
+              }
+      #-----------------------------------------------------------------------------------  
+    - platform: homeassistant # <grid_day>  [obj_main]-{main_grid_dayi}&{main_grid_dayd}
+      entity_id: ${grid_month}
+      id: grid_month  
+      on_value: 
+        then:
+          - lambda: |-             
+              char buf[16];
+                snprintf(buf, sizeof(buf), "%0.0f", x); lv_label_set_text( id(srv_grid_xd), buf );  //              
+                id(msg_4).execute(100); // служебное сообщение в лог
+      #----------------------------------------------------------------------------------- 
+
+
+
+
+ # dom --------------------------------- 
+    - platform: homeassistant # <dom_watt>                    [obj_main]{main_dom_watt} 
+      id: dom_watt      
+      entity_id: ${dom_watt} 
+      on_value: 
+        then:
+          - lambda: |-
+              if (isnan(x)) { lv_label_set_text( id(main_dom_watt), "----" );
+                id(msg_4).execute(111); // служебное сообщение в лог
+                return; }
+              else{             
+              char buf[16];
+                snprintf(buf, sizeof(buf), "%0.0f", x); lv_label_set_text( id(main_dom_watt), buf );  // [obj_main]            
+                id(msg_4).execute(100); // служебное сообщение в лог
+                }    
+      #------------------------------------------------------------------------
+    - platform: homeassistant # <dom_volt> ***
+      id: dom_volt      
+      entity_id: ${dom_volt}  
+    - platform: homeassistant # <dom_cur> ****
+      id: dom_cur  
+      entity_id: ${dom_cur} 
+    - platform: homeassistant # <dom_day> [obj_main] {main_dom_dayi}+{ main_dom_dayi} 
+      id: dom_day       
+      entity_id: ${dom_day}
+      on_value: 
+        then:
+          - lambda: |-             
+              if (isnan(x)) {
+                lv_label_set_text( id(main_dom_dayi), "--.");
+                lv_label_set_text( id(main_dom_dayd), "-");
+                id(msg_4).execute(411); // служебное сообщение в лог
+                return; }
+              else{              
+                char buf[16];
+                int fi,fd;
+                float f=x;
+                fi=int(f); fd=int(10*(f-fi)); // fi-цел fd-дес                         
+                snprintf(buf, sizeof(buf), "%i.", fi); lv_label_set_text( id(main_dom_dayi), buf); // [obj_main]   
+                snprintf(buf, sizeof(buf), "%i",  fd); lv_label_set_text( id(main_dom_dayd), buf); // [obj_main] 
+                id(msg_4).execute(400); // служебное сообщение в лог
+                }    
+      #-----------------------------------------------------------------------------------
+  # batarey-----------------------------
+   #- bat_x
+    - platform: homeassistant # <batx_plus>  [obj_main [obj_pv]] {srv_batx_plus}
+      id: batx_plus 
+      entity_id: ${batx_plus}
+      on_value: 
+        then:
+          - lambda: |-
+              if (isnan(x)) { lv_label_set_text( id(srv_batx_plus), "--.-" );
+              id(msg_3).execute(3111); // служебное сообщение в лог
+              return; }
+              else{             
+              char buf[8];
+              snprintf(buf, sizeof(buf), "%0.1f", x); 
+              lv_label_set_text(id(srv_batx_plus), buf);
+              id(msg_3).execute(3000); // служебное сообщение в лог
+              }
+      #---------------------------------------------------------------------
+    - platform: homeassistant # <batx_minus> [obj_main [obj_pv]] {srv_batx_minus}
+      id: batx_minus
+      entity_id: ${batx_minus} 
+      on_value: 
+        then:
+          - lambda: |-
+              if (isnan(x)) { lv_label_set_text( id(srv_batx_minus), "--.-" );
+              id(msg_3).execute(4111); // служебное сообщение в лог
+              return; }
+              else{             
+              char buf[8];
+              snprintf(buf, sizeof(buf), "%0.1f", x); 
+              lv_label_set_text(id(srv_batx_minus), buf);
+              id(msg_3).execute(4000); // служебное сообщение в лог
+              }
+      #------------------------------------------------------------
+    - platform: homeassistant # <batx_watt>  [obj_main] {main_batx_watt} 
+      id: batx_watt 
+      entity_id: ${batx_watt}
+      on_value: 
+        then:
+          - lambda: |-            
+              if (isnan(x)) { lv_label_set_text( id(main_batx_watt), "----" );
+              lv_obj_set_style_text_color(id(main_batx_watt), lv_color_make(  0,240, 0), LV_PART_MAIN);
+              id(msg_3).execute(1111); // служебное сообщение в лог
+              return; }
+              else{ 
+              char buf[16]; 
+              snprintf(buf, sizeof(buf), "%0.f", abs(x)); 
+              lv_label_set_text(id(main_batx_watt), buf);                            // [obj_main]{text_m3}  
+              if (x > 0) {lv_obj_set_style_text_color(id(main_batx_watt), lv_color_make(  0,240, 0), LV_PART_MAIN);}                   
+                    else {lv_obj_set_style_text_color(id(main_batx_watt), lv_color_make(255, 80, 0), LV_PART_MAIN);}
+              id(msg_3).execute(1000); //
+              }
+      #------------------------------------------------------------
+    - platform: homeassistant # <batx_volt>  [obj_main [obj_src]]{srv_batx_volt}
+      id: batx_volt
+      entity_id: ${batx_volt}  
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%0.2f", x); 
+              lv_label_set_text( id(srv_batx_volt), buf );
+      #----------------------------------------------------------
+    - platform: homeassistant # <batx_ah>    {srv_batx_ah}    [main_batx_kwh} 
+      id: batx_ah  
+      entity_id: ${batx_ah}
+      on_value: 
+        then:
+          - lambda: |-
+              if (isnan(x)) { 
+              lv_label_set_text( id(main_batx_watt), "--.-" );
+              lv_label_set_text( id(srv_batx_ah), "---" );
+              id(msg_3).execute(2111); // служебное сообщение в лог
+              return; }
+              else{            
+              char buf[16];
+              snprintf(buf, sizeof(buf), "%0.0f", x);
+              lv_label_set_text( id(srv_batx_ah), buf );// {serv_batx_ah}          
+              int fi,fd;
+              float f=x/20+0.05;
+              fi=int(f); fd=int(10*(f-fi)); // fi-цел fd-дес                         
+              snprintf(buf, sizeof(buf), "%i.", fi);
+              lv_label_set_text( id(main_batx_kwhi), buf); // [obj_main]{text_m3i}  целое   
+              snprintf(buf, sizeof(buf), "%i",  fd);
+              lv_label_set_text( id(main_batx_kwhd), buf); // [obj_main]{text_m3d}  десятичн
+              id(msg_3).execute(2000); // служебное сообщение в лог 
+              }
+      #----------------------------------------------------------
+    - platform: homeassistant # <batx_cur>   {srv_bat4_cur}
+      id: batx_cur
+      entity_id: ${batx_cur}
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%0.1f", x); 
+              lv_label_set_text( id(srv_batx_cur), buf );
+      #----------------------------------------------------------
+    - platform: homeassistant # <batx_soc>   {srv_bat4_soc}
+      id: batx_soc
+      entity_id: ${batx_soc} 
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%0.0f", x); 
+              lv_label_set_text( id(srv_batx_soc), buf );
+      #----------------------------------------------------------
+    - platform: homeassistant # <batx_vmax>  {srv_bat4_vmax}
+      id: batx_vmax
+      entity_id: ${batx_vmax}  
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%1.3f", x); 
+              lv_label_set_text( id(srv_batx_vmax), buf );
+      #----------------------------------------------------------
+    - platform: homeassistant # <batx_vmin>  {srv_bat4_vmin}
+      id: batx_vmin
+      entity_id: ${batx_vmin} 
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%1.3f", x); 
+              lv_label_set_text( id(srv_batx_vmin), buf );
+      #----------------------------------------------------------
+    - platform: homeassistant # <batx_dv>    {srv_bat4_dv}
+      id: batx_dv
+      entity_id: ${batx_dv}  
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%.3f", x); 
+              lv_label_set_text( id(srv_batx_dv), buf );
+      #----------------------------------------------------------
+   #- bat_cur --  
+    - platform: homeassistant # bat1_cur>  {srv_bat1_cur}
+      id: bat1_cur
+      entity_id: ${bat1_cur}    
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%0.1f", x); 
+              lv_label_set_text( id(srv_bat1_cur), buf );
+      #----------------------------------------------------------
+    - platform: homeassistant # bat2_cur>  {srv_bat2_cur}
+      id: bat2_cur
+      entity_id: ${bat2_cur} 
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%0.1f", x); 
+              lv_label_set_text( id(srv_bat2_cur), buf );
+      #----------------------------------------------------------
+    - platform: homeassistant # bat3_cur>  {srv_bat3_cur}
+      id: bat3_cur
+      entity_id: ${bat3_cur} 
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%0.1f", x); 
+              lv_label_set_text( id(srv_bat3_cur), buf );
+      #----------------------------------------------------------
+    - platform: homeassistant # bat4_cur>  {srv_bat4_cur} 
+      id: bat4_cur
+      entity_id: ${bat4_cur}
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%0.1f", x); 
+              lv_label_set_text( id(srv_bat4_cur), buf );
+      #----------------------------------------------------------
+   #- bat_ah --- 
+    - platform: homeassistant # <bat1_ah>   {srv_bat1_ah}
+      id: bat1_ah
+      entity_id: ${bat1_ah}  
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%0.0f", x); 
+              lv_label_set_text( id(srv_bat1_ah), buf );   
+      #-----------------------------------------------------------
+    - platform: homeassistant # <bat2_ah>   {srv_bat2_ah}
+      id: bat2_ah
+      entity_id: ${bat2_ah}
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%0.0f", x); 
+              lv_label_set_text( id(srv_bat2_ah), buf );   
+      #-----------------------------------------------------------
+    - platform: homeassistant # <bat3_ah>   {srv_bat3_ah}
+      id: bat3_ah
+      entity_id: ${bat3_ah} 
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%0.0f", x); 
+              lv_label_set_text( id(srv_bat3_ah), buf );   
+      #-----------------------------------------------------------
+    - platform: homeassistant # <bat4_ah>   {srv_bat4_ah}
+      id: bat4_ah
+      entity_id: ${bat4_ah}
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%0.0f", x); 
+              lv_label_set_text( id(srv_bat4_ah), buf );   
+      #-----------------------------------------------------------
+   #- bat_volt --
+    - platform: homeassistant # <bat1_volt> {srv_bat1_volt}
+      id: bat1_volt
+      entity_id: ${bat1_volt}  
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%0.2f", x); 
+              lv_label_set_text( id(srv_bat1_volt), buf );   
+      #-----------------------------------------------------------
+    - platform: homeassistant # <bat2_volt> {srv_bat2_volt}
+      id: bat2_volt
+      entity_id: ${bat2_volt}  
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%0.2f", x); 
+              lv_label_set_text( id(srv_bat2_volt), buf );   
+      #-----------------------------------------------------------
+    - platform: homeassistant # <bat3_volt> {srv_bat3_volt}
+      id: bat3_volt
+      entity_id: ${bat3_volt} 
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%0.2f", x); 
+              lv_label_set_text( id(srv_bat3_volt), buf );   
+      #-----------------------------------------------------------
+    - platform: homeassistant # <bat4_volt> {srv_bat4_volt}
+      id: bat4_volt
+      entity_id: ${bat4_volt}  
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%0.2f", x); 
+              lv_label_set_text( id(srv_bat4_volt), buf );   
+      #-----------------------------------------------------------
+   #- bat_soc -- 
+    - platform: homeassistant # <bat1_soc>  {srv_bat1_soc}
+      id: bat1_soc
+      entity_id: ${bat1_soc}    
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%0.0f", x); 
+              lv_label_set_text( id(srv_bat1_soc), buf );
+      #----------------------------------------------------------
+    - platform: homeassistant # <bat2_soc>  {srv_bat2_soc}
+      id: bat2_soc
+      entity_id: ${bat2_soc}   
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%0.0f", x); 
+              lv_label_set_text( id(srv_bat2_soc), buf );
+      #----------------------------------------------------------
+    - platform: homeassistant # <bat3_soc>  {srv_bat3_soc}
+      id: bat3_soc
+      entity_id: ${bat3_soc}   
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%0.0f", x); 
+              lv_label_set_text( id(srv_bat3_soc), buf );
+      #----------------------------------------------------------
+    - platform: homeassistant # <bat4_soc>  {srv_bat4_soc}
+      id: bat4_soc
+      entity_id: ${bat4_soc}  
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%0.0f", x); 
+              lv_label_set_text( id(srv_bat4_soc), buf );
+      #----------------------------------------------------------
+   #- vmax -
+    - platform: homeassistant # <bat1_vmax> {srv_bat1_vmax}
+      id: bat1_vmax 
+      entity_id: ${bat1_vmax} 
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%1.3f", x); 
+              lv_label_set_text( id(srv_bat1_vmax), buf );
+              if(x == id(batx_vmax).state) { 
+                    lv_obj_set_style_text_color(id(srv_bat1_vmax), lv_color_make(240,240,  0), LV_PART_MAIN);}
+              else {lv_obj_set_style_text_color(id(srv_bat1_vmax), lv_color_make(  0,240,240), LV_PART_MAIN);}         
+      #----------------------------------------------------------
+    - platform: homeassistant # <bat2_vmax> {srv_bat2_vmax}
+      id: bat2_vmax 
+      entity_id: ${bat2_vmax} 
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%1.3f", x); 
+              lv_label_set_text( id(srv_bat2_vmax), buf );
+              if(x == id(batx_vmax).state) { 
+                    lv_obj_set_style_text_color(id(srv_bat2_vmax), lv_color_make(240,240,  0), LV_PART_MAIN);}
+              else {lv_obj_set_style_text_color(id(srv_bat2_vmax), lv_color_make(  0,240,240), LV_PART_MAIN);}         
+      #----------------------------------------------------------
+    - platform: homeassistant # <bat3_vmax> {srv_bat3_vmax}
+      id: bat3_vmax 
+      entity_id: ${bat3_vmax} 
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%1.3f", x); 
+              lv_label_set_text( id(srv_bat3_vmax), buf );
+              if(x == id(batx_vmax).state) { 
+                    lv_obj_set_style_text_color(id(srv_bat3_vmax), lv_color_make(240,240,  0), LV_PART_MAIN);}
+              else {lv_obj_set_style_text_color(id(srv_bat3_vmax), lv_color_make(  0,240,240), LV_PART_MAIN);}         
+      #----------------------------------------------------------
+    - platform: homeassistant # <bat4_vmax> {srv_bat4_vmax}
+      id: bat4_vmax 
+      entity_id: ${bat4_vmax}  
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%1.3f", x); 
+              lv_label_set_text( id(srv_bat4_vmax), buf );
+              if(x == id(batx_vmax).state) { 
+                    lv_obj_set_style_text_color(id(srv_bat4_vmax), lv_color_make(240,240,  0), LV_PART_MAIN);}
+              else {lv_obj_set_style_text_color(id(srv_bat4_vmax), lv_color_make(  0,240,240), LV_PART_MAIN);}         
+      #----------------------------------------------------------
+   #- Vmin -
+    - platform: homeassistant # <bat1_vmin> {srv_bat1_vmin}
+      id: bat1_vmin
+      entity_id: ${bat1_vmin}  
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%1.3f", x); 
+              lv_label_set_text( id(srv_bat1_vmin), buf );
+              if(x == id(batx_vmin).state) { 
+                    lv_obj_set_style_text_color(id(srv_bat1_vmin), lv_color_make(240,240,  0), LV_PART_MAIN);}
+              else {lv_obj_set_style_text_color(id(srv_bat1_vmin), lv_color_make(  0,240,240), LV_PART_MAIN);}         
+      #----------------------------------------------------------
+    - platform: homeassistant # <bat2_vmin> {srv_bat2_vmin}
+      id: bat2_vmin
+      entity_id: ${bat2_vmin}   
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%1.3f", x); 
+                lv_label_set_text( id(srv_bat2_vmin), buf );
+                if(x == id(batx_vmin).state) { 
+                      lv_obj_set_style_text_color(id(srv_bat2_vmin), lv_color_make(240,240,  0), LV_PART_MAIN);}
+                else {lv_obj_set_style_text_color(id(srv_bat2_vmin), lv_color_make(  0,240,240), LV_PART_MAIN);}         
+      #----------------------------------------------------------
+    - platform: homeassistant # <bat3_vmin> {srv_bat3_vmin}
+      id: bat3_vmin
+      entity_id: ${bat3_vmin} 
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%1.3f", x); 
+              lv_label_set_text( id(srv_bat3_vmin), buf );
+              if(x == id(batx_vmin).state) { 
+                    lv_obj_set_style_text_color(id(srv_bat3_vmin), lv_color_make(240,240,  0), LV_PART_MAIN);}
+              else {lv_obj_set_style_text_color(id(srv_bat3_vmin), lv_color_make(  0,240,240), LV_PART_MAIN);}         
+      #----------------------------------------------------------
+    - platform: homeassistant # <bat4_vmin> {srv_bat4_vmin}
+      id: bat4_vmin
+      entity_id: ${bat4_vmin}   
+      on_value: 
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%1.3f", x); 
+              lv_label_set_text( id(srv_bat4_vmin), buf );
+              if(x == id(batx_vmin).state) { 
+                    lv_obj_set_style_text_color(id(srv_bat4_vmin), lv_color_make(240,240,  0), LV_PART_MAIN);}
+              else {lv_obj_set_style_text_color(id(srv_bat4_vmin), lv_color_make(  0,240,240), LV_PART_MAIN);}  
+      #---------------------------------------------------------------------------------------------------
+   #- dV ---
+    - platform: homeassistant # <bat1_dv>   {srv_bat4_dv}
+      id: bat1_dv  
+      entity_id: ${bat1_dv}   
+      on_value:
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%.3f", x); 
+              lv_label_set_text( id(srv_bat1_dv), buf );
+              if(x == id(batx_dv).state) { 
+                  lv_obj_set_style_text_color(id(srv_bat1_dv), lv_color_make(240,240,  0), LV_PART_MAIN);}
+              else {lv_obj_set_style_text_color(id(srv_bat1_dv), lv_color_make(  0,240,240), LV_PART_MAIN);} 
+      #---------------------------------------------------------------------------------------------------
+    - platform: homeassistant # <bat2_dv>   {srv_bat4_dv}
+      id: bat2_dv 
+      entity_id: ${bat2_dv}  
+      on_value:
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%.3f", x); 
+              lv_label_set_text( id(srv_bat2_dv), buf );
+              if(x == id(batx_dv).state) { 
+                    lv_obj_set_style_text_color(id(srv_bat2_dv), lv_color_make(240,240,  0), LV_PART_MAIN);}
+              else {lv_obj_set_style_text_color(id(srv_bat2_dv), lv_color_make(  0,240,240), LV_PART_MAIN);} 
+      #---------------------------------------------------------------------------------------------------
+    - platform: homeassistant # <bat3_dv>   {srv_bat4_dv}
+      id: bat3_dv 
+      entity_id: ${bat3_dv}   
+      on_value:
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%.3f", x); 
+              lv_label_set_text( id(srv_bat3_dv), buf );
+              if(x == id(batx_dv).state) { 
+                  lv_obj_set_style_text_color(id(srv_bat3_dv), lv_color_make(240,240,  0), LV_PART_MAIN);}
+              else {lv_obj_set_style_text_color(id(srv_bat3_dv), lv_color_make(  0,240,240), LV_PART_MAIN);} 
+      #---------------------------------------------------------------------------------------------------
+    - platform: homeassistant # <bat4_dv>   {srv_bat4_dv}
+      id: bat4_dv  
+      entity_id: ${bat4_dv}   
+      on_value:
+        then:
+          - lambda: |-
+              char buf[16]; snprintf(buf, sizeof(buf), "%.3f", x); 
+              lv_label_set_text( id(srv_bat4_dv), buf );
+              if(x == id(batx_dv).state) { 
+                    lv_obj_set_style_text_color(id(srv_bat4_dv), lv_color_make(240,240,  0), LV_PART_MAIN);}
+              else {lv_obj_set_style_text_color(id(srv_bat4_dv), lv_color_make(  0,240,240), LV_PART_MAIN);} 
+    #---------------------------------------------------------------------------------------------------
+  # температура 
+   # температур от homeassistant  
+    - platform: homeassistant # <tprt_01>  [obj_main]-{text_t1} холодильник
+      id: tprt_01
+      entity_id: ${tprt_01}  
+      on_value: 
+        then:
+          - lambda: |-
+              if (isnan(x)) { lv_label_set_text( id(text_t1), "--" );
+              id(msg_5).execute(111); // служебное сообщение в лог
+              return; }
+              else{             
+              char buf[8];
+              snprintf(buf, sizeof(buf), "%0.0f", x); 
+              lv_label_set_text(id(text_t1), buf);
+              id(msg_5).execute(100); // служебное сообщение в лог
+              } 
+      #-----------------------------------------------------------------------------------------
+    - platform: homeassistant # <tprt_02>  [obj_main]-{text_t3} холодил мор
+      id: tprt_02
+      entity_id: ${tprt_02}  
+      on_value: 
+        then:
+          - lambda: |-
+              if (isnan(x)) { lv_label_set_text( id(text_t3), "--" );
+              id(msg_5).execute(311); // служебное сообщение в лог
+              return; }
+              else{             
+              char buf[8];
+              snprintf(buf, sizeof(buf), "%0.0f", x); 
+              lv_label_set_text(id(text_t3), buf);
+              id(msg_5).execute(300); // служебное сообщение в лог
+              } 
+      #-----------------------------------------------------------------------------------------
+    - platform: homeassistant # <tprt_03>  [obj_main]-{text_t5} мороз.камера
+      id: tprt_03
+      entity_id: ${tprt_03}    
+      on_value: 
+        then:
+          - lambda: |-
+              if (isnan(x)) { lv_label_set_text( id(text_t5), "--" );
+              id(msg_5).execute(511); // служебное сообщение в лог
+              return; }
+              else{             
+              char buf[8];
+              snprintf(buf, sizeof(buf), "%0.0f", x); 
+              lv_label_set_text(id(text_t5), buf);
+              id(msg_5).execute(500); // служебное сообщение в лог
+              } 
+      #-----------------------------------------------------------------------------------------
+    - platform: homeassistant # <tprt_04>  [obj_main]-{text_t6} котел пламя
+      id: tprt_04
+      entity_id: ${tprt_04}   
+      on_value: 
+        then:
+          - lambda: |-
+              if (isnan(x)) { lv_label_set_text( id(text_t6), "--" );
+              id(msg_5).execute(611); // служебное сообщение в лог
+              return; }
+              else{             
+              char buf[8];
+              snprintf(buf, sizeof(buf), "%0.0f", x); 
+              lv_label_set_text(id(text_t6), buf);
+              id(msg_5).execute(600); // служебное сообщение в лог
+              } 
+      #-----------------------------------------------------------------------------------------
+    - platform: homeassistant # <tprt_05>  [obj_main]-{text_t2} котел вход
+      id: tprt_05
+      entity_id: ${tprt_05}   
+      on_value: 
+        then:
+          - lambda: |-
+              if (isnan(x)) { lv_label_set_text( id(text_t2), "--" );
+              id(msg_5).execute(211); // служебное сообщение в лог
+              return; }
+              else{             
+              char buf[8];
+              snprintf(buf, sizeof(buf), "%0.0f", x); 
+              lv_label_set_text(id(text_t2), buf);
+              id(msg_5).execute(200); // служебное сообщение в лог
+              } 
+      #-----------------------------------------------------------------------------------------
+    - platform: homeassistant # <tprt_06>  [obj_main]-{text_t4} котел выход
+      id: tprt_06
+      entity_id: ${tprt_06}    
+      on_value: 
+        then:
+          - lambda: |-
+              if (isnan(x)) { lv_label_set_text( id(text_t4), "--" );
+              id(msg_5).execute(411); // служебное сообщение в лог
+              return; }
+              else{             
+              char buf[8];
+              snprintf(buf, sizeof(buf), "%0.0f", x); 
+              lv_label_set_text(id(text_t4), buf);
+              id(msg_5).execute(400); // служебное сообщение в лог
+              } 
+      #-----------------------------------------------------------------------------------------
+    - platform: homeassistant # <tprt_07>
+      id: tprt_07
+      entity_id: ${tprt_07}   
+    - platform: homeassistant # <tprt_08>
+      id: tprt_08
+      entity_id: ${tprt_08}    
+   # температур invert  
+    - platform: homeassistant # <tprt_30> [ obj_pv]] {srv_tinvt_ac} deye t AC 
+      id: tprt_30
+      entity_id: ${tprt_30}   
+      on_value: 
+        then:
+          - lambda: |-
+              if (isnan(x)) { lv_label_set_text( id(srv_tinvt_ac), "--" );
+              id(msg_5).execute(3011); // служебное сообщение в лог
+              return; }
+              else{             
+              char buf[8];
+              snprintf(buf, sizeof(buf), "%0.0f", x); 
+              lv_label_set_text(id(srv_tinvt_ac), buf);
+              id(msg_5).execute(3000); // служебное сообщение в лог
+              }  
+      #----------------------------------------------------------- 
+    - platform: homeassistant # <tprt_31> [ obj_pv]] {srv_tinvt_dc} deye t DC
+      id: tprt_31
+      entity_id: ${tprt_31} 
+      on_value: 
+        then:
+          - lambda: |-
+              if (isnan(x)) { lv_label_set_text( id(srv_tinvt_dc), "--" );
+              id(msg_5).execute(3111); // служебное сообщение в лог
+              return; }
+              else{             
+              char buf[8];
+              snprintf(buf, sizeof(buf), "%0.0f", x); 
+              lv_label_set_text(id(srv_tinvt_dc), buf);
+              id(msg_5).execute(3100); // служебное сообщение в лог
+              } 
+      #------------------------------------------------------------
+   # rx 433 
+    - platform: homeassistant # <tprt_50> [obj_meteo]-{meteo_pgd_tprt} температура на улице (ch2)
+      id: tprt_50
+      entity_id: ${tprt_50}   
+      on_value: 
+        then:
+          - lambda: |-    
+              bool er = (isnan(x) || id(tmr_50).state > 3); //потерян или долго не обновлялся
+              if ( er ) {   //  ничего не делать пусть печатает другой сенсор
+              //lv_label_set_text( id(meteo_pgd_tprt), "--" );
+              id(msg_5).execute(5011); // служебное сообщение в лог
+              return; }
+              else{             
+              char buf[8];
+              snprintf(buf, sizeof(buf), "%0.0f", x); 
+              lv_label_set_text(id(meteo_pgd_tprt), buf);
+              if( id(f_color_pgd_t) != 0 ) {
+              id(f_color_pgd_t) = 0;
+              id(msg_5).execute(5022); // служебное сообщение в лог
+              lv_obj_set_style_text_color(id(meteo_pgd_tprt), lv_color_make(  0,240, 0), LV_PART_MAIN);}  
+              id(msg_5).execute(5000); // служебное сообщение в лог
+              }   
+     #------------------------------------------------------------------
+    - platform: homeassistant # <humi_50> [] {}
+      id: humi_50
+      entity_id: ${humi_50}
+      on_value:
+        then:
+          - lambda: |-
+              bool er = (isnan(x) || id(tmr_50).state > 3); //потерян или долго не обновлялся
+              if ( er ) {   //  ничего не делать пусть печатает другой сенсор
+              //lv_label_set_text( id(meteo_pgd_humi), "--" );
+              id(msg_5).execute(5011); // служебное сообщение в лог
+              return; }
+              else{             
+              char buf[8];
+              snprintf(buf, sizeof(buf), "%0.0f", x); 
+              lv_label_set_text(id(meteo_pgd_humi), buf);
+                
+              id(msg_5).execute(5000); // служебное сообщение в лог
+              } 
+      #------------------------------------------------------------------  
+    - platform: homeassistant # tmr_50 таймер последнего ответа
+      id: tmr_50
+      entity_id: ${tmr_50}  
+      on_value: 
+        then:
+          - lambda: |-
+              if(isnan(x)){x=100;} // потеря сенсора равно большому времени ответа от него
+      #--------------------------------------------
+   # dallas 1820b
+    - platform: dallas_temp # <mytempc>  [obj_timed]-{time_mytempi}&{time_mytempd}
+      address: $mytempc  
+      name: "mytemperature"
+      id: mytempc
+      accuracy_decimals: 1 
+      update_interval: 20s
+      on_value: 
+        then:
+          - lambda: |-
+              if (isnan(x)) {
+              lv_label_set_text( id(time_mytempi), "--.");
+              lv_label_set_text( id(time_mytempd), "-");
+              id(msg_5).execute(11111); // служебное сообщение в лог
+              return; }
+              else{    
+              static float t=x; if(t==x){return;}
+              char buf[8];
+              int fi,fd;            
+              fi=int(x); fd=int(10*(x-fi)); // fi-цел fd-дес                         
+              snprintf(buf, sizeof(buf), "%i.", fi);lv_label_set_text( id(time_mytempi), buf); // {main_grid_dayi} 
+              snprintf(buf, sizeof(buf), "%i",  fd);lv_label_set_text( id(time_mytempd), buf); // {main_grid_dayd}                  
+              id(msg_5).execute(10000); // служебное сообщение в лог
+              }
+    #-------------------------------------------------------------------------
+  # погода weather.forecast_home
+    - platform: homeassistant  # <forecast_t>  [obj_meteo]-{meteo_pgd_tprt} 
+      id: forecast_t
+      entity_id: weather.forecast_home
+      attribute: temperature
+      name: "Температура"
+      on_value: 
+        then:
+          - lambda: |-            
+              bool er=(isnan(id(tprt_50).state) || id(tmr_50).state > 3); // err 433 потеря   
+              if (!er) { return;}   // 433 ок не предпринимать действий
+              else {         // 433 потеряли
+                if(isnan(x)){ // потеряли єтот
+                lv_label_set_text( id(meteo_pgd_tprt), "--" );
+                id(msg_5).execute(6011); // служебное сообщение в лог
+                return; }
+                else{  // выводим данные с данного сенсора          
+                char buf[8];
+                snprintf(buf, sizeof(buf), "%0.0f", x); 
+                lv_label_set_text(id(meteo_pgd_tprt), buf);
+                if( id(f_color_pgd_t) != 1 ) {
+                  id(f_color_pgd_t) = 1;
+                  id(msg_5).execute(6022); // служебное сообщение в лог
+                  lv_obj_set_style_text_color(id(meteo_pgd_tprt), lv_color_make(  80,240, 0), LV_PART_MAIN);}
+                id(msg_5).execute(6000); // служебное сообщение в лог
+                }
+              }
+
+      #------------------------------------------------------------------    
+    - platform: homeassistant # <forecast_h> 
+      id: forecast_h
+      entity_id: weather.forecast_home
+      attribute: humidity
+      name: "Влажность"
+      on_value: 
+        then:
+          - lambda: |-            
+              bool er=(isnan(id(humi_50).state) || id(tmr_50).state > 3); // err 433 потеря   
+              if (!er) { return;}   // 433 ок не предпринимать действий
+              else {         // 433 потеряли
+                if(isnan(x)){ // потеряли єтот
+                lv_label_set_text( id(meteo_pgd_humi), "--" );
+                id(msg_5).execute(6011); // служебное сообщение в лог
+                return; }
+                else{  // выводим данные с данного сенсора          
+                char buf[8];
+                snprintf(buf, sizeof(buf), "%0.0f", x); 
+                lv_label_set_text(id(meteo_pgd_humi),  buf);
+                id(msg_5).execute(6000);  // служебное сообщение в лог
+                }
+              }
+      #------------------------------------------------------------------  
+    - platform: homeassistant # "ветер напр"<forecast_wb>   [meteo] {meteo_img_pogoda_v}
+      id: forecast_wb
+      entity_id: weather.forecast_home
+      attribute: wind_bearing
+      name: "ветер напр"
+      on_value: 
+        then:
+          - lambda: |-
+              ESP_LOGI("weather", "Направление ветра: %.1f°", x);
+              lv_img_set_angle(id(meteo_img_pogoda_v), 10 * x);  // x — float, умножаем на 10, т.к. LVGL ждёт десятичные углы
+      #-------------------------------------------------------------------------------------------------------------
+    - platform: homeassistant #  "ветер скорость"
+      id: forecast_ws
+      entity_id: weather.forecast_home
+      attribute: wind_speed
+      name: "ветер скорость" 
+    - platform: homeassistant # "облачность"
+      id: forecast_cc
+      entity_id: weather.forecast_home
+      attribute: cloud_coverage
+      name: "облачность"  
+  

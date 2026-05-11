@@ -1,0 +1,189 @@
+esphome:
+  name: 8266exp1
+  friendly_name: 8266exp1
+
+esp8266:
+  board: d1_mini #esp01_1m
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "ONL/0K4I2zo8ifkX4NuSQwzeBNGpinPN+DQByS9A6Jc="
+
+ota:
+  - platform: esphome
+    password: "28bdbbf8f556e0084a48ea89c03a5f6d"
+
+wifi:
+  id: wifi_component
+  power_save_mode: none
+  fast_connect: true  
+  on_connect:
+    - script.execute: update_net_status
+  on_disconnect:
+    - script.execute: update_net_status
+  networks:
+    - ssid: "Archer"
+      password: "RDy9osW7"
+      bssid: 28:EE:52:42:13:7F
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  #ap:
+  #  ssid: "8266Exp1 Fallback Hotspot"
+  #  password: "12345678"
+
+#captive_portal:
+substitutions:
+  #icon
+   lan_connect:            "\U000F0318" 
+   lan_disconnect:         "\U000F0319" 
+   wifi_off:               "\U000F05AA"
+
+output: 
+ # объявляем пины на отдачу
+  - platform: esp8266_pwm
+    pin: GPIO2
+    id: led_blue
+    inverted: true
+i2c:
+    sda: GPIO4 #d2
+    scl: GPIO5 #d1
+    scan: False
+
+display:
+  - platform: ssd1306_i2c
+    model: "SSD1306 128x64"
+    #reset_pin: GPIO16 # d0
+    update_interval: 5s
+    address: 0x3C
+    lambda: |-
+        static int lan_status = -1;
+        char buf[16];
+        float cur = 9.84;
+        float volt = 13.52;
+
+        snprintf(buf, sizeof(buf), "%.2fV", volt);
+        it.print(0, 0,  id(roboto_28), buf);
+        snprintf(buf, sizeof(buf), "%.2fA", cur);
+        it.print(0, 32, id(roboto_28), buf);
+
+        if( id(lan_st) == 0) {it.print(100, 0, id(mdi_28), "${wifi_off}");}
+        if (id(lan_st) == 1) {it.print(100, 0, id(mdi_28), "${lan_disconnect}");}
+        if (id(lan_st) == 2) {it.print(100, 0, id(mdi_28), "${lan_connect}");}
+        
+
+script:
+  - id: update_net_status  # set f_flash[0]              
+    then:
+      - lambda: |-
+            
+            if (!id(wifi_component).is_connected()) {
+              // 🔴 нет Wi-Fi
+              id(lan_st)=0;
+
+            } else if (!id(ha_connected).state) {
+              // 🟡 Wi-Fi есть, HA нет
+              id(lan_st)=1;
+            
+            } else {
+              // 🟢 всё ок
+              id(lan_st)=2;
+
+            }   
+
+sensor:
+ #-sysi 
+  - platform: template
+    name: "Free Heap"
+    unit_of_measurement: "bytes"
+    lambda: |-
+      return ESP.getFreeHeap();
+    update_interval: 10s     
+    # - - - - - - - - - - - - - -  
+  - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
+    name: "WiFi Signal dB"
+    id: wifi_signal_db
+    entity_category: "diagnostic"
+    update_interval: 30s    
+
+  
+binary_sensor:
+ #servic aumation status         
+  - platform: status          #lan status
+    id: ha_connected
+    on_press:
+      - script.execute: update_net_status
+    on_release:
+      - script.execute: update_net_status  
+    #- - - - - - - - - - - - - 
+
+text_sensor:
+  #sysi
+  - platform: version
+    name: "ESPHome Version"
+    entity_category: "diagnostic"
+    id: esphome_version
+    # - - - - - - - - - - - - - -                  
+  - platform: template      # esphome_name
+    name: "esphome name"
+    id: esphome_name
+    entity_category: "diagnostic"
+    lambda: |-
+        return App.get_name();    
+    # - - - - - - - - - - - - - -  
+  - platform: wifi_info     # wifi
+    ip_address:
+      name: "IP Address"
+      id: ip_adress                     
+    ssid:
+      name: "Connected SSID"
+      id: connected_ssid
+    bssid:
+      name: "BSSID"
+      id: bssid
+    mac_address:
+      name: "MAC Address"
+      id: mac_address
+    # - - - - - - - - - - - - - -   
+
+globals:
+  - id: lan_st
+    type: int
+    restore_value: no
+    initial_value: '0'
+
+interval:   
+  - interval: 3s
+    then:
+       - output.turn_on: led_blue
+       - delay: 1s
+       - output.turn_off: led_blue 
+
+font:
+    - file: "fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf"  # 28   - file: "gfonts://Roboto"         # s:30
+      id: roboto_28      
+      size: 28 
+      glyphs: [ " ",".","-","=",":","°","+","(",")","[","]","_",
+                #".","-",
+                "0","1","2","3","4","5","6","7","8","9",
+                #Б,Д,П,З,К,М,Н,В,Т,С,Р,Х,Ч,
+                #а,б,в,г,д,е,ж,з,и,й,к,л,м,п,н,о,т,с,р,у,ф,х,ч,ц,ш,щ,ы,ь,я,
+                #a,c,e,g,h,i,l,n,o,p,r,s,t,u,x,y,
+                a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,q,t,u,v,w,x,y,z,
+                #A,C,E,R,U,V,
+                A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z
+                #":"," ",x
+              ]    
+
+     
+    - file: "fonts/materialdesignicons-webfont.ttf"
+      id: mdi_28
+      size: 28
+      glyphs: [
+            "${lan_connect}",      #      "\U000F0318" 
+            "${lan_disconnect}", #         "\U000F0319" 
+            "${wifi_off}",       #        "\U000F05AA"                 
+      ]   

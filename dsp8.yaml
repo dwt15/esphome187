@@ -1,0 +1,878 @@
+# setup board
+  esphome:
+    name: dsp8
+    friendly_name: dsp8
+    comment: "test graf" #${device_description}  
+    on_boot:
+      priority: 600
+      then:     
+        - output.turn_on: led_sv
+        - output.turn_on: gpio_17
+        - output.turn_on: gpio_16
+        - output.turn_on: gpio_4
+        - lambda: |-
+              id(led_sv).set_level(0.2);
+   # - - - - - - - - - - - - - - - 
+  esp32:
+    board: esp32dev
+    framework:
+      type: esp-idf
+   # - - - - - - - - - - - - - - - 
+  logger:
+   # - - - - - - - - - - - - - - - 
+  api:
+    encryption:
+      key: "Ki8QnShKTuGaSFgcMLrQErDdJZ12uNmmVLN+rnIDNqs="
+   # - - - - - - - - - - - - - - - 
+  ota:
+    - platform: esphome
+      password: "b71c2d15df648e78d7f8091c1e82b72e"
+   # - - - - - - - - - - - - - - - 
+  wifi:
+    ssid: !secret wifi_ssid
+    password: !secret wifi_password
+    ap:
+      ssid: "Dsp8 Fallback Hotspot"
+      password: "YDpDztBBC1SN"
+   # - - - - - - - - - - - - - - - 
+  captive_portal:
+   #- - - - - - - - - - - - - - -
+  output:
+    - platform: ledc
+      pin: 21
+      id: led_sv 
+    - platform: ledc
+      pin: 17
+      id: gpio_17 # blue
+    - platform: ledc
+      pin: 16
+      id: gpio_16 # green       
+    - platform: ledc
+      pin: 4 
+      id: gpio_4 # red
+    - platform: ledc  # бузер     
+      pin: 26
+      id: rtttl_out 
+   # - - - - - - - - -
+  spi:
+    - id: spi0 # для дисплея
+      clk_pin: 14
+      mosi_pin: 13
+    #    miso_pin: 12
+    - id: spi1 #  для тача
+      clk_pin: 25
+      mosi_pin: 32
+      miso_pin: 39
+   # - - - - - - - - - - - - - -
+
+   # - - - - - - - - -
+  touchscreen:
+    platform: xpt2046
+    id: my_touch
+    spi_id: spi1
+    cs_pin: 33
+    calibration:
+      x_min: 200  # L:200    R:200 
+      x_max: 3830  # L:3830  R:3830 
+      y_min: 170  # L:170    R:170
+      y_max: 3780 # L:3780   R:3780
+    transform:
+      swap_xy: true #  L:true  R:true
+      mirror_x: true # L:true  R:false
+      mirror_y: true # L:true  R:false
+    on_touch:
+        - lambda: |-
+            ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
+                touch.x,
+                touch.y,
+                touch.x_raw,
+                touch.y_raw
+                );  
+            id(my_rtttl).play(id(b_txt).state.c_str());
+       # - rtttl.play: "${beep2}"
+   
+   #--------------- 
+  display:
+    - platform: ili9xxx
+      model:  ILI9341 #TFT 2.4
+      id: my_display1     
+      spi_id: spi0
+      cs_pin: 15   
+      dc_pin: 2  
+      invert_colors: false    
+      color_palette: 8BIT    
+      color_order: rgb
+      transform:      
+        mirror_x: true #  L:true   R:false 
+        mirror_y: false # L:false  R:true 
+        swap_xy: false # L:false   R:false
+      dimensions:
+        height: 240
+        width: 320     
+   # - - - - - - - - - - - - - -  - - - - 
+# add device/component
+  rtttl:
+    output: rtttl_out
+    id: my_rtttl
+    gain: 10%
+  time:
+    - platform: sntp
+      id: my_time
+      timezone: "Europe/Kyiv"
+      servers:
+        - 0.pool.ntp.org
+        - 1.pool.ntp.org
+        - 2.pool.ntp.org
+      update_interval: 3600s  
+  # -----------------------
+# setup const
+  substitutions:
+   #icon
+    icn_grid: "\U000F192C"  # mdi-transmission-tower-export 
+    icn_bat:  "\U000F010C"  # mdi-car-battery
+    icn_dom:  "\U000F1904"  # mdi-home-lightning-bolt-outlineF1904
+    icn_pv:   "\U000F0D9B"  # mdi-solar-panel
+
+    buzz_01: "mission_imp:d=16,o=6,b=95:32d,32d#,32d,32d#,32d,32d#,32d,32d#,32d,32d,32d#,32e,32f,32f#,32g,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,a#,g,2d,32p,a#,g,2c#,32p,a#,g,2c,a#5,8c,2p,32p,a#5,g5,2f#,32p,a#5,g5,2f,32p,a#5,g5,2e,d#,8d"
+    alarm_1m: "beep:d=32,o=7,b=160:a" #${buzz_01}"
+    beep1: "beep:d=32,o=5,b=165:32d"
+    beep2: "beep:d=32,o=6,b=160:32c"  
+   # obj_m1
+    obj_m1_pos_x: 0                  # поз х
+    obj_m1_pos_y: 0                  # поз у
+    obj_m1_set_he: 240               # высота
+    obj_m1_set_wi: 320               # ширина
+    dy: 53 #
+    #main pos
+    #1
+    obj_m1_icn1_x:  -282
+    obj_m1_pw1_x:   -170
+    obj_m1_kwh1i_x: -90  
+    obj_m1_kwh1d_x: -70 
+    
+    obj_m1_icn1_y:  -6    
+    obj_m1_pw1_y:   -20    
+    obj_m1_kwh1i_y: -20     
+    obj_m1_kwh1d_y: -11   
+    #2
+    obj_m1_icn2_y:  "${obj_m1_icn1_y  + dy}"    
+    obj_m1_pw2_y:   "${obj_m1_pw1_y   + dy}"       
+    obj_m1_kwh2i_y: "${obj_m1_kwh1i_y + dy}"          
+    obj_m1_kwh2d_y: "${obj_m1_kwh1d_y + dy}" 
+    #3
+    obj_m1_icn3_y:  "${obj_m1_icn1_y  + 2*dy}"    
+    obj_m1_pw3_y:   "${obj_m1_pw1_y   + 2*dy}"        
+    obj_m1_kwh3i_y: "${obj_m1_kwh1i_y + 2*dy}"         
+    obj_m1_kwh3d_y: "${obj_m1_kwh1d_y + 2*dy}" 
+    #4
+    obj_m1_icn4_y:  "${obj_m1_icn1_y  + 3*dy}"    
+    obj_m1_pw4_y:   "${obj_m1_pw1_y   + 3*dy}"        
+    obj_m1_kwh4i_y: "${obj_m1_kwh1i_y + 3*dy}"         
+    obj_m1_kwh4d_y: "${obj_m1_kwh1d_y + 3*dy}" 
+    #icons
+    obj_m1_icn1:  "${icn_pv}"
+    obj_m1_icn2:  "${icn_grid}"
+    obj_m1_icn3:  "${icn_bat}"
+    obj_m1_icn4:  "${icn_dom}"    
+   #main color
+    clr_icn:       0x0000f0  # цвет иконки   
+    clr_pw:        0x00f000  # цвет мощность  
+    clr_pw_dom:    0xa0f0f0  # цвет мощность дома
+    clr_kwh:       0x00e0e0  # цвет суточная енергия
+    clr_change:    0x00e000  # цвет акб заряд
+    clr_dischange: 0xc05000  # цвет акб разряд 
+   #
+    sn_pw1:  "sensor.dc_power"                          # сенсор мощности 
+    sn_pw2:  "sensor.z2_ph0_power"                      # мощность сети    
+    sn_pw3:  "sensor.bat_power"                         # мощность акб    
+    sn_pw4:  "sensor.z2_ph1_power"                      # мощность потребления дома
+    sn_kwh1: "sensor.solarman_daily_production"         # сенсор енергии за сутки
+    sn_kwh2: "sensor.solarman_daily_energy_bought"      # потребленной енергии с сети сутки
+    sn_kwh3: "sensor.bat_energy_kwh"                    # запасенной енергии                  
+    sn_kwh4: "sensor.solarman_daily_load_consumption"   # кол-во потребленной за сутки
+    #led1 
+    sn_led1_v: "sensor.z2_rz01_voltage" # volt
+    sn_led1_w: "sensor.z2_rz01_power"   # watt
+    sn_led1_c: "" # current   
+    sn_led1_s: "switch.z2_rz01" # switch
+    #led2
+    sn_led2_v: "sensor.z2_rz02_voltage" # volt
+    sn_led2_w: "sensor.z2_rz02_power"   # watt
+    sn_led2_c: "" # current   
+    sn_led2_s: "switch.z2_rz02" # switch
+    #led3 
+    sn_led3_v: "sensor.z2_rz09_voltage" # volt
+    sn_led3_w: "sensor.z2_rz09_power"   # watt
+    sn_led3_c: "" # current   
+    sn_led3_s: "switch.z2_rz09" # switch
+    #led4
+    sn_led4_v: "sensor.z2_rz08_voltage" # volt
+    sn_led4_w: "sensor.z2_rz08_power"   # watt
+    sn_led4_c: "" # current   
+    sn_led4_s: "switch.z2_rz08" # switch
+    #led color
+    clr_led_s0:    0x909080  # offline 
+    clr_led_s1:    0xf0f000  # online off  
+    clr_led_s2:    0x00f000  # online on power<10  
+    clr_led_s3:    0xf00000  # online on power>10  
+# lvgl  ------------------
+ # setup 
+  lvgl:
+    touchscreens:
+      - my_touch
+    displays:
+      - my_display1
+    buffer_size: 25%
+    bg_color: 0x000000
+    text_color: 0x00f000  
+    style_definitions:
+      - id: style_obj_m1_icon # icon
+        text_font: icon_28 
+        text_color: ${clr_icn} #0x0000f0
+        x: "${obj_m1_icn1_x}"
+        align: TOP_RIGHT
+      - id: style_obj_m1_pw  # power
+        text_font: BebasNeue_Regular_50 # RobotoCondensed_Medium_55
+        text_color: ${clr_pw} #0x00f000 
+        text_letter_space: 2
+        align: TOP_RIGHT
+        x: "${obj_m1_pw1_x}"
+      - id: style_obj_m1_kwh_int # energy int
+        text_font: BebasNeue_Regular_50             
+        text_color: ${clr_kwh} #0x00e0e0        
+        align: TOP_RIGHT
+        x: "${obj_m1_kwh1i_x}"
+      - id: style_obj_m1_kwh_dec # energy dec
+        text_font: BebasNeue_Regular_40
+        text_color: ${clr_kwh} #0x00e0e0
+        align: TOP_RIGHT
+        x: "${obj_m1_kwh1d_x}"    
+    pages:
+      - id: main_page
+        scrollbar_mode: "ACTIVE"  # показывать полосу прокрутки при прокрутке 
+        scrollable: 'true'        # можно прокручивать страницу
+        widgets:
+          - obj:
+              id: obj_m1
+              x: "${obj_m1_pos_x}"
+              y: "${obj_m1_pos_y}"
+              height: "${obj_m1_set_he}"
+              width: "${obj_m1_set_wi}"
+              scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+              scrollable: "false" #'true'       #'false' 
+              bg_color: 0x100000
+              outline_color: 0x000000
+              outline_width: 0
+              border_width: 0          
+              border_color: 0x000000             
+              widgets:
+              #1 
+               - label: # icon
+                   id: obj_m1_icn1  
+                   y: "${obj_m1_icn1_y}"
+                   styles: style_obj_m1_icon
+                   text: "${obj_m1_icn1}"
+               - label: # power
+                   id: obj_m1_pw1   
+                   y: "${obj_m1_pw1_y}"                   
+                   styles: style_obj_m1_pw
+                   text: "6234"
+               - label: # total energy int
+                   id: obj_m1_kwh1i 
+                   y: "${obj_m1_kwh1i_y}"                   
+                   styles: style_obj_m1_kwh_int                 
+                   text: "5."
+               - label: # total energy dec
+                   id: obj_m1_kwh1d  
+                   y: "${obj_m1_kwh1d_y}"                   
+                   styles: style_obj_m1_kwh_dec
+                   text: "8"
+              #2
+               - label: # icon
+                   id: obj_m1_icn2  
+                   y: "${obj_m1_icn2_y}"
+                   styles: style_obj_m1_icon
+                   text: "${obj_m1_icn2}"
+               - label: # power
+                   id: obj_m1_pw2   
+                   y: "${obj_m1_pw2_y}"                   
+                   styles: style_obj_m1_pw
+                   text: "6222"
+               - label: # total energy int
+                   id: obj_m1_kwh2i 
+                   y: "${obj_m1_kwh2i_y}"                   
+                   styles: style_obj_m1_kwh_int
+                   text: "25."
+               - label: # total energy dec
+                   id: obj_m1_kwh2d  
+                   y: "${obj_m1_kwh2d_y}"                   
+                   styles: style_obj_m1_kwh_dec
+                   text: "2"
+              #3
+               - label: # icon
+                   id: obj_m1_icn3  
+                   y: "${obj_m1_icn3_y}"
+                   styles: style_obj_m1_icon
+                   text: "${obj_m1_icn3}"
+               - label: # power
+                   id: obj_m1_pw3   
+                   y: "${obj_m1_pw3_y}"                   
+                   styles: style_obj_m1_pw
+                   text: "63"
+               - label: # total energy int
+                   id: obj_m1_kwh3i 
+                   y: "${obj_m1_kwh3i_y}"                   
+                   styles: style_obj_m1_kwh_int
+                   text: "35."
+               - label: # total energy dec
+                   id: obj_m1_kwh3d  
+                   y: "${obj_m1_kwh3d_y}"                   
+                   styles: style_obj_m1_kwh_dec
+                   text: "3"
+              #4
+               - label: # icon
+                   id: obj_m1_icn4  
+                   y: "${obj_m1_icn4_y}"
+                   styles: style_obj_m1_icon
+                   text: "${obj_m1_icn4}"
+               - label: # power
+                   id: obj_m1_pw4   
+                   y: "${obj_m1_pw4_y}"                   
+                   styles: style_obj_m1_pw
+                   text_color: ${clr_pw_dom} #0xa0f0f0
+                   text: "644"
+               - label: # total energy int
+                   id: obj_m1_kwh4i 
+                   y: "${obj_m1_kwh4i_y}"                   
+                   styles: style_obj_m1_kwh_int
+                   text: "4."
+               - label: # total energy dec
+                   id: obj_m1_kwh4d  
+                   y: "${obj_m1_kwh4d_y}"                   
+                   styles: style_obj_m1_kwh_dec
+                   text: "4"
+              #led 
+               - led: # led_gdom_g                 /chek_grid_state/
+                   id: obj_m1_led1
+                   x: -5 # ax7
+                   y: 196  # ay7
+                   radius: 10
+                   color: 0xff0000
+                   brightness: 100%  
+               - led: # led_gdom_g                 /chek_grid_state/
+                   id: obj_m1_led2
+                   x: 90 # ax7
+                   y: 196  # ay7
+                   radius: 10
+                   color: 0xff0000
+                   brightness: 10%  
+               - led: # led_gdom_g                 /chek_grid_state/
+                   id: obj_m1_led3
+                   x: 185 # ax7
+                   y: 196  # ay7
+                   radius: 10
+                   color: 0xff0000
+                   brightness: 10%
+               - led: # led_gdom_g                 /chek_grid_state/
+                   id: obj_m1_led4
+                   x: 280 # ax7
+                   y: 196  # ay7
+                   radius: 10
+                   color: 0xff0000
+                   brightness: 10% 
+ # page
+ 
+
+# script
+  script:      
+    - id: edit
+      then:
+        - lambda: |-
+            //
+            int ax0=id(ax_0).state; int ay0=id(ay_0).state;
+            int ax1=id(ax_1).state; int ay1=id(ay_1).state;
+            int ax2=id(ax_2).state; int ay2=id(ay_2).state;            
+            int ax3=id(ax_3).state; int ay3=id(ay_3).state;            
+            //lv_obj_set_pos(id(obj_m1_led1), ax0, ay0);
+            
+            //lv_obj_set_pos(id(obj_m1_icn1), ax0, ay0);
+            //lv_obj_set_pos(id(obj_m1_pw1), ax1, ay1);      
+            //lv_obj_set_pos(id(obj_m1_kwh1i), ax2, ay2);      
+            //lv_obj_set_pos(id(obj_m1_kwh1d), ax3, ay3);       
+            //static float power=0;
+            //static char buf[16];
+            //if(power != id(dp_1).state ){
+            //   power = id(dp_1).state;
+            //   snprintf(buf, sizeof(buf), "%0.0f", power);
+            //   lv_label_set_text( id(obj_m1_pw1), buf);
+            //   }
+      #--------------------
+    - id: updata_main1
+      then:
+        - lambda: |-
+            //                
+               static char buf[16];
+               static float p;
+               static int fi,fd;
+            //1 pw1
+               static float pw1_last = -98765; 
+               if(isnan(id(sn_pw1).state)){
+                  p=-98765;}
+                else{p=id(sn_pw1).state;} 
+               if (pw1_last != p){
+                   pw1_last = p;
+                   if(p == -98765){strcpy(buf, "----");}
+                    else{snprintf(buf, sizeof(buf), "%.0f", p);}
+                   lv_label_set_text(id(obj_m1_pw1), buf);
+               }
+                // kwh1
+               static float kwh1_last = -98765;
+               if(isnan(id(sn_kwh1).state)){
+                  p=-98765;} 
+                else{p=id(sn_kwh1).state;}
+               if(kwh1_last != p){
+                  kwh1_last = p;
+                  if(p ==-98765){ strcpy(buf, "-");
+                                 lv_label_set_text( id(obj_m1_kwh1i), buf);
+                                 lv_label_set_text( id(obj_m1_kwh1d), buf);
+                               } 
+                   else{ fi=(int)(p); 
+                         fd=(int)(10*(p-fi)); // fi-цел fd-дес                                                             
+                         snprintf(buf, sizeof(buf), "%i.", fi);
+                         lv_label_set_text( id(obj_m1_kwh1i), buf); // {main_pv_dayi} 
+                         snprintf(buf, sizeof(buf), "%i",  fd);
+                         lv_label_set_text( id(obj_m1_kwh1d), buf); // {main_pv_dayd}  
+                       }            
+               } 
+
+            //2 pw2
+               static float pw2_last = -98765; 
+               if(isnan(id(sn_pw2).state)){
+                  p=-98765;}
+                else{p=id(sn_pw2).state;} 
+               if (pw2_last != p){
+                   pw2_last = p;
+                   if(p == -98765){strcpy(buf, "----");}
+                    else{snprintf(buf, sizeof(buf), "%.0f", p);}
+                   lv_label_set_text(id(obj_m1_pw2), buf);
+               }
+                // kwh2
+               static float kwh2_last = -98765;
+               if(isnan(id(sn_kwh2).state)){
+                  p=-98765;} 
+                else{p=id(sn_kwh2).state;}
+               if(kwh2_last != p){
+                  kwh2_last = p;
+                  if(p ==-98765){ strcpy(buf, "-");
+                                 lv_label_set_text( id(obj_m1_kwh2i), buf);
+                                 lv_label_set_text( id(obj_m1_kwh2d), buf);
+                               } 
+                   else{ fi=(int)(p); 
+                         fd=(int)(10*(p-fi)); // fi-цел fd-дес                                                             
+                         snprintf(buf, sizeof(buf), "%i.", fi);
+                         lv_label_set_text( id(obj_m1_kwh2i), buf); // {main_pv_dayi} 
+                         snprintf(buf, sizeof(buf), "%i",  fd);
+                         lv_label_set_text( id(obj_m1_kwh2d), buf); // {main_pv_dayd}  
+                       }            
+               }
+
+            //3 pw3
+               static float pw3_last = -98765; 
+               static bool pw3_st = true; // true- change , false- dischange
+               if(isnan(id(sn_pw3).state)){
+                  p=-98765;}
+                else{p=id(sn_pw3).state;} 
+               if (pw3_last != p){
+                   pw3_last = p;
+                   if(p == -98765){strcpy(buf, "----");}
+                    else{snprintf(buf, sizeof(buf), "%.0f", abs(p));}
+                   lv_label_set_text(id(obj_m1_pw3), buf);
+                   if(p>0 && !pw3_st){
+                       pw3_st = true;
+                       lv_obj_set_style_text_color(id(obj_m1_pw3), lv_color_hex(${clr_change}), LV_PART_MAIN); }
+                   if(p<0 && pw3_st ){
+                       pw3_st = false;                      
+                       lv_obj_set_style_text_color(id(obj_m1_pw3), lv_color_hex(${clr_dischange}), LV_PART_MAIN); }
+                                                   
+               }
+                // kwh3
+               static float kwh3_last = -98765;
+               if(isnan(id(sn_kwh3).state)){
+                  p=-98765;} 
+                else{p=id(sn_kwh3).state;}
+               if(kwh3_last != p){
+                  kwh3_last = p;
+                  if(p ==-98765){ strcpy(buf, "-");
+                                 lv_label_set_text( id(obj_m1_kwh3i), buf);
+                                 lv_label_set_text( id(obj_m1_kwh3d), buf);
+                               } 
+                   else{ fi=(int)(p); 
+                         fd=(int)(10*(p-fi)); // fi-цел fd-дес                                                             
+                         snprintf(buf, sizeof(buf), "%i.", fi);
+                         lv_label_set_text( id(obj_m1_kwh3i), buf); // {main_pv_dayi} 
+                         snprintf(buf, sizeof(buf), "%i",  fd);
+                         lv_label_set_text( id(obj_m1_kwh3d), buf); // {main_pv_dayd}  
+                       }            
+               }
+
+            //4 power
+               static float pw4_last = -98765; 
+               if(isnan(id(sn_pw4).state)){
+                  p=-98765;}
+                else{p=id(sn_pw4).state;} 
+               if (pw4_last != p){
+                   pw4_last = p;
+                   if(p == -98765){strcpy(buf, "----");}
+                    else{snprintf(buf, sizeof(buf), "%.0f", p);}
+                   lv_label_set_text(id(obj_m1_pw4), buf);
+               }
+                // kwh4
+               static float kwh4_last = -98765;
+               if(isnan(id(sn_kwh4).state)){
+                  p=-98765;} 
+                else{p=id(sn_kwh4).state;}
+               if(kwh4_last != p){
+                  kwh4_last = p;
+                  if(p ==-9765){ strcpy(buf, "-");
+                                 lv_label_set_text( id(obj_m1_kwh4i), buf);
+                                 lv_label_set_text( id(obj_m1_kwh4d), buf);
+                               } 
+                   else{ fi=(int)(p); 
+                         fd=(int)(10*(p-fi)); // fi-цел fd-дес                                                             
+                         snprintf(buf, sizeof(buf), "%i.", fi);
+                         lv_label_set_text( id(obj_m1_kwh4i), buf); // {main_pv_dayi} 
+                         snprintf(buf, sizeof(buf), "%i",  fd);
+                         lv_label_set_text( id(obj_m1_kwh4d), buf); // {main_pv_dayd}  
+                       }
+               
+               }              
+      #------------------------------------------------------  
+    - id: updata_led
+      then:
+        - lambda: |-
+            //    
+             static int led_st =0; // 0-offline, 1-online off, 2- online on/wait, 3-onlain  on/power  
+             static int led[]={5,5,5,5};
+             static esphome::homeassistant::HomeassistantBinarySensor*  sn_led_s[]={id(sn_led1_s),     // id sensor  
+                                                                                    id(sn_led2_s),
+                                                                                    id(sn_led3_s),
+                                                                                    id(sn_led4_s)
+                                                                                    };             
+             static esphome::homeassistant::HomeassistantSensor*  sn_led_w[]={id(sn_led1_w),     // id sensor  
+                                                                              id(sn_led2_w),
+                                                                              id(sn_led3_w),
+                                                                              id(sn_led4_w)
+                                                                              };
+             static esphome::homeassistant::HomeassistantSensor*  sn_led_v[]={id(sn_led1_v),     // id sensor  
+                                                                              id(sn_led2_v),
+                                                                              id(sn_led3_v),
+                                                                              id(sn_led4_v)
+                                                                             };            
+             static lv_obj_t*  obj_m1_led[] ={id(obj_m1_led1),               // id label  
+                                              id(obj_m1_led2),
+                                              id(obj_m1_led3),
+                                              id(obj_m1_led4)
+                                              };
+                                             
+             for(int i=0; i<4; i++){   
+                
+                //if( sn_led_v[i]->state < 170 || isnan(sn_led_v[i]->state)){ //
+                  if(isnan(sn_led_w[i]->state)){
+                       led_st = 0;}                                      // не в сети 
+                  else{led_st = 1;                                       // в сети
+                  if( sn_led_s[i]->state){led_st = 2;             // включена              
+                    if( sn_led_w[i]->state > 10) {  led_st = 3;}   // есть нагрузка 
+                  }    
+                } 
+                if(led[i] != led_st){
+                   led[i]  = led_st;
+                         if(led_st == 0){lv_led_set_color(obj_m1_led[i], lv_color_hex(${clr_led_s0}));
+                                    lv_led_set_brightness(obj_m1_led[i], 255);}   
+                    else if(led_st == 1){lv_led_set_color(obj_m1_led[i], lv_color_hex(${clr_led_s1}));
+                                    lv_led_set_brightness(obj_m1_led[i], 255);}                
+                    else if(led_st == 2){lv_led_set_color(obj_m1_led[i], lv_color_hex(${clr_led_s2}));
+                                    lv_led_set_brightness(obj_m1_led[i], 155);}
+                    else if(led_st == 3){lv_led_set_color(obj_m1_led[i], lv_color_hex(${clr_led_s3}));
+                                    lv_led_set_brightness(obj_m1_led[i], 255);}
+                ESP_LOGW("led", "led_st %d",led_st);
+                }
+             }    
+
+
+      #--------------      
+    - id: out_graf2
+      then:
+        - lambda: |-
+            //
+
+      
+      #---------------------------------                  
+  
+  interval:
+    - interval: 1s  
+      then:
+        - lambda: |-
+            //  
+             id(updata_main1).execute();
+             id(updata_led).execute();
+           
+# sensor
+  sensor:
+    - platform: homeassistant #  sn_pw1
+      id: sn_pw1  #  
+      entity_id: "${sn_pw1}"
+    - platform: homeassistant #  sn_kwh1
+      id: sn_kwh1  #  
+      entity_id: "${sn_kwh1}"
+    - platform: homeassistant #  sn_pw2
+      id: sn_pw2  #  
+      entity_id: "${sn_pw2}"
+    - platform: homeassistant #  sn_kwh2
+      id: sn_kwh2  #
+      entity_id: "${sn_kwh2}"
+    - platform: homeassistant #  sn_pw3
+      id: sn_pw3  #  
+      entity_id: "${sn_pw3}"
+    - platform: homeassistant #  sn_kwh3
+      id: sn_kwh3  #
+      entity_id: "${sn_kwh3}"
+    - platform: homeassistant #  sn_pw4
+      id: sn_pw4  #  
+      entity_id: "${sn_pw4}"
+    - platform: homeassistant #  sn_kwh4
+      id: sn_kwh4  #  
+      entity_id: "${sn_kwh4}"
+   # led 
+    - platform: homeassistant #  sn_led1_v
+      id: sn_led1_v  #  
+      entity_id: "${sn_led1_v}"
+    - platform: homeassistant #  sn_led1_w
+      id: sn_led1_w  #  
+      entity_id: "${sn_led1_w}"
+    - platform: homeassistant #  sn_led2_v
+      id: sn_led2_v  #  
+      entity_id: "${sn_led2_v}"
+    - platform: homeassistant #  sn_led2_w
+      id: sn_led2_w  #  
+      entity_id: "${sn_led2_w}"
+    - platform: homeassistant #  sn_led3_v
+      id: sn_led3_v  #  
+      entity_id: "${sn_led3_v}"
+    - platform: homeassistant #  sn_led3_w
+      id: sn_led3_w  #  
+      entity_id: "${sn_led3_w}"
+    - platform: homeassistant #  sn_led4_v
+      id: sn_led4_v  #  
+      entity_id: "${sn_led4_v}"
+    - platform: homeassistant #  sn_led4_w
+      id: sn_led4_w  #  
+      entity_id: "${sn_led4_w}"
+
+
+
+
+    - platform: homeassistant # <grid_watt>     [obj_main]-{main_grid_watt}
+      id: dom_watt
+      entity_id: sensor.z2_ph1_power
+    - platform: homeassistant # <grid_watt>     [obj_main]-{main_grid_watt}
+      id: barr
+      entity_id: sensor.display4880m_bme280_pressure 
+
+ 
+    - platform: homeassistant #  ax_0
+      id: ax_0
+      entity_id: input_number.ax0
+      on_value: 
+        then:
+          - lambda: |-
+               id(edit).execute();
+    - platform: homeassistant #  ay_0
+      id: ay_0
+      entity_id: input_number.ay0
+      on_value: 
+        then:
+          - lambda: |-
+              id(edit).execute();    
+    - platform: homeassistant #  ax_1  
+      id: ax_1
+      entity_id: input_number.ax1
+      on_value: 
+        then:
+          - lambda: |-
+               id(edit).execute();
+    - platform: homeassistant #  ay_1  
+      id: ay_1
+      entity_id: input_number.ay1
+      on_value: 
+        then:
+          - lambda: |-
+              id(edit).execute();
+    - platform: homeassistant #  ax_2  
+      id: ax_2
+      entity_id: input_number.ax2
+      on_value: 
+        then:
+          - lambda: |-
+               id(edit).execute();
+    - platform: homeassistant #  ay_2  
+      id: ay_2
+      entity_id: input_number.ay2
+      on_value: 
+        then:
+          - lambda: |-
+              id(edit).execute();
+    - platform: homeassistant #  ax_3  
+      id: ax_3
+      entity_id: input_number.ax3
+      on_value: 
+        then:
+          - lambda: |-
+               id(edit).execute();
+    - platform: homeassistant #  ay_4  
+      id: ay_3
+      entity_id: input_number.ay3
+      on_value: 
+        then:
+          - lambda: |-
+              id(edit).execute();
+    - platform: homeassistant #  dp_0 
+      id: dp_0
+      entity_id: input_number.dp0
+      on_value: 
+        then:
+          - lambda: |-
+              id(edit).execute();
+    - platform: homeassistant #  dp_1 
+      id: dp_1
+      entity_id: input_number.dp1
+      on_value: 
+        then:
+          - lambda: |-
+               id(edit).execute();
+    - platform: homeassistant #  dp_2
+      id: dp_2
+      entity_id: input_number.dp2
+      on_value: 
+        then:
+          - rtttl.play: "${alarm_1m}"
+  text_sensor: 
+    - platform: homeassistant #  
+      id: txt_1
+      entity_id: input_text.text1
+      on_value: 
+        then:
+          - lambda: |-
+              id(my_rtttl).play(x.c_str()); //  x.c_str()  "b:d=32,o=6,b=160:32c"
+              id(b_txt).publish_state(x);   // сохранить текст
+    - platform: template
+      id: b_txt
+  binary_sensor:
+    - platform: homeassistant #  sn_led1_s
+      id: sn_led1_s  #  
+      entity_id: "${sn_led1_s}"   
+    - platform: homeassistant #  sn_led1_s
+      id: sn_led2_s  #  
+      entity_id: "${sn_led2_s}"   
+    - platform: homeassistant #  sn_led1_s
+      id: sn_led3_s  #  
+      entity_id: "${sn_led3_s}"   
+    - platform: homeassistant #  sn_led1_s
+      id: sn_led4_s  #  
+      entity_id: "${sn_led4_s}"   
+
+
+  globals:
+
+    - id: p_line     # ток 
+      type: int    
+      initial_value: '1'  
+      restore_value: False
+    - id: y_line     # ток 
+      type: float    
+      initial_value: '0'  
+      restore_value: False
+    - id: g_line
+      type: lv_obj_t*
+      restore_value: False
+      initial_value: 'nullptr'
+    - id: graf3_graf
+      type: lv_obj_t *
+      restore_value: False
+
+
+    #-
+  font:
+    - file: "fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf"  # 20   - file: "gfonts://Roboto"         # s:30
+      id: RobotoCondensed_Regular_16
+      size: 14 
+      glyphs: [# " ",".","-","=",":","°","+","(",")","[","]","_",
+                "0","1","2","3","4","5","6","7","8","9",
+                " ",":","-",
+              #  a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,q,t,u,v,w,x,y,z,
+              #  A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z          
+            ] 
+    - file: "fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf"  # 24   - file: "gfonts://Roboto"         # s:30
+      id: RobotoCondensed_Regular_24
+      size: 24 
+      glyphs: [ " ",".","-","=",":","°","+","(",")","[","]","_",
+                "0","1","2","3","4","5","6","7","8","9",
+                #Б,Д,П,З,К,М,Н,В,Т,С,Р,Х,Ч,
+                #а,б,в,г,д,е,ж,з,и,й,к,л,м,п,н,о,т,с,р,у,ф,х,ч,ц,ш,щ,ы,ь,я,
+                a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,q,t,u,v,w,x,y,z,
+                A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z
+                #":"," ",x
+              ]     
+    - file: "fonts/Roboto_Condensed/static/RobotoCondensed-Medium.ttf"   # 65   - file: "gfonts://Roboto@500"     # 
+      id: RobotoCondensed_Medium_45        
+      #bpp: 4
+      size: 45  
+      glyphs: [" ",".","-","°","!",
+              "0","1","2","3","4","5","6","7","8","9",
+              c,C,
+              a,n,o,x,
+              б,п,н,в,т,с,р,ч]
+    - file: "fonts/Bebas_Neue/BebasNeue-Regular.ttf"                     # 55   - file: "gfonts://Bebas Neue@400"    # s:55    
+      id: BebasNeue_Regular_40             
+      #bpp: 4
+      size: 40
+      glyphs: [" ",":",".","-","=","°",
+              "0","1","2","3","4","5","6","7","8","9",
+              a,n,o,v,x,
+              A,I,P,U,V,W]
+    - file: "fonts/Bebas_Neue/BebasNeue-Regular.ttf"                     # 55   - file: "gfonts://Bebas Neue@400"    # s:55    
+      id: BebasNeue_Regular_50             
+      #bpp: 4
+      size: 50
+      glyphs: [" ",":",".","-","=","°",
+              "0","1","2","3","4","5","6","7","8","9",
+              a,n,o,v,x,
+              A,I,P,U,V,W]
+    - file: "fonts/Roboto_Condensed/static/RobotoCondensed-Medium.ttf"   # 65   - file: "gfonts://Roboto@500"     # 
+      id: RobotoCondensed_Medium_50        
+      #bpp: 4
+      size: 50  
+      glyphs: [" ",".","-","°","!",
+              "0","1","2","3","4","5","6","7","8","9",
+              c,C,
+              a,n,o,x,
+              б,п,н,в,т,с,р,ч]
+    - file: "fonts/Roboto_Condensed/static/RobotoCondensed-Medium.ttf"   # 65   - file: "gfonts://Roboto@500"     # 
+      id: RobotoCondensed_Medium_55       
+      #bpp: 4
+      size: 55  
+      glyphs: [" ",".","-","°","!",
+              "0","1","2","3","4","5","6","7","8","9",
+              c,C,
+              a,n,o,x,
+              б,п,н,в,т,с,р,ч]    
+
+    - file: "fonts/materialdesignicons-webfont.ttf"  # icon_28 
+      id: icon_28      
+      bpp: 4
+      size: 24
+      glyphs: [  
+              "${icn_grid}",
+              "${icn_bat}",
+              "${icn_dom}",              
+              "${icn_pv}" 
+              ]              

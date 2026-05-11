@@ -1,0 +1,271 @@
+esphome:
+  name: display43    
+  friendly_name: display43
+  platformio_options:
+    build_flags: "-DBOARD_HAS_PSRAM"
+    board_build.esp-idf.memory_type: qio_opi
+    board_build.flash_mode: dio
+    board_upload.maximum_ram_size: 327680
+  on_boot:
+    priority: 600
+    then:
+      - output.turn_on: led_tft
+
+esp32:
+  board: esp32s3box # esp32-s3-devkitc-1  #
+#  variant: esp32s3
+   
+  flash_size: 16MB
+  partitions: "default_16MB.csv"
+  framework:
+    type:  esp-idf # arduino #
+    version: recommended
+    sdkconfig_options:
+      CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: y
+      CONFIG_ESP32S3_DATA_CACHE_64KB: y
+      CONFIG_SPIRAM_FETCH_INSTRUCTIONS: y
+      CONFIG_SPIRAM_RODATA: y 
+psram:
+  mode: octal
+  speed: 80MHz 
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "A4qnY//38qRvTqi7c3PVvbXC/X5urXS1LisUw5Od06E="
+
+ota:
+  - platform: esphome
+    password: "bbbbb29b186496df93399cbef2b32b6e"
+
+wifi:
+  ssid: "Archer"   # !secret wifi_ssid
+  password: "RDy9osW7" # !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Display43 Fallback Hotspot"
+    password: "5EaBXZoNy0GS"
+
+captive_portal:
+
+ 
+    
+# Define a PWM output on the ESP32
+output:
+  - platform: ledc
+    pin: 2
+    id: led_tft
+
+font:
+ # показатели 1 колонка my_font1
+  - file: "gfonts://Roboto"
+    id: font1
+    size: 50 
+    glyphs: [" ",".","-","=",0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f,g,i,j,k,l,m,n,o,p,r,s,t,u,v,w,x,y,z,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z]
+
+ 
+external_components:
+  - source: github://pr#6363
+    refresh: 10min
+    components: [lvgl]
+     
+
+
+#light:
+#  - platform: monochromatic # Define a monochromatic, dimmable light for the backlight
+##    output: gpio_backlight_pwm
+#    name: ${devicename} Display Backlight
+#    id: back_light
+#    restore_mode: ALWAYS_ON
+#_________________________________________________________________ 
+#__________________________________________________________________
+
+#spi:
+# 
+#  - id: spi1 #
+#    clk_pin: 12
+#    mosi_pin: 11
+#    miso_pin: 13
+
+i2c:
+  sda: 19
+  scl: 20
+#  scan: true
+#  id: bus_a
+
+touchscreen:
+  platform: gt911
+  id: my_touch
+#  i2c_id: bus_a
+  address: 0x5D
+  calibration:
+    x_min: 11  # L:200    R:200 
+    x_max: 433  # L:3830  R:3830 
+    y_min: 13  # L:170    R:170
+    y_max: 263 # L:3780   R:3780
+#  transform:
+#    swap_xy: true #  L:true  R:true
+#    mirror_x: true # L:true  R:false
+#    mirror_y: true # L:true  R:false
+  on_touch:
+     - lambda: |-
+           ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
+               touch.x,
+               touch.y,
+               touch.x_raw,
+               touch.y_raw
+               );  
+#--------------- 
+    
+display:
+  - platform: rpi_dpi_rgb
+    id: my_display
+    color_order: RGB
+    invert_colors: True
+    update_interval: never
+    auto_clear_enabled: false # takes 2.8 seconds to clear the display
+    dimensions:
+      width: 480
+      height: 272
+    de_pin: 40
+    hsync_pin: 39
+    vsync_pin: 41
+    pclk_pin: 42
+    hsync_back_porch: 39
+    hsync_front_porch: 50
+    hsync_pulse_width: 4
+    vsync_back_porch: 9
+    vsync_front_porch: 8
+    vsync_pulse_width: 4
+    pclk_frequency: 4MHz
+      
+    data_pins:
+      red:
+        - 45        #r1
+        - 48        #r2
+        - 47        #r3
+        - 21        #r4
+        - 14        #r5
+      green:
+        - 5         #g0
+        - 6         #g1
+        - 7         #g2
+        - 15        #g3
+        - 16        #g4
+        - 4         #g5
+      blue:
+        - 8         #b1
+        - 3         #b2
+        - 46        #b3
+        - 9         #b4
+        - 1         #b5        
+
+lvgl:
+  
+  displays:
+    - my_display
+  touchscreens:
+    - my_touch
+  pages:
+  
+    - id: my_page1
+      bg_color: 0x00FF00
+      widgets:
+     
+        - label:
+                
+            text_font: montserrat_40
+            text: 'Hello World!'
+            x: 0
+            y: 0
+        - label:
+            text_font: montserrat_40 
+            text: 'Hello World!'
+            x: 100
+            y: 50
+        - label:
+            text_font: montserrat_40
+            text_color: 0xFFFF00
+            text: 'Hello World!'            
+            y: 100       
+        - label:
+            text_font: montserrat_40
+            text: 'Hello World!'
+            x: 0
+            y: 150    
+        - label:
+     #         text_font: montserrat_40
+            text_color: 0xFF0000
+            text: 'Hello World!'
+            x: 0
+            y: 200        
+        - label:
+            text_font: montserrat_30 
+            text: 'Hello World!'
+            x: 280
+            y: 230	 
+     # Example widget:
+        - line:
+            points:
+              - 5, 5
+              - 70, 70
+              - 120, 10
+              - 180, 60
+              - 230, 15
+            line_width: 8
+            line_color: 0xFF00FF
+            line_rounded: true
+
+        - led:
+            id: led_id
+            align: CENTER
+            color: 0xFF0000
+            brightness: 100%
+            # Example widget:
+        - arc:
+            x: 300
+            y: 50
+             
+            id: arc_id
+            value: 75
+            min_value: 0
+            max_value: 100
+            adjustable: true
+        - switch:
+            x: 310
+            y: 180
+            id: switch_id1
+            on_value: 
+              then:
+                lvgl.page.show: my_page2
+
+        - btn:
+            x: 10
+            y: 220
+            width: 50
+            height: 30
+            id: btn_id
+            on_value:
+              then:
+                 lvgl.page.show: my_page2
+
+    - id: my_page2
+      bg_color: 0x00F0F0
+      widgets:
+        - label:                
+            text_font: montserrat_30
+            text: 'Hello World!'
+            x: 0
+            y: 0
+        - switch:
+            x: 310
+            y: 180
+            id: switch_id2  
+            on_value:
+              then:
+                 lvgl.page.show: my_page1
+    

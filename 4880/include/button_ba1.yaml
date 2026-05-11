@@ -1,0 +1,35 @@
+button:
+ id: ba1
+ x: 10
+ y: 250
+ height: 70
+ width: 120 
+ pad_all: 2
+ radius: 10
+ border_color: 0x606060
+ border_width: 0
+ outline_color: 0xf0f000
+ outline_width: 1
+ bg_color: 0x00a0a0
+ shadow_width: 0
+ checkable: true
+ pressed:
+  bg_color: 0xf0f000
+  border_color: 0
+ checked:                
+  bg_color: 0xf00000
+  border_color: 0 
+ widgets:
+  - label:
+     x: 0
+     y: -3
+     text_color: 0xf0f000
+     text_font: Oswald400_25 
+     text: "4500 w"
+  - label:
+     x: 0
+     y: 30 
+     text_color: 0xf0f000
+     text_font: Oswald400_25 #roboto_24
+     text: "Тен спал" 
+                   

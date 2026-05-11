@@ -1,0 +1,1646 @@
+ #set: esphome, esp32, logger, api, ota, wifi img_snowy
+  esphome:
+    name: "kuhna"
+    friendly_name: "kuhna"
+    comment: "Кухня гл " 
+    on_boot:
+      priority: 600
+      then:     
+        
+        - output.turn_on: led_tft
+        - output.turn_on: led_red
+        - output.turn_on: led_grn
+        - output.turn_on: led_blu
+        - lambda: |-
+              id(led_tft).set_level(0.5); 
+        - delay: 200ms
+        - lvgl.page.show: pg2   
+
+   # - - - - - - - - - - - - - - -  - -
+  esp32:
+    board: esp32dev
+    flash_size: 4MB
+    framework:
+      #type: arduino
+      type: esp-idf
+      #version: 5.4.1
+      #version: recommended
+   # - - - - - - - - - - - - - - -  - -
+   # Enable logging
+  logger:
+
+   # Enable Home Assistant API
+   # - - - - - - - - - - - - - - -  - -  
+  api:
+    reboot_timeout: 0s
+    encryption:
+      key: "48PDdHGognzoGulCaU1vknfNHZC6Q4y03VC1f+fyhrs="
+   # - - - - - - - - - - - - - - -  - -
+  ota:
+    - platform: esphome
+      password: "2d9aa43e51168f3d5a4e31bdb333f03a"
+   # - - - - - - - - - - - - - - -  - -
+  wifi:
+    ssid: !secret wifi_ssid
+    password: !secret wifi_password
+    reboot_timeout: 5min             
+   # - - - - - - - - - - - - - - -  - -
+ #subst: icon, pin,  rtttl, sensor, pg2, data
+  substitutions:
+   #icon
+      i_wifi_on:        "\U000F05A9"  # mdi-wi-fi
+      i_wifi_off:       "\U000F05AA"  # mdi-wi-fi-off  
+      lightbulb_on:     "\U000F06E8"    
+      lightbulb:        "\U000F0335"
+      motion_sensor:    "\U000F0D91"
+      chandelier:       "\U000F1793"
+      wall_sconce_flat: "\U000F091D"
+      numer_1 :         "\U000F0B3A"  # mdi-numeric-1 Бойлер 1 
+      numer_2 :         "\U000F0B3B"  # mdi-numeric-2  Бойлер 2 
+      num_box1:         "\U000F03A6"  # mdi-numeric-1-box-outline  Бойлер 1    
+      num_box2:         "\U000F03A9"  # mdi-numeric-2-box-outline  Бойлер 2    
+      fann:             "\U000F0AD5"  # mdi-fan pinwheel  
+      fan:              "\U000F0210"  # mdi-fan  охлаждение DEYE 
+      fan_1:            "\U000F1472"  # mdi-fan-speed-1  Моторчик 1
+      fan_2:            "\U000F1473"  # mdi-fan-speed-2  Моторчик 2
+      fire:             "\U000F0238"  # mdi-fire
+      car:              "\U000F07A9"  # mdi-car-hatchback          ГАРАЖ
+      download:         "\U000F01DA"  # mdi-download               ПОГРЕБ2 
+      home_f2:          "\U000F0D81"  # mdi-home-floor-2           ВХОД 2
+      coach_lamp:       "\U000F1020"  # mdi-coach-lamp             Сарай улица 
+      icn_solar_panl:   "\U000F0D9B"  # mdi-solar-panel
+      icn_grid :        "\U000F192C"  # mdi-transmission-tower-export 
+      icn_batarey:      "\U000F010C"  # mdi-car-battery
+      icn_dom:          "\U000F1904"  # mdi-home-lightning-bolt-outlineF1904
+      icn_close:        "\U000F0156"  # mdi-close
+      icn_wi_fi:        "\U000F05A9"  # mdi-wi-fi
+      icn_wi_fi_off:    "\U000F05AA"  # mdi-wi-fi-off    
+      icn_wifi_refr:    "\U000F16C4" #icn_wifi_refresh:
+      color_helper:     "\U000F0179"  # mdi-color-helper
+      close_co:         "\U000F015A"  #close-circle-outline
+      fonar:            "\U000F1987"  # light-flood-down      
+      fonar2:           "\U000F0914"  # track-light    
+      ceiling_light:    "\U000F0769"
+      outdoor_lamp:     "\U000F1054"
+      asterisk:         "\U000F06C4"   
+   #pin
+     #output :led
+      pin_led_red: 4
+      pin_led_grn: 17
+      pin_led_blu: 16
+     #dsp
+      pin_dsp_ld: 27    
+      pin_dsp_cs: 15
+      pin_dsp_dc: 2
+     #spi
+      pin_spi_clk: 14
+      pin_spi_mosi: 13 
+      pin_spi_miso: 12
+     # touch
+      pin_tch_cs: 33
+     #radio
+      pin_433: 35
+     #buzz
+      pin_buz: 26
+     #ld2420
+      pin_ld2420_tx: 21
+      pin_ld2420_rx: 22
+     #light
+      pin_light: 34
+    #   
+   #rtttl
+      beep1: "b:d=32,o=7,b=200: g#"
+   #sensor
+      sn_pv_watt: "sensor.dc_power"
+      sn_pv_kwhx: "sensor.solarman_daily_production"
+      sn_pv_volt: "sensor."
+
+      
+      sn_gr_watt: "sensor.z2_ph0_power"
+      sn_gr_kwhx: "sensor.solarman_daily_energy_bought" #solarman_daily_energy_bought
+      sn_gr_volt: "sensor."
+      sn_gr_sw:   "switch.z2_ph0" # state switch
+
+
+      sn_bt_watt: "sensor.bat_power"
+      sn_bt_kwhx: "sensor.bat_energy_kwh"
+      sn_bt_volt: "sensor."
+      
+      sn_dm_watt: "sensor.z2_ph1_power"
+      sn_dm_kwhx: "sensor.solarman_daily_load_consumption"
+      sn_dm_sw:   "switch.z2_ph1"
+
+      ib_st_zsw4:  "input_boolean.st_z2_sw4"  # состояние свет на кухне гл 
+      ib_st_wsw4a: "input_boolean.st_w_sw4a" # состояние свет над столом
+
+   #pg2
+    #main
+      pg2_he: 320  # высота
+      pg2_wi: 400  # ширина
+      pg2_x0: 0    #  Х нач поз
+      pg2_y0: 0    #  У нач
+     #sensor
+      #  
+      pg2_main_watt_pv_sn: "${sn_pv_watt}"
+      pg2_main_watt_gr_sn: "${sn_gr_watt}"       
+      pg2_main_watt_bt_sn: "${sn_bt_watt}"    
+      pg2_main_watt_dm_sn: "${sn_dm_watt}"    
+      #
+      pg2_main_kwhx_pv_sn: "${sn_pv_kwhx}"
+      pg2_main_kwhx_gr_sn: "${sn_gr_kwhx}"    
+      pg2_main_kwhx_bt_sn: "${sn_bt_kwhx}"    
+      pg2_main_kwhx_dm_sn: "${sn_dm_kwhx}"        
+      
+      pg2_main_gr_sw: "${sn_gr_sw}"       
+      pg2_main_dm_sw: "${sn_dm_sw}"  
+    #text
+     #icon 
+      pg2_main_icon_pv: "${icn_solar_panl}"
+      pg2_main_icon_gr: "${icn_grid}"      
+      pg2_main_icon_bt: "${icn_batarey}"      
+      pg2_main_icon_dm: "${icn_dom}"        
+     #size 
+      pg2_main_font_icon_sz: 40
+      pg2_main_font_watt_sz: 78    
+      pg2_main_font_kwhh_sz: 70
+      pg2_main_font_kwhl_sz: 45
+     #color
+      pg2_main_colr_icon: 0x0040ff
+      pg2_main_colr_watt: 0x00f000
+      pg2_main_colr_kwhh: 0x00f0f0 
+      pg2_main_colr_kwhl: 0x00f0f0
+      pg2_main_colr_wtdm: 0xA0d0d0 
+      pg2_main_colr_wtgr: 0xFF5000      
+     #pos
+      pg2_main_x:      0     #  Х нач поз
+      pg2_main_y:      0     #  У нач
+      pg2_main_dy:     87    #  растояние между строками
+      
+      #icon
+      pg2_main_icon_x: 1 
+      pg2_main_icon_y: 10        
+      #watt
+      pg2_main_watt_x: -170
+      pg2_main_watt_y: -17       
+      #gr
+      pg2_main_kwhh_x: -45 
+      pg2_main_kwhh_y: -5 
+      #bt
+      pg2_main_kwhl_x: -25
+      pg2_main_kwhl_y: -1
+     #расчет поз
+      #icon
+      #pv 
+      pg2_main_icon_pv_x: ${pg2_main_x + pg2_main_icon_x} 
+      pg2_main_icon_pv_y: ${pg2_main_y + pg2_main_icon_y + pg2_main_dy * 0}      
+      #gr
+      pg2_main_icon_gr_x: ${pg2_main_x + pg2_main_icon_x} 
+      pg2_main_icon_gr_y: ${pg2_main_y + pg2_main_icon_y + pg2_main_dy * 1}         
+      #bt
+      pg2_main_icon_bt_x: ${pg2_main_x + pg2_main_icon_x} 
+      pg2_main_icon_bt_y: ${pg2_main_y + pg2_main_icon_y + pg2_main_dy * 2}        
+      #dm
+      pg2_main_icon_dm_x: ${pg2_main_x + pg2_main_icon_x} 
+      pg2_main_icon_dm_y: ${pg2_main_y + pg2_main_icon_y + pg2_main_dy * 3}        
+      #watt 
+      #pv
+      pg2_main_watt_pv_x: ${pg2_main_x + pg2_main_watt_x}  
+      pg2_main_watt_pv_y: ${pg2_main_y + pg2_main_watt_y + pg2_main_dy * 0}       
+      #gr
+      pg2_main_watt_gr_x: ${pg2_main_x + pg2_main_watt_x} 
+      pg2_main_watt_gr_y: ${pg2_main_y + pg2_main_watt_y + pg2_main_dy * 1}        
+      #bt
+      pg2_main_watt_bt_x: ${pg2_main_x + pg2_main_watt_x} 
+      pg2_main_watt_bt_y: ${pg2_main_y + pg2_main_watt_y + pg2_main_dy * 2}        
+      #dm
+      pg2_main_watt_dm_x: ${pg2_main_x + pg2_main_watt_x} 
+      pg2_main_watt_dm_y: ${pg2_main_y + pg2_main_watt_y + pg2_main_dy * 3}       
+      #kwhh 
+      #pv
+      pg2_main_kwhh_pv_x: ${pg2_main_x + pg2_main_kwhh_x}  
+      pg2_main_kwhh_pv_y: ${pg2_main_y + pg2_main_kwhh_y + pg2_main_dy * 0}       
+      #gr
+      pg2_main_kwhh_gr_x: ${pg2_main_x + pg2_main_kwhh_x} 
+      pg2_main_kwhh_gr_y: ${pg2_main_y + pg2_main_kwhh_y + pg2_main_dy * 1}        
+      #bt
+      pg2_main_kwhh_bt_x: ${pg2_main_x + pg2_main_kwhh_x} 
+      pg2_main_kwhh_bt_y: ${pg2_main_y + pg2_main_kwhh_y + pg2_main_dy * 2}        
+      #dm
+      pg2_main_kwhh_dm_x: ${pg2_main_x + pg2_main_kwhh_x} 
+      pg2_main_kwhh_dm_y: ${pg2_main_y + pg2_main_kwhh_y + pg2_main_dy * 3}       
+      #kwhl 
+      #pv
+      pg2_main_kwhl_pv_x: ${pg2_main_x + pg2_main_kwhl_x}  
+      pg2_main_kwhl_pv_y: ${pg2_main_y + pg2_main_kwhl_y + pg2_main_dy * 0}       
+      #gr
+      pg2_main_kwhl_gr_x: ${pg2_main_x + pg2_main_kwhl_x} 
+      pg2_main_kwhl_gr_y: ${pg2_main_y + pg2_main_kwhl_y + pg2_main_dy * 1}        
+      #bt
+      pg2_main_kwhl_bt_x: ${pg2_main_x + pg2_main_kwhl_x} 
+      pg2_main_kwhl_bt_y: ${pg2_main_y + pg2_main_kwhl_y + pg2_main_dy * 2}        
+      #dm
+      pg2_main_kwhl_dm_x: ${pg2_main_x + pg2_main_kwhl_x} 
+      pg2_main_kwhl_dm_y: ${pg2_main_y + pg2_main_kwhl_y + pg2_main_dy * 3} 
+   
+   #plan dom
+    #windows 
+      plan_clrw_on:  "0xffff00"
+      plan_clrw_off: "0x004080"
+      plan_clrw_err: "0xff4040"    
+     #1 -   
+      plan_wd_st_1:  "binary_sensor.z2_se5_contact"  #  state
+      plan_wd_av_1: "binary_sensor.ava_z2_se5"      #   доступность   
+     #2    
+      plan_wd_st_2:  "binary_sensor.z2_se1_contact"  #  state
+      plan_wd_av_2: "binary_sensor.ava_z2_se1"      #   доступность   
+     #3    
+      plan_wd_st_3:  "binary_sensor.z2_se2_contact"  #  state
+      plan_wd_av_3: "binary_sensor.ava_z2_se2"      #   доступность   
+     #4    
+      plan_wd_st_4:  "binary_sensor.z2_se3_contact"  #  state
+      plan_wd_av_4: "binary_sensor.ava_z2_se3"      #    доступность  
+     #5    
+      plan_wd_st_5:  "binary_sensor.z2_se4_contact"  #    state
+      plan_wd_av_5: "binary_sensor.ava_z2_se4"      #      доступность     
+     #6    
+      plan_wd_st_6:  "binary_sensor.z2_se1_contact"  #  state
+      plan_wd_av_6: "binary_sensor.ava_z2_se1"      #   доступность   
+     #7    
+      plan_wd_st_7:  "binary_sensor.z2_se2_contact"  #  state
+      plan_wd_av_7: "binary_sensor.ava_z2_se2"      #   доступность   
+     #8    
+      plan_wd_st_8:  "binary_sensor.z2_se3_contact"  #  state
+      plan_wd_av_8: "binary_sensor.ava_z2_se3"      #    доступность  
+     #9    
+      plan_wd_st_9:  "binary_sensor.z2_se4_contact"  #    state
+      plan_wd_av_9: "binary_sensor.ava_z2_se4"      #      доступность 
+    #svet
+      plan_sv_clr_on:  "0xffff00"
+      plan_sv_clr_off: "0x004040"    
+      plan_sv_clr_err: "0xff4040"     
+     #1  Камин
+      plan_sv_ic_1: "${chandelier}"     # icon  
+      plan_sv_st_1: "switch.w_sw2a"   #  state
+      plan_sv_av_1: "binary_sensor.ava_w_sw2a"   # серг доступность
+      plan_sv_px_1: 225   
+      plan_sv_py_1: 175  
+     #2  кухня
+      plan_sv_ic_2: "${chandelier}"    # icon     
+      plan_sv_st_2: "switch.w_sw4a"   #  state
+      plan_sv_av_2: "binary_sensor.ava_w_sw4a"   #   доступность
+      plan_sv_px_2: 360   
+      plan_sv_py_2: 175   
+     #3   сп орех
+      plan_sv_ic_3: "${chandelier}"    # icon  
+      plan_sv_st_3: "switch.z2_sw4"   #  state
+      plan_sv_av_3: "binary_sensor.ava_z2_sw4"   #   доступность
+      plan_sv_px_3: 380   
+      plan_sv_py_3: 380 
+     #4  сп кухар
+      plan_sv_ic_4: "${chandelier}"    # icon   
+      plan_sv_st_4: "switch.w_sw2a"   #  state
+      plan_sv_av_4: "binary_sensor.ava_w_sw2a"   #   доступность
+      plan_sv_px_4: 235   
+      plan_sv_py_4: 380 
+     #5  зала
+      plan_sv_ic_5: "${chandelier}"    # icon     
+      plan_sv_st_5: "switch.w_sw4a"   #  state
+      plan_sv_av_5: "binary_sensor.ava_w_sw4a"   #   доступность
+      plan_sv_px_5: 85   
+      plan_sv_py_5: 350   
+     #6   сп улица
+      plan_sv_ic_6: "${chandelier}"   # icon
+      plan_sv_st_6: "switch.z2_sw4"   #  state
+      plan_sv_av_6: "binary_sensor.ava_z2_sw4"   #   доступность
+      plan_sv_px_6: 70   
+      plan_sv_py_6: 165 
+     #7  туалет
+      plan_sv_ic_7: "${wall_sconce_flat}"    # icon     
+      plan_sv_st_7: "switch.w_sw4a"   #  state
+      plan_sv_av_7: "binary_sensor.ava_w_sw4a"   #   доступность
+      plan_sv_px_7: 435   
+      plan_sv_py_7: 130   
+     #8   коридор
+      plan_sv_ic_8: "${wall_sconce_flat}"   # icon
+      plan_sv_st_8: "switch.z2_sw4"   #  state
+      plan_sv_av_8: "binary_sensor.ava_z2_sw4"   #   доступность
+      plan_sv_px_8: 270   
+      plan_sv_py_8: 15 
+    #motion
+      plan_mt_clr_on:  "0xffff00"
+      plan_mt_clr_off: "0x004040"  
+      plan_mt_clr_err: "0xff4040"     
+     #1 коридор
+      plan_mt_ic_1: "${motion_sensor}"    
+      plan_mt_st_1: "binary_sensor.display4880m_presence" #  state
+      plan_mt_av_1: "binary_sensor.ava_display4880m_presence" #     доступность
+      plan_mt_px_1: 240   
+      plan_mt_py_1: 35    
+     #2 камин
+      plan_mt_ic_2: "${motion_sensor}"  
+      plan_mt_st_2: "binary_sensor.display4880m_presence" #  state
+      plan_mt_av_2: "binary_sensor.ava_display4880m_presence" #     доступность
+      plan_mt_px_2: 145   
+      plan_mt_py_2: 180  
+     #3 кухня
+      plan_mt_ic_3: "${motion_sensor}"  
+      plan_mt_st_3: "binary_sensor.display4880m_presence" #  state
+      plan_mt_av_3: "binary_sensor.ava_display4880m_presence" #     доступность
+      plan_mt_px_3: 235   
+      plan_mt_py_3: 365 
+     #4 спал орех
+      plan_mt_ic_4: "${motion_sensor}"  
+      plan_mt_st_4: "binary_sensor.display4880m_presence" #  state
+      plan_mt_av_4: "binary_sensor.ava_display4880m_presence" #     доступность
+      plan_mt_px_4: 350  
+      plan_mt_py_4: 345 
+     #5 спал кухр
+      plan_mt_ic_5: "${motion_sensor}"  
+      plan_mt_st_5: "binary_sensor.display4880m_presence" #  state
+      plan_mt_av_5: "binary_sensor.ava_display4880m_presence" #     доступность
+      plan_mt_px_5: 250  
+      plan_mt_py_5: 345 
+     #6 зала
+      plan_mt_ic_6: "${motion_sensor}"  
+      plan_mt_st_6: "binary_sensor.display4880m_presence" #  state
+      plan_mt_av_6: "binary_sensor.ava_display4880m_presence" #     доступность
+      plan_mt_px_6: 70   
+      plan_mt_py_6: 315 
+     #7 сп улица
+      plan_mt_ic_7: "${motion_sensor}"  
+      plan_mt_st_7: "binary_sensor.display4880m_presence" #  state
+      plan_mt_av_7: "binary_sensor.ava_display4880m_presence" #     доступность
+      plan_mt_px_7: 70   
+      plan_mt_py_7: 220 
+ #set : output, uart, rtttl, spi, touch, display 
+  output:     
+    - platform: ledc   # led_tft
+      pin: ${pin_dsp_ld}
+      id: led_tft  
+    - platform: ledc   # led red
+      pin: ${pin_led_red}
+      id: led_red 
+    - platform: ledc   # led gren
+      pin: ${pin_led_grn}
+      id: led_grn 
+    - platform: ledc   # led blue
+      pin: ${pin_led_blu}
+      id: led_blu
+    - platform: ledc   # buzzer
+      pin: ${pin_buz}   #27 
+      id: rtttl_out     
+   # - - - - - - - - - - - - - - - - - - - 
+  uart:          
+    tx_pin: ${pin_ld2420_tx} #21
+    rx_pin: ${pin_ld2420_rx} #22
+    baud_rate: 115200  
+   # - - - - - - - - - -   
+  rtttl:         
+    output: rtttl_out
+    id: my_rtttl
+    gain: 10%  
+   # - - - - - - - - - - - - - - - - - - -   
+  spi:                
+    clk_pin:  ${pin_spi_clk}  #14
+    mosi_pin: ${pin_spi_mosi} #13 # output data мастер выдает помошник принимает
+    miso_pin: ${pin_spi_miso} #12 # input data мастер  принимает помошник выдает
+   # - - - - - - - - - - - - - - 
+  touchscreen:         
+    platform: xpt2046
+    id: my_touch
+    cs_pin: ${pin_tch_cs}   #33
+    calibration:
+      x_min: 200
+      x_max: 3830
+      y_min: 320
+      y_max: 3830
+    transform:
+      swap_xy: true #  для 2,8 красного true
+      mirror_x: false # для 2,8 красного false
+      mirror_y: true
+    on_touch:
+        - lambda: |-
+            ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
+                touch.x,
+                touch.y,
+                touch.x_raw,
+                touch.y_raw
+              );   
+            id(my_rtttl).play("${beep1}");
+    on_release:                         # отпустил палец от екрана
+      then:
+        - if:                           # если
+            condition: lvgl.is_paused   # Проверяется, находится ли библиотека LVGL (графическая система) в режиме паузы.
+            then:
+              - lvgl.resume:            # Если LVGL действительно была «на паузе», эта команда возобновляет её работу.
+              - lvgl.widget.redraw:     # Эта команда перерисовывает все объекты LVGL   
+   # - - - - - - - - - - - - - - -  
+  display:             
+    - platform: ili9xxx
+      model: ST7796   #ILI9341 #TFT 2.4
+      id: my_display1     
+      color_palette: 8BIT
+      invert_colors: false
+      cs_pin: ${pin_dsp_cs} #15  
+      dc_pin: ${pin_dsp_dc} #2   
+      # reset_pin: -1
+      transform:      
+        mirror_x: true
+        mirror_y: true
+        swap_xy: true
+          #rotation: 270°
+      dimensions: 480x320         
+         #  height: 230  
+         #  width: 480         
+      #data_rate: 1MHz  # Установка частоты SPI на 40 МГц    
+      # update_interval: 5s 
+    # - - - - - - - - - - - - - - - -   
+ #ld2420, time, lvgl  
+  ld2420: 
+  time:
+    - platform: sntp
+      id: my_time
+      timezone: "Europe/Kyiv"
+      servers:
+        - 0.pool.ntp.org
+        - 1.pool.ntp.org
+        - 2.pool.ntp.org
+      update_interval: 3600s  
+      on_time:  
+        - hours: 2,3,4,5 
+          minutes: 5
+          seconds: 0      # Каждый день в 02:05, 03:05, 04:05 и 05:05
+          then:
+            - switch.turn_on: switch_antiburn # 05-й минуте каждого часа включается switch_antiburn
+        - hours: 2,3,4,5
+          minutes: 35
+          seconds: 0  #
+          then:
+            - switch.turn_off: switch_antiburn  #  
+  # -----------------------
+  lvgl:
+    touchscreens:
+      - my_touch
+    displays:
+      - my_display1
+    buffer_size: 25%   
+    style_definitions:
+     #pg2
+      #main
+       - id: style_pg2_main_icon
+         align: TOP_LEFT
+         pad_all: 0
+         text_letter_space: 0          
+         text_color: ${pg2_main_colr_icon}     
+         text_font: pg2_main_font_icon  
+       - id: style_pg2_main_watt
+         align: TOP_RIGHT
+         pad_all: 0
+         text_letter_space: 0          
+         text_color: ${pg2_main_colr_watt}           
+         text_font: pg2_main_font_watt 
+       - id: style_pg2_main_kwhh 
+         align: TOP_RIGHT
+         pad_all: 0
+         text_letter_space: 0          
+         text_color: ${pg2_main_colr_kwhh}           
+         text_font: pg2_main_font_kwhh 
+       - id: style_pg2_main_kwhl       
+         align: TOP_RIGHT
+         pad_all: 0
+         text_letter_space: 0          
+         text_color: ${pg2_main_colr_kwhl}        
+         text_font: pg2_main_font_kwhl     
+     #plan 
+       - id: style_plan_line_h  # стены
+         line_color: 0x904000
+         line_rounded: false
+         line_width: 4      
+       - id: style_plan_line_w  # окна
+         line_color: 0x0040ff
+         line_rounded: false
+         line_width: 8       
+
+       - id: style_plan_icon_sv  # 
+         text_color: 0x0040ff
+         text_font: icon_28  
+       - id: style_plan_icon_mt  # 
+         text_color: 0x0040ff
+         text_font: icon_28  
+     
+
+
+    pages:
+      - id: pg1
+        bg_color: 0x000000       
+        on_click:
+          then:
+            - lvgl.page.show: pg2  
+        widgets: 
+          - label:
+              id: exit_lab1
+              x: 440
+              y: 10            
+              text_color: 0xa0a000
+              text_font: icon_28
+              text: "${lightbulb_on}"
+          - line: # steni
+              id: line_sd01
+              styles: style_plan_line_h               
+              points:
+              - x: 230 # p1
+                y: 10
+              - x: 340 # p2
+                y: 10
+              - x: 340 # p3
+                y: 120
+              - x: 230 # p4
+                y: 120
+              - x: 330 # p5
+                y: 120
+              - x: 330 # p6
+                y: 230
+              - x: 330 # p5
+                y: 120
+              - x: 420 # p7
+                y: 120
+              - x: 420 # p8
+                y: 170
+              - x: 420 # p7
+                y: 120
+              - x: 480 # p9
+                y: 120
+              - x: 480 # p10
+                y: 260
+              - x: 420 # p11
+                y: 260
+              - x: 420 # p12
+                y: 210
+              - x: 420 # p11
+                y: 260
+              - x: 480 # p10
+                y: 260
+              - x: 480 # p13
+                y: 310
+              - x: 380 # p14
+                y: 310
+              - x: 380 # p15
+                y: 330
+              - x: 480 # p16
+                y: 330
+              - x: 480 # p13
+                y: 310
+              - x: 480 # p17
+                y: 480
+              - x: 330 # p18
+                y: 480
+              - x: 330 # p19
+                y: 340
+              - x: 290 # p20
+                y: 340
+              - x: 330 # p19
+                y: 340
+              - x: 330 # p21
+                y: 270
+              - x: 330 # p18
+                y: 480
+              - x: 180 # p22
+                y: 480
+              - x: 180 # p23
+                y: 340
+              - x: 250 # p24
+                y: 340
+              - x: 180 # p23
+                y: 340
+              - x: 180 # p25
+                y: 300
+              - x: 180 # p22
+                y: 480
+              - x: 180 # p22
+                y: 480
+              - x: 10 # p26
+                y: 480
+              - x: 10 # p27
+                y: 270
+              - x: 140 # p28
+                y: 270
+              - x: 140 # p29
+                y: 260
+              - x: 140 # p28
+                y: 270
+              - x: 10 # p27
+                y: 270
+              - x: 10 # p30
+                y: 120
+              - x: 140 # p31
+                y: 120
+              - x: 140 # p32
+                y: 210
+              - x: 140 # p31
+                y: 120
+              - x: 230 # p4
+                y: 120
+              - x: 230 # p1
+                y: 10
+        # windows
+            # 1
+          - line:   #  id: plan_line_wd1
+              id: plan_line_wd1
+              styles: style_plan_line_w
+              points:
+              - x: 250   # p_w1
+                y: 10
+              - x: 310   # p_e1
+                y: 10
+            # 2
+          - line:   #  id: plan_line_wd2
+              id: plan_line_wd2
+              styles: style_plan_line_w
+              points:
+              - x: 360   # p_w2
+                y: 120
+              - x: 410   # p_e2
+                y: 120
+            # 3
+          - line:   #  id: plan_line_wd3
+              id: plan_line_wd3
+              styles: style_plan_line_w
+              points:
+              - x: 480   # p_w3
+                y: 370
+              - x: 480   # p_e3
+                y: 430
+            # 4
+          - line:   #  id: plan_line_wd4
+              id: plan_line_wd4
+              styles: style_plan_line_w
+              points:
+              - x: 250   # p_w4
+                y: 480
+              - x: 300   # p_e4
+                y: 480
+           # 5
+          - line:   #  id: plan_line_wd5
+              id: plan_line_wd5
+              styles: style_plan_line_w
+              points:
+              - x: 90   # p_w5
+                y: 480
+              - x: 150   # p_e5
+                y: 480
+            # 6
+          - line:   #  id: plan_line_wd6
+              id: plan_line_wd6
+              styles: style_plan_line_w
+              points:
+              - x: 10   # p_w6
+                y: 390
+              - x: 10   # p_e6
+                y: 450
+           # 7
+          - line:   #  id: plan_line_wd7
+              id: plan_line_wd7
+              styles: style_plan_line_w
+              points:
+              - x: 10   # p_w7
+                y: 300
+              - x: 10   # p_e7
+                y: 360
+            # 8
+          - line:   #  id: plan_line_wd8
+              id: plan_line_wd8
+              styles: style_plan_line_w
+              points:
+              - x: 10   # p_w8
+                y: 160
+              - x: 10   # p_e8
+                y: 220
+            # 9
+          - line:   #  id: plan_line_wd9
+              id: plan_line_wd9
+              styles: style_plan_line_w
+              points:
+              - x: 40   # p_w9
+                y: 120
+              - x: 100   # p_e9
+                y: 120
+           # 10
+          - line:   #  id: plan_line_wd10
+              id: plan_line_wd10
+              styles: style_plan_line_w
+              points:
+              - x: 170   # p_w10
+                y: 120
+              - x: 220   # p_e10
+                y: 120
+           # - - - - - - - - - - - -  -
+        # door
+        # svet
+          - label:  # plan_icn_sv1   
+              id: plan_sv_icn_1
+              x: "${plan_sv_px_1}"
+              y: "${plan_sv_py_1}"
+              styles: style_plan_icon_sv
+              text: "${plan_sv_ic_1}"        
+          - label:  # plan_icn_sv2   
+              id: plan_sv_icn_2
+              x: "${plan_sv_px_2}"
+              y: "${plan_sv_py_2}"
+              styles: style_plan_icon_sv
+              text: "${plan_sv_ic_2}"         
+          - label:  # plan_icn_sv3   
+              id: plan_sv_icn_3
+              x: "${plan_sv_px_3}"
+              y: "${plan_sv_py_3}"
+              styles: style_plan_icon_sv
+              text: "${plan_sv_ic_3}"        
+          - label:  # plan_icn_sv4   
+              id: plan_sv_icn_4
+              x: "${plan_sv_px_4}"
+              y: "${plan_sv_py_4}"
+              styles: style_plan_icon_sv
+              text: "${plan_sv_ic_4}"          
+          - label:  # plan_icn_sv5   
+              id: plan_sv_icn_5
+              x: "${plan_sv_px_5}"
+              y: "${plan_sv_py_5}"
+              styles: style_plan_icon_sv
+              text: "${plan_sv_ic_6}"        
+          - label:  # plan_icn_sv6   
+              id: plan_sv_icn_6
+              x: "${plan_sv_px_6}"
+              y: "${plan_sv_py_6}"
+              styles: style_plan_icon_sv
+              text: "${plan_sv_ic_6}"          
+          - label:  # plan_icn_sv7   
+              id: plan_sv_icn_7
+              x: "${plan_sv_px_7}"
+              y: "${plan_sv_py_7}"
+              styles: style_plan_icon_sv
+              text: "${plan_sv_ic_7}"        
+          - label:  # plan_icn_sv8   
+              id: plan_sv_icn_8
+              x: "${plan_sv_px_8}"
+              y: "${plan_sv_py_8}"
+              styles: style_plan_icon_sv
+              text: "${plan_sv_ic_8}"                   
+            # - - - - - - - - - - - - - - - - - - - - - 
+        # motion
+          - label:  # plan_icn_mt1  
+              id: plan_mt_icn_1
+              x: "${plan_mt_px_1}"
+              y: "${plan_mt_py_1}"
+              styles: style_plan_icon_mt
+              text: "${plan_mt_ic_1}" 
+          - label:  # plan_icn_mt2  
+              id: plan_mt_icn_2
+              x: "${plan_mt_px_2}"
+              y: "${plan_mt_py_2}"
+              styles: style_plan_icon_mt
+              text: "${plan_mt_ic_2}" 
+          - label:  # plan_icn_mt3  
+              id: plan_mt_icn_3
+              x: "${plan_mt_px_3}"
+              y: "${plan_mt_py_3}"
+              styles: style_plan_icon_mt
+              text: "${plan_mt_ic_3}" 
+          - label:  # plan_icn_mt4 
+              id: plan_mt_icn_4
+              x: "${plan_mt_px_4}"
+              y: "${plan_mt_py_4}"
+              styles: style_plan_icon_mt
+              text: "${plan_mt_ic_4}" 
+          - label:  # plan_icn_mt5 
+              id: plan_mt_icn_5
+              x: "${plan_mt_px_5}"
+              y: "${plan_mt_py_5}"
+              styles: style_plan_icon_mt
+              text: "${plan_mt_ic_5}" 
+          - label:  # plan_icn_mt6 
+              id: plan_mt_icn_6
+              x: "${plan_mt_px_6}"
+              y: "${plan_mt_py_6}"
+              styles: style_plan_icon_mt
+              text: "${plan_mt_ic_7}" 
+          - label:  # plan_icn_mt7 
+              id: plan_mt_icn_7
+              x: "${plan_mt_px_7}"
+              y: "${plan_mt_py_7}"
+              styles: style_plan_icon_mt
+              text: "${plan_mt_ic_7}" 
+
+      - id: pg2
+        bg_color: 0x000000       
+        widgets:
+          - obj:
+              id: pg2_main
+              height: ${pg2_he}
+              width: ${pg2_wi}
+              x: ${pg2_x0}
+              y: ${pg2_y0}  
+              bg_color: 0x00000  
+              outline_color: 0  #0x404000  # цвет внешнего контура
+              pad_all: 0
+              border_width: 0
+              outline_width: 0         # толщина внешнего контура
+              shadow_width: 0
+              scrollable: 'false' 
+              scrollbar_mode: 'off'
+              on_click:
+                then:
+                  - lvgl.page.show: pg1          
+              widgets:
+               #pv 
+                - label: # icon_pv
+                    id: pg2_main_icon_pv
+                    x: ${pg2_main_icon_pv_x}
+                    y: ${pg2_main_icon_pv_y}
+                    styles: style_pg2_main_icon
+                    text: "${pg2_main_icon_pv}"
+                - label: # watt_pv
+                    id: pg2_main_watt_pv
+                    x: ${pg2_main_watt_pv_x}
+                    y: ${pg2_main_watt_pv_y}
+                    styles: style_pg2_main_watt
+                    text: "---"                
+                - label: # kwhh_pv
+                    id: pg2_main_kwhh_pv
+                    x: ${pg2_main_kwhh_pv_x}
+                    y: ${pg2_main_kwhh_pv_y}
+                    styles: style_pg2_main_kwhh
+                    text: "--."
+                - label: # kwhl_pv
+                    id: pg2_main_kwhl_pv
+                    x: ${pg2_main_kwhl_pv_x}
+                    y: ${pg2_main_kwhl_pv_y}
+                    styles: style_pg2_main_kwhl
+                    text: "-"
+                 # - - - - - - - - - - - - - - -  - - 
+               #gr  
+                - label: # icon_gr
+                    id: pg2_main_icon_gr
+                    x: ${pg2_main_icon_gr_x}
+                    y: ${pg2_main_icon_gr_y}
+                    styles: style_pg2_main_icon
+                    text: "${pg2_main_icon_gr}"
+                - label: # watt_gr
+                    id: pg2_main_watt_gr
+                    x: ${pg2_main_watt_gr_x}
+                    y: ${pg2_main_watt_gr_y}
+                    styles: style_pg2_main_watt
+                    text_color: ${pg2_main_colr_wtgr}
+                    text: "---"                
+                - label: # kwhh_gr
+                    id: pg2_main_kwhh_gr
+                    x: ${pg2_main_kwhh_gr_x}
+                    y: ${pg2_main_kwhh_gr_y}
+                    styles: style_pg2_main_kwhh
+                    text: "--."
+                - label: # kwhl_gr
+                    id: pg2_main_kwhl_gr
+                    x: ${pg2_main_kwhl_gr_x}
+                    y: ${pg2_main_kwhl_gr_y}
+                    styles: style_pg2_main_kwhl
+                    text: "-"
+                 # - - - - - - - - - - - - - - -  - - 
+               #bt  
+                - label: # icon_bt
+                    id: pg2_main_icon_bt
+                    x: ${pg2_main_icon_bt_x}
+                    y: ${pg2_main_icon_bt_y}
+                    styles: style_pg2_main_icon
+                    text: "${pg2_main_icon_bt}"
+                - label: # watt_bt
+                    id: pg2_main_watt_bt
+                    x: ${pg2_main_watt_bt_x}
+                    y: ${pg2_main_watt_bt_y}
+                    styles: style_pg2_main_watt
+                    text: "---"                
+                - label: # kwhh_bt
+                    id: pg2_main_kwhh_bt
+                    x: ${pg2_main_kwhh_bt_x}
+                    y: ${pg2_main_kwhh_bt_y}
+                    styles: style_pg2_main_kwhh
+                    text: "--."
+                - label: # kwhl_bt
+                    id: pg2_main_kwhl_bt
+                    x: ${pg2_main_kwhl_bt_x}
+                    y: ${pg2_main_kwhl_bt_y}
+                    styles: style_pg2_main_kwhl
+                    text: "-"
+                 # - - - - - - - - - - - - - - -  - - 
+               #dm  
+                - label: # icon_dm
+                    id: pg2_main_icon_dm
+                    x: ${pg2_main_icon_dm_x}
+                    y: ${pg2_main_icon_dm_y}
+                    styles: style_pg2_main_icon
+                    text: "${pg2_main_icon_dm}"
+                - label: # watt_dm
+                    id: pg2_main_watt_dm
+                    x: ${pg2_main_watt_dm_x}
+                    y: ${pg2_main_watt_dm_y}
+                    styles: style_pg2_main_watt
+                    text_color: ${pg2_main_colr_wtdm}
+                    text: "---"                
+                - label: # kwhh_dm
+                    id: pg2_main_kwhh_dm
+                    x: ${pg2_main_kwhh_dm_x}
+                    y: ${pg2_main_kwhh_dm_y}
+                    styles: style_pg2_main_kwhh
+                    text: "--."
+                - label: # kwhl_dm
+                    id: pg2_main_kwhl_dm
+                    x: ${pg2_main_kwhl_dm_x}
+                    y: ${pg2_main_kwhl_dm_y}
+                    styles: style_pg2_main_kwhl
+                    text: "-"
+                 # - - - - - - - - - - - - - - -  - - 
+ #script interval
+  script:
+    - id: update_dp1         # переменные для редактирования виджетов
+      then:
+        - lambda: |- 
+            //
+            //static int timer=30;
+            //if( timer > 0 ){timer=timer-1;return;}  
+            
+            //int r1=id(r_1).state; int g1=id(g_1).state; int b1=id(b_1).state;
+            //int r2=id(r_2).state; int g2=id(g_2).state; int b2=id(b_2).state;
+            //int r3=id(r_3).state; int g3=id(g_3).state; int b3=id(b_3).state;
+              
+              
+            //
+            //int dp0=id(dp_0).state; int ax0=id(ax_0).state; int ay0=id(ay_0).state;
+            int dp1=id(dp_1).state; int ax1=id(ax_1).state; int ay1=id(ay_1).state;
+            int dp2=id(dp_2).state; int ax2=id(ax_2).state; int ay2=id(ay_2).state; 
+            int dp3=id(dp_3).state; int ax3=id(ax_3).state; int ay3=id(ay_3).state; 
+            int dp4=id(dp_4).state; int ax4=id(ax_4).state; int ay4=id(ay_4).state;   
+            int dp5=id(dp_5).state; int ax5=id(ax_5).state; int ay5=id(ay_5).state;   
+            int dp6=id(dp_6).state; int ax6=id(ax_6).state; int ay6=id(ay_6).state;   
+            int dp7=id(dp_7).state; int ax7=id(ax_7).state; int ay7=id(ay_7).state;          
+            int dp8=id(dp_8).state; int ax8=id(ax_8).state; int ay8=id(ay_8).state;   
+            //int dp9=id(dp_9).state; int ax9=id(ax_9).state; int ay9=id(ay_9).state;            
+              
+            // plan
+              //- - - - -  s v e t  - - - - -     
+                  // lv_obj_set_pos(id(plan_sv_icn_1), ax1, ay1);
+                  // lv_obj_set_pos(id(plan_sv_icn_2), ax2, ay2);
+                  // lv_obj_set_pos(id(plan_sv_icn_3), ax3, ay3);
+                  // lv_obj_set_pos(id(plan_sv_icn_4), ax4, ay4);
+                  // lv_obj_set_pos(id(plan_sv_icn_5), ax5, ay5);
+                  // lv_obj_set_pos(id(plan_sv_icn_6), ax6, ay6);
+                  // lv_obj_set_pos(id(plan_sv_icn_7), ax7, ay7);
+                  // lv_obj_set_pos(id(plan_sv_icn_8), ax8, ay8);      
+                  // lv_obj_set_pos(id(plan_icn_sv9 ), ax1, ay1);
+                  // lv_obj_set_pos(id(plan_icn_sv10), ax2, ay2);
+                  // lv_obj_set_pos(id(plan_icn_sv11), ax3, ay3);
+                  // lv_obj_set_pos(id(plan_icn_sv12), ax4, ay4);
+                  // lv_obj_set_pos(id(plan_icn_sv13), ax5, ay5);
+                  //lv_obj_set_pos(id(plan_icn_sv6), ax6, ay6);
+                  //lv_obj_set_pos(id(plan_icn_sv7), ax7, ay7);
+                  //lv_obj_set_pos(id(plan_icn_sv8), ax8, ay8); 
+              //- - - - -  m o t i o n  - - - - - 
+                 // lv_obj_set_pos(id(plan_mt_icn_1), ax1, ay1);
+                 // lv_obj_set_pos(id(plan_mt_icn_2), ax2, ay2);
+                 // lv_obj_set_pos(id(plan_mt_icn_3), ax3, ay3);
+                 // lv_obj_set_pos(id(plan_mt_icn_4), ax4, ay4);
+                 // lv_obj_set_pos(id(plan_mt_icn_5), ax5, ay5);
+                 // lv_obj_set_pos(id(plan_mt_icn_6), ax6, ay6);
+                 // lv_obj_set_pos(id(plan_mt_icn_7), ax7, ay7);
+
+            // pg2
+              //- - - - -  m a i n  - - - - -     
+                 //  lv_obj_set_pos(id(pg2_main_icon_pv), ax1, ay1);
+                 //  lv_obj_set_pos(id(pg2_main_watt_pv), ax2, ay2);            
+                 //  lv_obj_set_pos(id(pg2_main_kwhh_pv), ax3, ay3);  
+                 //  lv_obj_set_pos(id(pg2_main_kwhl_pv), ax4, ay4);  
+
+            //lv_obj_set_size(id(butt_dom_icb), dp1,dp2 );  // ширина 100, высота 40
+            //lv_obj_set_pos(id(srv_dom_watt_sum), ax1, ay1);
+            //lv_obj_align_to(id(srv_dom_watt), id(srv_dom_watt_sum), LV_ALIGN_OUT_LEFT_MID, ax2, ay2);
+            // lv_obj_set_style_border_color(id(butt_dom_icb), lv_color_make(0, 128, 0), LV_PART_MAIN); //               
+            // lv_obj_set_style_bg_color(id(butt_dom_icb), lv_color_make(125, 0, 0), LV_PART_MAIN); //            
+            
+            //-- wifi 
+                
+                // lv_obj_set_height(id(wifi_but), r1); // height                
+                // lv_obj_set_width(id(wifi_but), g1);  // width
+                // lv_obj_set_x(id(wifi_but),  ax1); // watt data -315
+                // lv_obj_set_y(id(wifi_but),  ay1); // watt data -315
+                //lv_obj_set_pos(id(wifi_st),  ax1, ay1); // watt data -315
+                //lv_obj_set_pos(id(deye_fan), ax1, ay2); // watt data -315
+                //lv_obj_set_y(id(w),   ay2); // watt data -315              
+                // lv_obj_set_style_border_width( id(wifi_but), 1 , LV_PART_MAIN); // толщина линии   внутренняя  
+                // lv_obj_set_style_border_color(id(wifi_but), lv_color_make(0, 128, 0), LV_PART_MAIN); //               
+                // lv_obj_set_style_bg_color(id(wifi_but), lv_color_make(125, 0, 0), LV_PART_MAIN); // 
+     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    - id: updata_main1
+      then:
+        - lambda: |-   
+             //  
+                static float p;
+                static int pi,pd;
+                static char buf[16];
+                static char buf2[16];
+                static float err= -98765;
+                static float off= -987654;
+                
+                static float kwhx[]={err,err,err,err }; 
+                static lv_obj_t* lv_kwhh[] = {                                             //                   
+                                id(pg2_main_kwhh_pv),
+                                id(pg2_main_kwhh_gr),
+                                id(pg2_main_kwhh_bt),
+                                id(pg2_main_kwhh_dm),
+                                };       
+                static lv_obj_t* lv_kwhl[] = {                                             //                   
+                                id(pg2_main_kwhl_pv),
+                                id(pg2_main_kwhl_gr),
+                                id(pg2_main_kwhl_bt),
+                                id(pg2_main_kwhl_dm),
+                                };                
+                static esphome::homeassistant::HomeassistantSensor*   sn_kwhx[]={
+                                        id(pg2_main_kwhx_pv_sn),
+                                        id(pg2_main_kwhx_gr_sn),
+                                        id(pg2_main_kwhx_bt_sn),
+                                        id(pg2_main_kwhx_dm_sn),
+                                        };  
+              //- - - w a t t - - - -                           
+               //- pv - - - 
+                static float pv_watt= err;  
+                if(isnan(id(pg2_main_watt_pv_sn).state)){p=err; } 
+                  else{p=id(pg2_main_watt_pv_sn).state;}
+                if(fabsf(pv_watt -p) > 1){
+                   pv_watt = p;
+                   if(p==err){strcpy(buf, "---");} 
+                   else{snprintf(buf, sizeof(buf), "%0.0f", p);}
+                   lv_label_set_text(id(pg2_main_watt_pv), buf );                 
+                }               
+               //- gr - - -              
+                static float gr_watt= off; 
+                if(isnan(id(pg2_main_watt_gr_sn).state)){p=err; } 
+                  else if(!id(pg2_main_gr_sw).state){p=off;}
+                  else{p=id(pg2_main_watt_gr_sn).state;}
+                if( fabsf(gr_watt-p)>1){
+                   gr_watt = p;
+                   if(     p==err){strcpy(buf, "-x-");}
+                   else if(p==off){strcpy(buf, "---");}        
+                   else{snprintf(buf, sizeof(buf), "%0.0f", p);}
+                   lv_label_set_text(id(pg2_main_watt_gr), buf );                                 
+                }                                                  
+               //- bt  - - -               
+                static float bt_watt= err; 
+                if(isnan(id(pg2_main_watt_bt_sn).state)){p=err; } 
+                  else{p=id(pg2_main_watt_bt_sn).state;}
+                if(fabsf(bt_watt-p)>1){
+                   bt_watt = p;
+                   if(p==err){strcpy(buf, "---");} 
+                   else{snprintf(buf, sizeof(buf), "%0.0f", p);}
+                   lv_label_set_text(id(pg2_main_watt_bt), buf );                 
+                   static bool st= true;
+                   if((p>0) && !st ){ 
+                      st = true;
+                      lv_obj_set_style_text_color(id(pg2_main_watt_bt), lv_color_hex(${pg2_main_colr_watt}), LV_PART_MAIN);
+                      } 
+                    else if((p<0) && st ){
+                      st = false;
+                      lv_obj_set_style_text_color(id(pg2_main_watt_bt), lv_color_hex(${pg2_main_colr_wtgr}), LV_PART_MAIN);
+                   }              
+                }                 
+               //- dm  - - - -                
+                static float dm_watt= off; 
+                if(isnan(id(pg2_main_watt_dm_sn).state)  ){p=err; } 
+                  else if(!id(pg2_main_dm_sw).state){p=off;}
+                  else{p=id(pg2_main_watt_dm_sn).state;}
+                if(dm_watt !=p){
+                   dm_watt = p;
+                   if(     p==err){strcpy(buf, "-x-");} 
+                   else if(p==off){strcpy(buf, "---");} 
+                   else{snprintf(buf, sizeof(buf), "%0.0f", p);}
+                   lv_label_set_text(id(pg2_main_watt_dm), buf );                 
+                }                            
+              //- - - k w h x - - - -                
+                for(int i=0; i<4;i++){
+                   if(isnan(sn_kwhx[i]->state)){p=err;} 
+                     else {p=sn_kwhx[i]->state;}       
+                   if(fabsf(kwhx[i]-p) > 0.04999 ){
+                      kwhx[i] = p;
+                      if(p==err){strcpy(buf, "--_"); strcpy(buf2, "-");} 
+                        else{
+                         p=p+0.05;
+                         pi=int(p); pd=int(10*(p-pi));                    
+                         snprintf(buf,  sizeof(buf), "%i.", pi);
+                         snprintf(buf2, sizeof(buf), "%i",  pd);
+                        }
+                      lv_label_set_text(lv_kwhh[i], buf ); 
+                      lv_label_set_text(lv_kwhl[i], buf2); 
+                   } // закрыли обновление печать              
+                } // закрыли цикл
+   # - - - - - - - - - - - - - - - - - - - - - - - - - -  - - 
+    - id: updata_main
+      then:
+        - lambda: |-
+            //  
+              static float p;
+              static int pi,pd;              
+              static char buf[16];
+              static char buf2[16]; 
+              static float err=-98765; 
+              static float watt[]={-98765,-98765,-98765,-98765,};
+              static float kwhx[]={-98765,-98765,-98765,-98765,};              
+              
+              static lv_obj_t* lv_watt[] = {                                             //                 
+                              id(pg2_main_watt_pv),
+                              id(pg2_main_watt_gr),
+                              id(pg2_main_watt_bt),
+                              id(pg2_main_watt_dm),
+                              };
+              static lv_obj_t* lv_kwhh[] = {                                             //                   
+                              id(pg2_main_kwhh_pv),
+                              id(pg2_main_kwhh_gr),
+                              id(pg2_main_kwhh_bt),
+                              id(pg2_main_kwhh_dm),
+                              };       
+              static lv_obj_t* lv_kwhl[] = {                                             //                   
+                              id(pg2_main_kwhl_pv),
+                              id(pg2_main_kwhl_gr),
+                              id(pg2_main_kwhl_bt),
+                              id(pg2_main_kwhl_dm),
+                              };        
+              static esphome::homeassistant::HomeassistantSensor*   sn_watt[]={
+                                       id(sn_pv_watt),
+                                       id(sn_gr_watt),
+                                       id(sn_bt_watt),
+                                       id(sn_dm_watt)};         
+              static esphome::homeassistant::HomeassistantSensor*   sn_kwhx[]={
+                                       id(sn_pv_kwhx),
+                                       id(sn_gr_kwhx),
+                                       id(sn_bt_kwhx),
+                                       id(sn_dm_kwhx)};       
+                  
+            //  
+              // обновление всех показателей 
+               for(int i=0;i<4;i++){                
+                //  watt    p o w e r         
+                   
+                   if(isnan(sn_watt[i]->state)){p=err;} 
+                     else {p=fabsf(sn_watt[i]->state);}       
+                   if(fabsf(watt[i]-p) > 1 ){
+                      watt[i] = p;
+                      if(p==err){strcpy(buf, "---");} 
+                      else{snprintf(buf, sizeof(buf), "%0.0f", p);}
+                      lv_label_set_text(lv_watt[i], buf ); 
+                   } // закрыли обновление печать                 
+                
+                //  kwhx    e n e r g y
+                   
+                   if(isnan(sn_kwhx[i]->state)){p=err;} 
+                     else {p=sn_kwhx[i]->state;}       
+                   if(fabsf(kwhx[i]-p) > 0.0999 ){
+                      kwhx[i] = p;
+                      if(p==err){strcpy(buf, "--."); strcpy(buf2, "-");} 
+                        else{pi=int(p); pd=int(10*(p-pi));                    
+                         snprintf(buf,  sizeof(buf), "%i.", pi);
+                         snprintf(buf2, sizeof(buf), "%i",  pd);
+                        }
+                      lv_label_set_text(lv_kwhh[i], buf ); 
+                      lv_label_set_text(lv_kwhl[i], buf2); 
+                   } // закрыли обновление печать              
+               } // закрыли цикл
+
+              //  дополнителные проверки    
+               // 2-battery change/dichange
+                static bool st= true;
+                if(!isnan(sn_watt[2]->state)){
+                  if((sn_watt[2]->state > 0) && !st ){ 
+                     st = true;
+                     lv_obj_set_style_text_color(lv_watt[2], lv_color_hex(${pg2_main_colr_watt}), LV_PART_MAIN);
+                  } else if((sn_watt[2]->state < 0) && st ){
+                     st = false;
+                    lv_obj_set_style_text_color(lv_watt[2], lv_color_hex(${pg2_main_colr_wtgr}), LV_PART_MAIN);
+                  }
+                
+                }
+       # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -                
+    - id: chek_svet
+      then:
+        - lambda: |-
+                static bool sv=false;
+                if(      id(ib_st_zsw4).state && !sv){sv=true;  id(led_grn).set_level(0.95);}
+                else if(!id(ib_st_zsw4).state &&  sv){sv=false; id(led_grn).set_level(1);  }       
+       
+       # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  interval: 
+    - interval: 1s
+      then:
+        - lambda: |-
+            //  
+              id(updata_main1).execute();     
+              id(chek_svet).execute();  
+     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+ #sensor
+  text_sensor:
+   #sys
+    - platform: wifi_info
+      ip_address:
+        name: "IP Address"
+        id: ip_adress
+      ssid:
+        name: "Connected SSID"
+        id: connected_ssid
+      bssid:
+        name: "BSSID"
+        id: bssid
+      mac_address:
+        name: "MAC Address"
+        id: mac_address
+    # - - - - - - 
+   #ld2420 
+    - platform: ld2420
+      fw_version:
+        name: LD2420 Firmware
+    # - - - - - - - - - - - - - - - - - - - - - -  - -  
+  sensor: 
+   #sys
+    - platform: adc  # яркость екрана
+      id: light_value
+      name: svet
+      pin: ${pin_light} #34
+      update_interval: 2s
+      on_value:
+        then:
+          - lambda: |-                
+              static float sv;
+              if(fabsf(sv-id(light_value).state)>0.02){
+                 id(switch_antiburn).turn_off();
+                 sv=id(light_value).state;
+                      if(sv<0.1           ){ id(led_tft).set_level(0.7);}
+                 else if(sv>0.11 && sv<0.2){ id(led_tft).set_level(0.4);}
+                 else if(sv>0.25          ){ id(led_tft).set_level(0.1);}
+              }
+    
+    - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
+      name: "WiFi Signal dB"
+      id: wifi_signal_db
+      entity_category: "diagnostic"
+      update_interval: 30s
+   #ld2420 
+    - platform: ld2420
+      moving_distance:
+        name : Moving Distance
+   #ha
+    - platform: homeassistant
+      id: sn_pv_watt
+      entity_id: "${sn_pv_watt}"  
+    - platform: homeassistant
+      id: sn_pv_kwhx
+      entity_id: "${sn_pv_kwhx}" 
+    - platform: homeassistant
+      id: sn_gr_watt
+      entity_id: "${sn_gr_watt}"  
+    - platform: homeassistant
+      id: sn_gr_kwhx
+      entity_id: "${sn_gr_kwhx}" 
+    - platform: homeassistant
+      id: sn_bt_watt
+      entity_id: "${sn_bt_watt}"  
+    - platform: homeassistant
+      id: sn_bt_kwhx
+      entity_id: "${sn_bt_kwhx}" 
+    - platform: homeassistant
+      id: sn_dm_watt
+      entity_id: "${sn_dm_watt}"  
+    - platform: homeassistant
+      id: sn_dm_kwhx
+      entity_id: "${sn_dm_kwhx}" 
+   #pg2_main
+    - platform: homeassistant
+      id: pg2_main_watt_pv_sn
+      entity_id: "${pg2_main_watt_pv_sn}"  
+    - platform: homeassistant
+      id: pg2_main_watt_gr_sn
+      entity_id: "${pg2_main_watt_gr_sn}" 
+    - platform: homeassistant
+      id: pg2_main_watt_bt_sn
+      entity_id: "${pg2_main_watt_bt_sn}"  
+    - platform: homeassistant
+      id: pg2_main_watt_dm_sn
+      entity_id: "${pg2_main_watt_dm_sn}" 
+      #kwh     
+    - platform: homeassistant
+      id: pg2_main_kwhx_pv_sn
+      entity_id: "${pg2_main_kwhx_pv_sn}"  
+    - platform: homeassistant
+      id: pg2_main_kwhx_gr_sn
+      entity_id: "${pg2_main_kwhx_gr_sn}" 
+    - platform: homeassistant
+      id: pg2_main_kwhx_bt_sn
+      entity_id: "${pg2_main_kwhx_bt_sn}"  
+    - platform: homeassistant
+      id: pg2_main_kwhx_dm_sn
+      entity_id: "${pg2_main_kwhx_dm_sn}"
+
+   #-edit 
+    - platform: homeassistant #dp1
+      id: dp_1
+      entity_id: input_number.dp1
+      internal: true 
+      on_value:
+        then:
+          - lambda: |-                           
+              id(update_dp1).execute();
+    - platform: homeassistant #ax1
+      id: ax_1
+      entity_id: input_number.ax1
+      internal: true 
+      on_value:
+        then:
+          - lambda: |-                           
+              id(update_dp1).execute();
+    - platform: homeassistant #ay1
+      id: ay_1
+      entity_id: input_number.ay1
+      internal: true 
+      on_value:
+        then:
+          - lambda: |-                           
+              id(update_dp1).execute();
+    - platform: homeassistant #dp2
+      id: dp_2
+      entity_id: input_number.dp2    
+      on_value:
+        then:
+          - lambda: |-                
+              id(update_dp1).execute();
+    - platform: homeassistant #ax2
+      id: ax_2
+      entity_id: input_number.ax2    
+      on_value:
+        then:
+          - lambda: |-                
+              id(update_dp1).execute(); 
+    - platform: homeassistant #ay2
+      id: ay_2
+      entity_id: input_number.ay2    
+      on_value:
+        then:
+          - lambda: |-                
+              id(update_dp1).execute(); 
+    - platform: homeassistant #dp3
+      id: dp_3
+      entity_id: input_number.dp3    
+      on_value:
+        then:
+          - lambda: |-                
+              id(update_dp1).execute();
+    - platform: homeassistant #ax3
+      id: ax_3
+      entity_id: input_number.ax3    
+      on_value:
+        then:
+          - lambda: |-                
+              id(update_dp1).execute(); 
+    - platform: homeassistant #ay3
+      id: ay_3
+      entity_id: input_number.ay3    
+      on_value:
+        then:
+          - lambda: |-                
+              id(update_dp1).execute(); 
+    - platform: homeassistant #dp4
+      id: dp_4
+      entity_id: input_number.dp4   
+      on_value:
+        then:
+          - lambda: |-                
+              id(update_dp1).execute();
+    - platform: homeassistant #ax4
+      id: ax_4
+      entity_id: input_number.ax4   
+      on_value:
+        then:
+          - lambda: |-                
+              id(update_dp1).execute(); 
+    - platform: homeassistant #ay4
+      id: ay_4
+      entity_id: input_number.ay4    
+      on_value:
+        then:
+          - lambda: |-                
+              id(update_dp1).execute(); 
+    - platform: homeassistant #dp5
+      id: dp_5
+      entity_id: input_number.dp5  
+      on_value:
+        then:
+          - lambda: |-                
+              id(update_dp1).execute();
+    - platform: homeassistant #ax5
+      id: ax_5
+      entity_id: input_number.ax5  
+      on_value:
+        then:
+          - lambda: |-                
+              id(update_dp1).execute(); 
+    - platform: homeassistant #ay5
+      id: ay_5
+      entity_id: input_number.ay5    
+      on_value:
+        then:
+          - lambda: |-                
+              id(update_dp1).execute(); 
+    - platform: homeassistant #dp6
+      id: dp_6
+      entity_id: input_number.dp6  
+      on_value:
+        then:
+          - lambda: |-                
+              id(update_dp1).execute();
+    - platform: homeassistant #ax6
+      id: ax_6
+      entity_id: input_number.ax6  
+      on_value:
+        then:
+          - lambda: |-                
+              id(update_dp1).execute(); 
+    - platform: homeassistant #ay6
+      id: ay_6
+      entity_id: input_number.ay6    
+      on_value:
+        then:
+          - lambda: |-                
+              id(update_dp1).execute(); 
+    - platform: homeassistant #dp4
+      id: dp_7
+      entity_id: input_number.dp7  
+      on_value:
+        then:
+          - lambda: |-                
+              id(update_dp1).execute();
+    - platform: homeassistant #ax7
+      id: ax_7
+      entity_id: input_number.ax7  
+      on_value:
+        then:
+          - lambda: |-                
+              id(update_dp1).execute(); 
+    - platform: homeassistant #ay7
+      id: ay_7
+      entity_id: input_number.ay7    
+      on_value:
+        then:
+          - lambda: |-                
+              id(update_dp1).execute(); 
+    - platform: homeassistant #dp8
+      id: dp_8
+      entity_id: input_number.dp8  
+      on_value:
+        then:
+          - lambda: |-                
+              id(update_dp1).execute();
+    - platform: homeassistant #ax8
+      id: ax_8
+      entity_id: input_number.ax8   
+      on_value:
+        then:
+          - lambda: |-                
+              id(update_dp1).execute(); 
+    - platform: homeassistant #ay8
+      id: ay_8
+      entity_id: input_number.ay8    
+      on_value:
+        then:
+          - lambda: |-                
+              id(update_dp1).execute();     
+  binary_sensor:
+   #main
+    - platform: homeassistant #  
+      id: pg2_main_gr_sw
+      entity_id: ${pg2_main_gr_sw}    
+    - platform: homeassistant #  
+      id: pg2_main_dm_sw
+      entity_id: ${pg2_main_dm_sw}     
+   
+   #ld2420 
+    - platform: ld2420
+      has_target:
+        name: Presence
+        filters:
+          - delayed_on: 1s 
+   #input_boolean:
+    - platform: homeassistant
+      id: ib_st_wsw4a
+      entity_id: "${ib_st_wsw4a}"
+    - platform: homeassistant
+      id: ib_st_zsw4
+      entity_id: "${ib_st_zsw4}"
+
+ #select number button
+  select:
+   #ld2420    
+    - platform: ld2420
+      operating_mode:
+        name: Operating Mode
+  number:
+   #ld2420
+    - platform: ld2420
+      presence_timeout:
+        name: Detection Presence Timeout
+      min_gate_distance:
+        name: Detection Gate Minimum
+      max_gate_distance:
+        name: Detection Gate Maximum
+      # See "Number" section below for detail
+      gate_select:
+        name: Select Gate to Set
+      still_threshold:
+        name: Set Still Threshold Value
+      move_threshold:
+        name: Set Move Threshold Value
+  button:
+   #ld2420
+    - platform: ld2420
+      apply_config:
+        name: Apply Config
+      factory_reset:
+        name: Factory Reset
+      restart_module:
+        name: Restart Module
+      revert_config:
+        name: Undo Edits 
+  switch:
+    - platform: template
+      name: Antiburn
+      id: switch_antiburn
+      icon: mdi:television-shimmer
+      optimistic: true
+      entity_category: "config"
+      turn_on_action:
+        - logger.log: "Starting Antiburn"
+        - if:
+            condition: lvgl.is_paused
+            then:
+              - lvgl.resume:
+              - lvgl.widget.redraw:
+        - lvgl.pause:
+            show_snow: true
+        - lambda: |-
+              id(led_tft).set_level(0.05);       
+      turn_off_action:
+        - logger.log: "Stopping Antiburn"
+        - if:
+            condition: lvgl.is_paused
+            then:
+              - lvgl.resume:
+              - lvgl.widget.redraw:
+     # - - - - - - - - - - - - -
+ #font img
+  font:
+   #pg2_main
+    - file: "fonts/materialdesignicons-webfont.ttf"                      # pg2_main_font_icon    size: pg2_main_font_icon_sz      
+      id: pg2_main_font_icon      
+      bpp: 4
+      size: ${pg2_main_font_icon_sz}
+      glyphs: [  
+                "${icn_solar_panl}",
+                "${icn_grid}",      
+                "${icn_batarey}",      
+                "${icn_dom}", 
+              ] 
+     # - - - - - - - - -  
+    - file: "fonts/Roboto_Condensed/static/RobotoCondensed-Medium.ttf"   # pg2_main_font_watt    size: pg2_main_font_watt_sz   
+      id: pg2_main_font_watt        
+      bpp: 4
+      size: ${pg2_main_font_watt_sz} 
+      glyphs: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "-", ".", "x", "X"]
+     # - - - - - - - - - - - - - - - - - - - - - - - - - -  - -
+    - file: "fonts/Bebas_Neue/BebasNeue-Regular.ttf"                     # pg2_main_font_kwhh    size:  pg2_main_font_kwhh_sz
+      id: pg2_main_font_kwhh              
+      bpp: 4
+      size: ${pg2_main_font_kwhh_sz} 
+      glyphs: ["0","1","2","3","4","5","6","7","8","9","-","."]
+     # - - - - - - - - - - - - - - - - - - - - - - - - - -  - -
+    - file: "fonts/Bebas_Neue/BebasNeue-Regular.ttf"                     # pg2_main_font_kwhl    size:  pg2_main_font_kwhl_sz
+      id: pg2_main_font_kwhl              
+      bpp: 4
+      size: ${pg2_main_font_kwhl_sz} 
+      glyphs: ["0","1","2","3","4","5","6","7","8","9","-","."]
+     # - - - - - - - - - - - - - - - - - - - - - - - - - -  - -
+
+
+
+    - file: "fonts/materialdesignicons-webfont.ttf"  # icon_28 
+      id: icon_28      
+      bpp: 4
+      size: 28
+      glyphs: [  
+              "${wall_sconce_flat}",
+              "${chandelier}", #      
+              "${i_wifi_on}",
+              "${i_wifi_off}",
+              "${lightbulb}",
+              "${lightbulb_on}",
+              "${motion_sensor}"
+              ] 
+    # - - - - - - - - -
+ # end #      

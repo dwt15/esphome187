@@ -1,0 +1,307 @@
+substitutions:
+  # icon
+    numer_1 :   "\U000F0B3A"  # mdi-numeric-1 Бойлер 1 
+    numer_2 :   "\U000F0B3B"  # mdi-numeric-2  Бойлер 2 
+    num_box1:   "\U000F03A6"  # mdi-numeric-1-box-outline  Бойлер 1    
+    num_box2:   "\U000F03A9"  # mdi-numeric-2-box-outline  Бойлер 2    
+    fan:        "\U000F0AD5"  # mdi-pinwheel  охлаждение DEYE 
+    fan_1:      "\U000F1472"  # mdi-fan-speed-1  Моторчик 1
+    fan_2:      "\U000F1473"  # mdi-fan-speed-2  Моторчик 2
+    fire:       "\U000F0238"  # mdi-fire
+    car:        "\U000F07A9"  # mdi-car-hatchback          ГАРАЖ
+    download:   "\U000F01DA"  # mdi-download               ПОГРЕБ2 
+    home_f2:    "\U000F0D81"  # mdi-home-floor-2           ВХОД 2
+    coach_lamp: "\U000F1020"  # mdi-coach-lamp             Сарай улица 
+    icn_solar_panl: "\U000F0D9B"  # mdi-solar-panel
+    icn_grid :      "\U000F192C"  # mdi-transmission-tower-export 
+    icn_batarey:    "\U000F010C"  # mdi-car-battery
+    icn_dom:        "\U000F1904"  # mdi-home-lightning-bolt-outlineF1904
+
+# Define a PWM output on the ESP32
+ 
+globals:
+ 
+  - id: display_yrkost #
+    type: int
+    initial_value: '60' 
+    restore_value: yes
+
+
+time:
+  - platform: sntp
+    id: my_time
+    timezone: "Europe/Kyiv"
+    servers:
+      - 0.pool.ntp.org
+      - 1.pool.ntp.org
+      - 2.pool.ntp.org
+    update_interval: 3600s
+#time:
+#  - platform: sntp # <my_time>         [obj_timed]: {time_t1}, {time_t2}, {time_t3}, {time_td}, {time_tm}
+#    id: my_time
+    on_time:
+      - seconds: /1  # каждую секунду
+        then:
+          - lambda: |-
+             //
+               auto now = id(my_time).now();
+               if (!now.is_valid()) return;
+
+               static int last_sec = -1;
+               static int last_min = -1;
+               static int last_hour = -1;
+               static int last_day = -1;
+               static int last_month = -1;
+               static int last_wday = -1;    
+               int sec = now.second;
+               int min = now.minute;
+               int hour = now.hour;
+               int day = now.day_of_month;
+               int month = now.month;
+               int wday = now.day_of_week;  // 0 = воскресенье, 1 = понедельник ...
+               char buf[20];
+             // СЕКУНДЫ   {time_t3}
+               if (sec != last_sec) {
+                 last_sec = sec;
+                 snprintf(buf, sizeof(buf), "%02d", sec);
+                 lv_label_set_text(id(time_t3), buf);
+               }
+             // МИНУТЫ + ЧАСЫ
+               if (min != last_min) {
+                 last_min = min;
+                 snprintf(buf, sizeof(buf), "%2d:%02d", hour,  min);
+                 lv_label_set_text(id(time_t2), buf);
+               }
+             // ЧАСЫ
+               //if (hour != last_hour) {
+               //  last_hour = hour;
+               //  snprintf(buf, sizeof(buf), "%02d", hour);
+               //  lv_label_set_text(id(time_t3), buf);
+               //}
+             // день недели
+               if (wday != last_wday) {
+                 last_wday = wday;
+                 const char* wday_names[] = {"ВС","ПН","ВТ","СР","ЧТ","ПТ","СБ"}; // массив наименований день недели{
+                 lv_label_set_text(id(time_t1), wday_names[wday-1]);                      
+                 lv_color_t colort = lv_color_make(0,200,0);  // цвет нормальный
+                 if (wday == 1 or wday == 7 ) {colort = lv_color_make(255,150,0);}  // воскресенье суббота
+                 lv_obj_set_style_text_color(id(time_t1), colort, LV_PART_MAIN); // цвет дня недели
+                 colort = lv_color_make(0,200,0);  // цвет нормальный
+                 if (wday == 1) {colort = lv_color_make(255,150,0);}  // воскресенье
+                 lv_obj_set_style_text_color(id(time_td), colort, LV_PART_MAIN); // цвет даты  
+               }
+             // день месяца
+               if (day != last_day) {
+                 last_day = day;
+                 snprintf(buf, sizeof(buf), "%2d", day);
+                 lv_label_set_text(id(time_td), buf);
+               }
+             // месяц
+               if (month != last_month) {
+                 last_month = month;
+                 snprintf(buf, sizeof(buf), "%02d",  month); 
+                 lv_label_set_text(id(time_tm),  buf  );
+               }   
+
+font: 
+ #- icon 
+  - file: "fonts/materialdesignicons-webfont.ttf"  # icon_25  
+    id: icon_30      
+    size: 30
+    glyphs: [
+          #"\U000F02D1",    # mdi-heart
+          #"\U000F05D4",    # mdi-airplane-landing
+          "${icn_solar_panl}", # "\U000F0D9B"  # mdi-solar-panel
+          "${icn_grid}",       # "\U000F192C"  # mdi-transmission-tower-export
+          "${icn_batarey}",    # "\U000F010C"  # mdi-car-battery
+          "${icn_dom}",        # "\U000F1904"  # mdi-home-lightning-bolt-outline
+          #"\U000F0241",    # mdi-flash          
+          #"\U000F050F",    # mdi-termometr
+          #"\U000F058E",    # mdi-water-percent
+          ]
+  - file: "fonts/materialdesignicons-webfont.ttf"  # icon_40  
+    id: icon_40      
+    size: 40
+    glyphs: [
+         # "\U000F02D1",    # mdi-heart
+         # "\U000F05D4",    # mdi-airplane-landing
+         # "\U000F0D9B",    # mdi-solar-panel                "pv"
+         # "\U000F192C",    # mdi-transmission-tower-export "grid"
+         # "\U000F010C",    # mdi-car-battery               "bat"
+         # "\U000F0241",    # mdi-flash                     "dom"  
+         # "\U000F050F",    # mdi-termometr
+           "\U000F058E",    # mdi-water-percent
+           "\U000F0E0A",    # mdi-water-outline 
+           "${icn_solar_panl}", # "\U000F0D9B" mdi-solar-panel
+           "${icn_grid}",       # "\U000F192C" mdi-transmission-tower-export
+           "${icn_batarey}",    # "\U000F010C"  # mdi-car-battery           
+           "${icn_dom}",        # "\U000F1904"  # mdi-home-lightning-bolt-outline
+          ]
+  - file: "fonts/materialdesignicons-webfont.ttf"  # icon_50 
+    id: icon_50      
+    size: 50
+    glyphs: [
+         # "\U000F02D1", # mdi-heart
+         # "\U000F05D4", # mdi-airplane-landing
+         # "\U000F0D9B", # mdi-solar-panel
+         # "\U000F192C", # mdi-transmission-tower-export
+         # "\U000F010C", # mdi-car-battery
+         # "\U000F0241", # mdi-flash          
+          "\U000F050F", # mdi-termometr
+          "\U000F10C3", # mdi-thermometer-low 
+          #"\U000F058E", # mdi-water-percent
+          "\U000F0F64",  # mdi-moon-new
+          "\U000F0F67",  # mdi-moon-waxing-crescent
+          "\U000F0F61",  # mdi-moon-first-quarter
+          "\U000F0F68",  # mdi-moon-waxing-gibbous
+          "\U000F0F62",  # mdi-moon-full
+          "\U000F0F66",  # mdi-waning_gibbous          
+          "\U000F0F63",  # mdi-ast_quarter
+          "\U000F0F65",  # mdi-waning_crescent
+          "${icn_dom}",        # "\U000F1904"  # mdi-home-lightning-bolt-outline
+          ] 
+  - file: "fonts/materialdesignicons-webfont.ttf"  # icon_65
+    id: icon_65      
+    size: 20
+    glyphs: [
+          "${fire}", # mdi-fire                   КОТЕЛ
+          "${car}", # mdi-car-hatchback          ГАРАЖ
+          "${fan_1}", # mdi-fan-speed-1            Моторчик 1 
+          "${fan_2}", # mdi-fan-speed-2            Моторчик 2
+          "${num_box1}", # mdi-numeric-1-box-outline  Бойлер 1
+          "${num_box2}", # mdi-numeric-2-box-outline  Бойлер 2
+          "${home_f2}", # mdi-home-floor-2           ВХОД 2
+          "${download}", # mdi-download               ПОГРЕБ2          
+          "${coach_lamp}", # mdi-coach-lamp             Сарай улица   
+          "${numer_1}", # mdi-numeric-1
+          "${numer_2}", # mdi-numeric-2
+          "${fan}", # mdi-pinwheel               охлаждение DEYE
+          "${icn_solar_panl}"  # mdi-solar-panel
+          ]  
+ #- font
+  - file: "gfonts://Roboto"         # s:30
+    id: roboto_24
+    size: 24 
+    glyphs: [" ",".","-","=",":","°","+","(",")",
+             "0","1","2","3","4","5","6","7","8","9",
+             Б,П,К,М,Н,В,Т,С,Р,Ч,
+             а,б,в,г,д,е,ж,з,и,к,л,м,п,н,о,т,с,р,у,ф,х,ч,ш,щ,ь,я,
+             a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,q,t,u,v,w,x,y,z,
+             A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z]  
+  - file: "gfonts://Oswald@400"     # s:25  "gfonts://Bebas Neue@40Oswald@500" #"gfonts://Rubik@400" # "gfonts://Rubik@400" #  "gfonts://Oswald@600" #  
+    id: Oswald400_25 
+    size: 25  
+    glyphs: [" ",".","-",":","/","=",",","°","%",
+             "0","1","2","3","4","5","6","7","8","9",
+             Б,П,К,М,Н,В,Т,С,Р,Ч,
+             а,б,в,г,д,е,ж,з,и,к,л,м,п,н,о,т,с,р,у,ф,х,ч,ш,щ,ь,я,
+             a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,q,t,u,v,w,x,y,z,             
+           
+             A,B,C,D,E,H,I,N,V,W,Y]
+    #---------------------------------------------------------
+  - file: "gfonts://Roboto"         # s:30
+    id: roboto_30
+    size: 30 
+    glyphs: [" ",".","-","=",":","°","+","(",")","_","!",
+             "0","1","2","3","4","5","6","7","8","9",
+             Б,Д,П,К,М,Н,В,Т,О,С,Р,Ч,
+             а,б,в,г,д,е,ж,з,и,к,л,м,п,н,о,т,с,р,у,ф,х,ч,ц,ш,щ,ь,я,
+             a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,q,t,u,v,w,x,y,z,
+             A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z]
+  - file: "gfonts://Roboto"         # s:35
+    id: roboto_35
+    size: 35 
+    glyphs: [" ",".","-","=","!","(",")",
+             "0","1","2","3","4","5","6","7","8","9",
+             А,Б,В,П,Н,Т,С,Р,Ч,
+             а,б,в,е,и,п,н,т,с,р,ч,ш,ь,я,
+             a,b,c,d,e,f,g,i,j,k,l,m,n,o,p,r,s,t,u,v,w,x,y,z,
+             A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z]
+    #--------------------------------------------
+  - file: "gfonts://Reddit Mono"    # s:38
+    id: redmono_38      # my_font1a9
+    size: 38 
+    glyphs: [" ",".","-","°",":",
+             "0","1","2","3","4","5","6","7","8","9",
+             A,C,D,K,
+             a,h,n,o,w]
+    #--------------------------------------------
+  - file: "gfonts://Oswald@400"     # s:40    "gfonts://Bebas Neue@40Oswald@500" #"gfonts://Rubik@400" # "gfonts://Rubik@400" #  "gfonts://Oswald@600" #  
+    id: Oswald400_40 
+    size: 40  
+    glyphs: [" ",".","-",":","/","°","%",
+             "0","1","2","3","4","5","6","7","8","9",
+             a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,t,u,v,w,x,y,z,
+             A,C,V,W]
+    #--------------------------------------------
+  - file: "gfonts://Bebas Neue@400" # s:40    
+    id: bebasneue400_45   # s:40            
+    size: 45
+    glyphs: [" ",":",".","-","°",
+             "0","1","2","3","4","5","6","7","8","9",
+             x,
+             A,V,W]
+    #----------------------------------------- 
+  - file: "gfonts://Bebas Neue@400" # s:55    
+    id: bebasneue400_55             
+    size: 25
+    glyphs: [" ",":",".","-","=","°",
+             "0","1","2","3","4","5","6","7","8","9",
+             a,n,o,v,x,
+             A,I,P,U,V,W]
+    #----------------------------------------- 
+  - file: "gfonts://Roboto@500"     # s:65    #"gfonts://Oswald@500" #"gfonts://Rubik@400" # "gfonts://Rubik@400" #  "gfonts://Oswald@600" #  
+    id: roboto500_65        
+    size: 25  
+    glyphs: [" ",".","-","°","!",
+             "0","1","2","3","4","5","6","7","8","9",
+             c,C,
+             a,n,o,x,
+             б,п,н,в,т,с,р,ч]
+    #----------------------------------------- 
+  - file: "gfonts://Oswald@400"     # s:60    #"gfonts://Bebas Neue@40Oswald@500" #"gfonts://Rubik@400" # "gfonts://Rubik@400" #  "gfonts://Oswald@600" #  
+    id: Oswald400_60              
+    size: 20  
+    glyphs: [" ",".","-",":","/","°",
+             "0","1","2","3","4","5","6","7","8","9",
+              c,C,x,
+              В,П,С,Ч,
+              б,н,т,р,с]
+    #--------------------------------------------
+  - file: "gfonts://Oswald@400"     # s:70    #"gfonts://Bebas Neue@40Oswald@500" #"gfonts://Rubik@400" # "gfonts://Rubik@400" #  "gfonts://Oswald@600" #  
+    id: Oswald400_70 
+    size: 20  
+    glyphs: [" ",".","-",":","/","°",
+             "0","1","2","3","4","5","6","7","8","9",
+              c,C,
+              В,П,С,Ч,
+              б,н,т,р,с]
+    #--------------------------------------------
+  - file: "gfonts://Roboto@500"     # s:80    #"gfonts://Oswald@500" #"gfonts://Rubik@400" # "gfonts://Rubik@400" #  "gfonts://Oswald@600" #  
+    id: roboto500_80        
+    size: 20  
+    glyphs: [" ",".","-","°",
+             "0","1","2","3","4","5","6","7","8","9",
+             c,C,x,
+             a,n,o,
+             б,п,н,в,т,с,р,ч]
+    #--------------------------------------------
+  - file: "gfonts://Oswald@400"     # s:90      #"gfonts://Bebas Neue@40Oswald@500" #"gfonts://Rubik@400" # "gfonts://Rubik@400" #  "gfonts://Oswald@600" #  
+    id: Oswald400_90 
+    size: 20  
+    glyphs: [" ",".","-",":","/",
+             "0","1","2","3","4","5","6","7","8","9",
+              x,
+              В,П,С,Ч,
+              б,н,т,р,с]
+    #------------------------------------------
+  - file: "gfonts://Oswald@400"     # s:120   #"gfonts://swald@500"Oswald@400 #"gfonts://Rubik@400" # "gfonts://Rubik@400" #  "gfonts://Oswald@600" #  
+    id: Oswald400_120 
+    size: 20 
+    glyphs: [" ",".","-",":","/",
+            "0","1","2","3","4","5","6","7","8","9",
+             x,
+             В,П,С,Ч,
+             в,б,н,п,т,р,с,ч]
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~     

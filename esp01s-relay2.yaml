@@ -1,0 +1,37 @@
+esphome:
+  name: esp01s-relay2
+  friendly_name: esp01s-relay2
+
+esp8266:
+  board: esp01_1m
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "dKYFintCG1+WIDcExTF6ZocPCqR81jX40PVbWf3YwdY="
+
+ota:
+  - platform: esphome
+    password: "9fc562cfd47f91c9f865e6851eda3a64"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esp01S-Relay2 Fallback Hotspot"
+    password: "4mdn1zJSbk6Y"
+
+captive_portal:
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+
+    
+switch:
+  - platform: gpio
+    pin: 0
+    name: "Relay"
+    id: relay_switch     

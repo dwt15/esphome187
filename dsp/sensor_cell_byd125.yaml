@@ -1,0 +1,82 @@
+sensor:
+ # cell byd125
+  - platform: homeassistant
+    id: byd125_1 
+    entity_id: sensor.byd125_cell_voltage_1
+    name: "byd125_1"
+    internal: true
+  - platform: homeassistant
+    id: byd125_2
+    entity_id: sensor.byd125_cell_voltage_2
+    name: "byd125_2"
+    internal: true
+  - platform: homeassistant
+    id: byd125_3
+    entity_id: sensor.byd125_cell_voltage_3
+    name: "byd125_3"
+    internal: true
+  - platform: homeassistant
+    id: byd125_4
+    entity_id: sensor.byd125_cell_voltage_4
+    name: "byd125_4"
+    internal: true
+  - platform: homeassistant
+    id: byd125_5
+    entity_id: sensor.byd125_cell_voltage_5
+    name: "byd125_5"
+    internal: true
+  - platform: homeassistant
+    id: byd125_6
+    entity_id: sensor.byd125_cell_voltage_6
+    name: "byd125_6"
+    internal: true
+  - platform: homeassistant
+    id: byd125_7
+    entity_id: sensor.byd125_cell_voltage_7
+    name: "byd125_7"
+    internal: true
+  - platform: homeassistant
+    id: byd125_8
+    entity_id: sensor.byd125_cell_voltage_8
+    name: "byd125_8"
+    internal: true
+  - platform: homeassistant
+    id: byd125_9
+    entity_id: sensor.byd125_cell_voltage_9
+    name: "byd125_9"
+    internal: true
+  - platform: homeassistant
+    id: byd125_10
+    entity_id: sensor.byd125_cell_voltage_10
+    name: "byd125_10"
+    internal: true
+  - platform: homeassistant
+    id: byd125_11
+    entity_id: sensor.byd125_cell_voltage_11
+    name: "byd125_11"
+    internal: true
+  - platform: homeassistant
+    id: byd125_12
+    entity_id: sensor.byd125_cell_voltage_12
+    name: "byd125_12"
+    internal: true
+  - platform: homeassistant
+    id: byd125_13
+    entity_id: sensor.byd125_cell_voltage_13
+    name: "byd125_13"
+    internal: true
+  - platform: homeassistant
+    id: byd125_14
+    entity_id: sensor.byd125_cell_voltage_14
+    name: "byd125_14"
+    internal: true
+  - platform: homeassistant
+    id: byd125_15
+    entity_id: sensor.byd125_cell_voltage_15
+    name: "byd125_15"
+    internal: true
+  - platform: homeassistant
+    id: byd125_16
+    entity_id: sensor.byd125_cell_voltage_16
+    name: "byd125_16"
+    internal: true

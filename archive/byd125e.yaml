@@ -1,0 +1,3033 @@
+substitutions:
+  name: byd125e
+  device_description: "Monitor JK-BMS 480x320"  
+  external_components_source: github://syssi/esphome-jk-bms@main
+  tx_pin: GPIO3    #   бмс желтый -> displ tx черный
+  rx_pin: GPIO1    #   бмс черный -> displ rx желтый  
+
+ # icon
+  i_wifi_on:  "\U000F05A9"  # mdi-wi-fi
+  i_wifi_off: "\U000F05AA"  # mdi-wi-fi-off  
+ # pos
+  x1_4:  "0"
+  x5_8:  "110"
+  x9_12: "235"
+  x13_16: "365" 
+  y1_13:  "160"
+  y2_14:  "195"  
+  y3_15:  "230"
+  y4_16:  "265"
+
+  x1_8:  "235"
+  x9_16: "365"
+  y1_9:  "5"
+
+ # cell voltage  
+  wi_n:  "34"  # ширина поля для номера яч
+  he_n:  "30"  # вісота поля для номера яч
+  ps_x1: "0"   # Х позиция первого елемента
+  ps_y1: "330" # У позиция первого елемента
+  ps_xn: "5"   # позиция х номера внутри объекта  28: 3
+  ps_yn: "1"  # позиция у номера внутри объекта  28:-1  
+  dx_n:  "5"   # отсуп показания от номера
+  dx_cv: "90"  # Х растояние между значекниями по х
+  dy_cv: "10"  # У растояние между значекниями 
+ # bar v
+  dx_brv:  "5"   # растояние между столбами
+  max_brv: "100" # макс значение
+  min_brv: "0"   # мин  значение
+  he_brv:  "100" # высота
+  wi_brv:  "25"  # ширина wi_brv=30-dx_brv
+  px_brv:  "0"   # х поз 
+  py_brv:  "200" # у поз
+  ln_brv:  "250" # у поз для линии =py_brv+50
+
+ # jk bms info
+  
+  jk_bms_t1:  "name"                     # id: manufacturer
+  jk_bms_t2:  "Password"                 # id: password
+  jk_bms_t3:  "Total Time(h)"            # id: total_runtime
+  jk_bms_t4:  "Total Time(d)"            # id: total_runtime_formatted 
+  jk_bms_t5:  "Cycle Count"              # id: charging_cycles
+  jk_bms_t6:  "Cycle Capacity(Ah)"       # id: total_charging_cycle_capacity 
+  jk_bms_t7:  "Battery_type"             # id: battery_type  
+  jk_bms_t8:  "Balance Trig Volt(V)"     # id: balance_opening_pressure_difference 
+  jk_bms_t9:  "Start Balance Volt(V)"    # id: balance_starting_voltage 
+  jk_bms_t10: "Cell OVP(V)"              # id: cell_voltage_overvoltage_protection      *напряжение отключения Power OFF(V)
+  jk_bms_t11: "Cell VPR(V)"              # id: cell_voltage_overvoltage_recover
+  jk_bms_t12: "Cell UVPR(V)"             # id: cell_voltage_undervoltage_protection
+  jk_bms_t13: "Cell UVP(V)"              # id: cell_voltage_undervoltage_recovery
+  jk_bms_t14: "Charge Curr(A)"           # id: charging_overcurrent_protection
+  jk_bms_t15: "DisCharge Curr(A)"        # id: discharging_overcurrent_protection
+  jk_bms_t1a: "wi-fi (db)"                # id: wifi_signal_db
+  jk_bms_t2a: "ip_adress"                # id: ip_adress
+  jk_bms_t3a: "ssid"                     # id: connected_ssid
+  jk_bms_t4a: "pass" #
+  jk_bms_t5a: "bsid" #
+  jk_bms_t6a: "host name" #
+
+esphome:
+  name: byd125e
+  friendly_name: byd125e
+   
+  comment: ${device_description}  
+  on_boot:
+    priority: 600
+    then:     
+      - output.turn_on: led_sv
+      - output.turn_on: gpio_17
+      - output.turn_on: gpio_16
+      - output.turn_on: gpio_4
+      - lambda: |-
+            id(led_sv).set_level(0.3);
+
+
+esp32:
+  board: esp32dev
+  flash_size: 4MB
+  framework:
+    type: arduino
+    
+
+
+   
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "WuHSLDc9dpyY/u3/fPJMYxkKpkCW0kyapPHcgUFKpXc="
+
+ota:
+  - platform: esphome
+    password: "c7749aa91d1c5916b8177f8f43412345"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Vc Fallback Hotspot"
+    password: "OtPPRwxtO8Fl"
+
+captive_portal:
+
+external_components:
+  - source: ${external_components_source}
+    refresh: 0s
+
+
+output:
+  - platform: ledc
+    pin: 27
+    id: led_sv 
+  - platform: ledc
+    pin: 17
+    id: gpio_17 # blue
+  - platform: ledc
+    pin: 16
+    id: gpio_16 # green       
+  - platform: ledc
+    pin: 4 
+    id: gpio_4 # red
+
+
+spi:
+  clk_pin: 14
+  mosi_pin: 13 # output data мастер выдает помошник принимает
+  miso_pin: 12 # input data мастер  принимает помошник выдает
+#--------------
+touchscreen:
+  platform: xpt2046
+  id: my_touch
+  cs_pin: 33
+  calibration:
+    x_min: 200
+    x_max: 3830
+    y_min: 170
+    y_max: 3680
+  transform:
+    swap_xy: true #  для 2,8 красного true
+    mirror_x: false # для 2,8 красного false
+    mirror_y: true
+  on_touch:
+       - lambda: |-
+           ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
+              touch.x,
+               touch.y,
+              touch.x_raw,
+              touch.y_raw
+             );   
+#--------------- 
+display:
+  - platform: ili9xxx
+    model: ST7796   #ILI9341 #TFT 2.4
+    id: my_display1     
+    color_palette: 8BIT
+    invert_colors: false
+    cs_pin: 15  
+    dc_pin: 2   
+    #data_rate: 1MHz  # Установка частоты SPI на 40 МГц 
+   # reset_pin: -1
+    #    rotation: 270°
+    transform:      
+      mirror_x: true
+      mirror_y: true
+      swap_xy: true
+    dimensions: 480x320
+    #  height: 230 # 284 230 320
+    #  width: 480 #  388 480 345 
+    update_interval: 5s 
+
+ 
+
+
+#------------------
+lvgl:
+  touchscreens:
+    - my_touch
+  displays:
+    - my_display1
+  buffer_size: 25%
+  bg_color: 0x200000
+  text_color: 0x00f000  
+  style_definitions:
+
+
+
+   # Volt, Amper , Ah 
+    - id: style_lab_va  #   "V", "A", "Ah"
+      text_font: RobotoCondensed_Regular_28 # 
+      text_color: 0xb0b0f0    
+    - id: style_val_va # значения "Volt", "curr", "Ah"
+      text_font: BebasNeue_Regular_55 # 
+      text_color: 0x00f000    
+      text_letter_space: 4
+   # cell
+    - id: style_cell_voltage
+      text_font: RobotoCondensed_Regular_28 # 
+      text_color: 0x00f000 
+    - id: style_cell_voltage_num
+      text_font: RobotoCondensed_Regular_24 # 
+      text_color: 0xb0b060       
+    - id: style_cell_voltage_num_obj
+      width:  "${wi_n}"
+      height: "${he_n}" 
+      radius: 10
+      bg_color: 0x204080
+      border_color: 0x000000
+      border_width: 0
+      outline_width: 0
+      shadow_width: 0
+      pad_all: 0                 
+   # bar 
+    - id: style_bar   
+      width:  "${wi_brv}"   # 20
+      height: "${he_brv}"  # 150
+      radius: 0
+      bg_color: 0x00ffff
+      bg_opa: 50%
+    - id: style_bar_i
+      radius: 0  
+      bg_color: 0x00FF00          # цвет залитой части (индикатора)
+    - id: style_bar_a   
+      width: 1000
+      height: 20
+      radius: 0
+      bg_color: 0x00ffff
+      bg_opa: 50%  
+   # serv
+    - id: style_serv1
+      text_font: RobotoCondensed_Regular_24 # 
+      text_color: 0xb0b060     
+    - id: style_serv2
+      text_font: RobotoCondensed_Regular_24 # 
+      text_color: 0x00f000 
+  pages:
+    - id: main_page
+      scrollbar_mode: "ACTIVE"  # показывать полосу прокрутки при прокрутке 
+      scrollable: 'true'        # можно прокручивать страницу
+      widgets:
+       
+       # obj V, A, Ah% ,bat_Ah
+        - obj: # V          id: total_voltage                 
+            id: obj_total_v
+            x: 0
+            y: 30
+            height: 50
+            width: 170
+            scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+            scrollable: "false" #'true'       #'false' 
+            bg_color: 0x000000
+            outline_color: 0x000000
+            outline_width: 2
+            border_width: 0          
+            border_color: 0x000000             
+            widgets:
+            - label:
+                x: -3
+                y: -15
+                text_font: BebasNeue_Regular_45 # 
+                text_color: 0xb0b060   
+                text: "V"
+            - label: # total_voltage
+                id: total_voltage_lab
+                x: 0
+                y: -20
+                align: TOP_RIGHT
+                text_font: BebasNeue_Regular_55 # 
+                text_color: 0x00f000   
+                text_letter_space: 5
+                text: "--.--"                
+        - obj: # A          id: current                       
+            id: obj_total_a
+            x: 0
+            y: 82
+            scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+            scrollable: "false" #'true'       #'false'             
+            height: 50
+            width: 170
+            bg_color: 0x000000
+            outline_color: 0x000000
+            outline_width: 0
+            border_width: 0          
+            border_color: 0x000000             
+            widgets:
+            - label:
+                x: -3
+                y: -15
+                text_font: BebasNeue_Regular_45 # 
+                text_color: 0xb0b060   
+                text: "A"
+            - label:
+                id: current_lab
+                x: 0
+                y: -20
+                align: TOP_RIGHT
+                text_font: BebasNeue_Regular_55 # 
+                text_color: 0x00f000   
+                text_letter_space: 5
+                text: "--.--"
+        - obj: # Ah_pr %    id: capacity_remaining            
+            id: obj_bat_ah_pr
+            x: 290
+            y: 30
+            scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+            scrollable: "false" #'true'       #'false'             
+            height: 50
+            width: 185
+            bg_color: 0x00000
+            outline_color: 0x000000
+            outline_width: 0
+            border_width: 0          
+            border_color: 0x000000             
+            widgets:
+            - label: # Ah_pr -capacity_remaining
+                id: capacity_remaining_lab
+                align: TOP_RIGHT 
+                x: -50
+                y: -20  
+                text_font: BebasNeue_Regular_55 # 
+                text_color: 0x00f000   
+                text_letter_space: 5
+                text: "--"       
+            - label: # "%" -
+                align_to:
+                  id: capacity_remaining_lab
+                  align: OUT_RIGHT_TOP
+                  x: 15
+                  y: 10
+                text_font: RobotoCondensed_Regular_40 #BebasNeue_Regular_45 # 
+                text_color: 0xb0b060   
+                text: "%"        
+        - obj: # bat_Ah     id: capacity_remaining_derive     
+            id: obj_bat_ah
+            x: 290
+            y: 82
+            scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+            scrollable: "false" #'true'       #'false'             
+            height: 50
+            width: 185
+            bg_color: 0x000000
+            outline_color: 0x000000
+            outline_width: 0
+            border_width: 0          
+            border_color: 0x000000             
+            widgets:
+            - label: # Ah -capacity_remaining_derived
+                id: capacity_remaining_derived_lab
+                align: TOP_RIGHT  # выравние 
+                x: -50
+                y: -20                
+                text_font: BebasNeue_Regular_55 # 
+                text_color: 0x00f000   
+                text_letter_space: 5
+                text: "--"             
+            - label: # "Ah" -
+                align_to:
+                  id: capacity_remaining_derived_lab
+                  align: OUT_RIGHT_TOP
+                  x: 15
+                  y: 10
+                text_font: RobotoCondensed_Regular_40 #BebasNeue_Regular_45 # 
+                text_color: 0xb0b060   
+                text: "Ah"
+      
+       
+       # obj servise
+        - obj:
+           # setup 
+            x: 0
+            y: 0
+            height: 25
+            width: 480
+            bg_color: 0x000000
+            outline_color: 0x808000
+            outline_width: 0
+            border_width: 0          
+            border_color: 0x000000             
+            scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+            scrollable: "false" #'true'       #'false'            
+            widgets:
+          # serv     
+            - label: # name jk_bms    manufacturer_lab
+                id: wifi_status
+                x: -10
+                y: -15
+                text_color: 0xe08040
+                text_font: icon_28
+                text: "${i_wifi_off}"             
+            - label: # name jk_bms    manufacturer_lab
+                id: manufacturer_lab
+                x: 20
+                y: -15
+                styles: style_serv1
+                #text_font: RobotoCondensed_Regular_24
+                text: "- - - - - "            
+            - label: # bat type       battery_type_lab  
+                id: battery_type_lab
+                x: 185
+                y: -15
+                styles: style_serv2
+                #text_font: RobotoCondensed_Regular_24
+                #text_color: 0x00f000
+                text: "- - - "
+            - label: # battery_set    battery_strings_lab    значение кол-во ячеек 
+                id: battery_strings_lab
+                align: TOP_RIGHT
+                x: -170
+                y: -15
+                styles: style_serv2
+                #text_font: RobotoCondensed_Regular_24
+                #text_color: 0x00f000
+                text: "-"
+            - label: # "S"          
+                align_to:
+                  id: battery_strings_lab
+                  align: OUT_RIGHT_TOP 
+                  x: 3
+                  y: 0
+                styles: style_serv1 #style_cell_voltage_num
+                #text_font: RobotoCondensed_Regular_24
+                text: "S"             
+            - label: # max_cur -      discharging_overcurrent_protection_lab   макси ток при разрядке
+                id: discharging_overcurrent_protection_lab
+                align: TOP_RIGHT
+                x: -100
+                y: -15
+                styles: style_serv2 #style_cell_voltage_num
+                #text_font: RobotoCondensed_Regular_24
+                #text_color: 0x00f000
+                text: "--" 
+            - label: # "A"          
+                align_to:
+                  id: discharging_overcurrent_protection_lab
+                  align: OUT_RIGHT_TOP 
+                  x: 3
+                  y: 0
+                styles: style_serv1 # style_cell_voltage_num
+                #text_font: RobotoCondensed_Regular_24                
+                text: "A" 
+            - label: # значение Ач    total_battery_capacity_setting_lab  текущее значение Ач
+                id: total_battery_capacity_setting_lab
+                align: TOP_RIGHT
+                x: -35
+                y: -15
+                styles: style_serv2 #style_cell_voltage_num
+                #text_font: RobotoCondensed_Regular_24
+                #text_color: 0x00f000
+                text: "--" 
+            - label: # "Ah"            
+                align_to:
+                  id: total_battery_capacity_setting_lab
+                  align: OUT_RIGHT_TOP 
+                  x: 3
+                  y: 0
+                styles: style_serv1 #style_cell_voltage_num
+                #text_font: RobotoCondensed_Regular_24                
+                text: "Ah" 
+       # temperature  
+        - label: # "bat T1:"
+            id: bat_t1_lab
+            x: 0
+            y: 135
+            styles: style_cell_voltage_num #style_lab_va 
+            text: "batT1:      °C"
+        - label: # "bat T2:"
+            id: bat_t2_lab
+            x: 160
+            y: 135
+            styles: style_cell_voltage_num #style_lab_va 
+            text: "batT2:      °C"        
+        - label: # "mos T:"
+            id: mos_t_lab
+            x: 320
+            y: 135
+            styles: style_cell_voltage_num #style_lab_va 
+            text: "mosT:      °C"         
+        - label: # bat t1
+            id: bat_t1
+            align_to:  
+              id: bat_t1_lab
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: -3          
+              x: -53
+            styles: style_cell_voltage          
+            text: "--"
+        - label: # bat t2
+            id: bat_t2
+            align_to:  
+              id: bat_t2_lab
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: -3          
+              x: -53
+            styles: style_cell_voltage          
+            text: "--"
+        - label: # mos t
+            id: mos_t
+            align_to:  
+              id: mos_t_lab
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: -3          
+              x: -53
+            styles: style_cell_voltage           
+            text: "--"
+       # Vmax,Vmin,dV 
+        - label:  # "maxV:"    max_cell_voltage_name   
+            id: max_cell_voltage_name            
+            x: 0
+            y: 165
+            styles: style_cell_voltage_num #style_lab_va 
+            text: "maxV:"
+        - label:  # "minV:"    min_cell_voltage_name
+            id: min_cell_voltage_name
+            x: 160
+            y: 165
+            styles: style_cell_voltage_num #style_lab_va 
+            text: "minV:"         
+        - label:  # "deltaV:"  delta_cell_voltage_name
+            id: delta_cell_voltage_name
+            x: 320
+            y: 165
+            styles: style_cell_voltage_num #style_lab_va 
+            text: "deltaV:" 
+        - label:  # значения   max_cell_voltage_lab  
+            id: max_cell_voltage_lab
+            align_to:  
+              id: max_cell_voltage_name
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: 5
+            styles: style_cell_voltage          
+            text: "-.---" 
+        - label:  # значения   min_cell_voltage_lab 
+            id: min_cell_voltage_lab
+            align_to:  
+              id: min_cell_voltage_name
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: 5
+            styles: style_cell_voltage          
+            text: "-.---" 
+        - label:  # значения   delta_cell_voltage_lab 
+            id: delta_cell_voltage_lab
+            align_to:  
+              id: delta_cell_voltage_name
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: 5
+            styles: style_cell_voltage          
+            text: "-.---" 
+       # bar vertical
+        - bar: # bar_v1  
+            id: cell_voltage_1_bar
+            x: "${px_brv}" #0
+            y: "${py_brv}" #180           
+            value: 0
+            styles: style_bar 
+            min_value: "${min_brv}" # -2
+            max_value: "${max_brv}" # 100   
+            indicator:
+               styles: style_bar_i
+        - bar: # bar_v2  
+            id: cell_voltage_2_bar
+            align_to: 
+              id: cell_voltage_1_bar
+              align: OUT_RIGHT_TOP   
+              x: "${dx_brv}" #2        
+            value: 0
+            styles: style_bar 
+            min_value: "${min_brv}" # -2
+            max_value: "${max_brv}" # 100   
+            indicator:
+               styles: style_bar_i
+        - bar: # bar_v3  
+            id: cell_voltage_3_bar
+            align_to: 
+              id: cell_voltage_2_bar
+              align: OUT_RIGHT_TOP   
+              x: "${dx_brv}" #2           
+            value: 0
+            styles: style_bar 
+            min_value: "${min_brv}" # -2
+            max_value: "${max_brv}" # 100  
+            indicator:
+               styles: style_bar_i        
+        - bar: # bar_v4  
+            id: cell_voltage_4_bar
+            align_to: 
+              id: cell_voltage_3_bar
+              align: OUT_RIGHT_TOP   
+              x: "${dx_brv}" #2          
+            value: 0
+            styles: style_bar 
+            min_value: "${min_brv}" # -2
+            max_value: "${max_brv}" # 100   
+            indicator:
+               styles: style_bar_i
+        - bar: # bar_v5  
+            id: cell_voltage_5_bar
+            align_to: 
+              id: cell_voltage_4_bar
+              align: OUT_RIGHT_TOP   
+              x: "${dx_brv}" #2           
+            value: 0
+            styles: style_bar 
+            min_value: "${min_brv}" # -2
+            max_value: "${max_brv}" # 100  
+            indicator:
+               styles: style_bar_i 
+        - bar: # bar_v6  
+            id: cell_voltage_6_bar
+            align_to: 
+              id: cell_voltage_5_bar
+              align: OUT_RIGHT_TOP   
+              x: "${dx_brv}" #2          
+            value: 0
+            styles: style_bar 
+            min_value: "${min_brv}" # -2
+            max_value: "${max_brv}" # 100  
+            indicator:
+               styles: style_bar_i
+        - bar: # bar_v7  
+            id: cell_voltage_7_bar
+            align_to: 
+              id: cell_voltage_6_bar
+              align: OUT_RIGHT_TOP   
+              x: "${dx_brv}" #2           
+            value: 0
+            styles: style_bar 
+            min_value: "${min_brv}" # -2
+            max_value: "${max_brv}" # 100  
+            indicator:
+               styles: style_bar_i
+        - bar: # bar_v8  
+            id: cell_voltage_8_bar
+            align_to: 
+              id: cell_voltage_7_bar
+              align: OUT_RIGHT_TOP   
+              x: "${dx_brv}" #2         
+            value: 0
+            styles: style_bar 
+            min_value: "${min_brv}" # -2
+            max_value: "${max_brv}" # 100   
+            indicator:
+               styles: style_bar_i
+        - bar: # bar_v9  
+            id: cell_voltage_9_bar
+            align_to: 
+              id: cell_voltage_8_bar
+              align: OUT_RIGHT_TOP   
+              x: "${dx_brv}" #2            
+            value: 0
+            styles: style_bar 
+            min_value: "${min_brv}" # -2
+            max_value: "${max_brv}" # 100    
+            indicator:
+               styles: style_bar_i
+        - bar: # bar_v10  
+            id: cell_voltage_10_bar
+            align_to: 
+              id: cell_voltage_9_bar
+              align: OUT_RIGHT_TOP   
+              x: "${dx_brv}" #2            
+            value: 0
+            styles: style_bar 
+            min_value: "${min_brv}" # -2
+            max_value: "${max_brv}" # 100    
+            indicator:
+               styles: style_bar_i
+        - bar: # bar_v11  
+            id: cell_voltage_11_bar
+            align_to: 
+              id: cell_voltage_10_bar
+              align: OUT_RIGHT_TOP   
+              x: "${dx_brv}" #2            
+            value: 0
+            styles: style_bar 
+            min_value: "${min_brv}" # -2
+            max_value: "${max_brv}" # 100    
+            indicator:
+               styles: style_bar_i
+        - bar: # bar_v12  
+            id: cell_voltage_12_bar
+            align_to: 
+              id: cell_voltage_11_bar
+              align: OUT_RIGHT_TOP   
+              x: "${dx_brv}" #2            
+            value: 0
+            styles: style_bar 
+            min_value: "${min_brv}" # -2
+            max_value: "${max_brv}" # 100    
+            indicator:
+               styles: style_bar_i                              
+        - bar: # bar_v13  
+            id: cell_voltage_13_bar
+            align_to: 
+              id: cell_voltage_12_bar
+              align: OUT_RIGHT_TOP   
+              x: "${dx_brv}" #2            
+            value: 0
+            styles: style_bar 
+            min_value: "${min_brv}" # -2
+            max_value: "${max_brv}" # 100    
+            indicator:
+               styles: style_bar_i
+        - bar: # bar_v14  
+            id: cell_voltage_14_bar
+            align_to: 
+              id: cell_voltage_13_bar
+              align: OUT_RIGHT_TOP   
+              x: "${dx_brv}" #2            
+            value: 0
+            styles: style_bar 
+            min_value: "${min_brv}" # -2
+            max_value: "${max_brv}" # 100    
+            indicator:
+               styles: style_bar_i
+        - bar: # bar_v15  
+            id: cell_voltage_15_bar
+            align_to: 
+              id: cell_voltage_14_bar
+              align: OUT_RIGHT_TOP   
+              x: "${dx_brv}" #2            
+            value: 0
+            styles: style_bar 
+            min_value: "${min_brv}" # -2
+            max_value: "${max_brv}" # 100    
+            indicator:
+               styles: style_bar_i
+        - bar: # bar_v16  
+            id: cell_voltage_16_bar
+            align_to: 
+              id: cell_voltage_15_bar
+              align: OUT_RIGHT_TOP   
+              x: "${dx_brv}" #2            
+            value: 0
+            styles: style_bar 
+            min_value: "${min_brv}" # -2
+            max_value: "${max_brv}" # 100    
+            indicator:
+               styles: style_bar_i
+        - label:
+            id: gh
+            x: 5
+            y: 300
+            styles: style_cell_voltage_num
+            text_font: RobotoCondensed_Regular_20
+            text: '1    2    3    4    5    6    7    8    9   10  11  12  13  14  15  16'
+        - line:
+            id: line_vmin
+            points:
+             - x: 0
+               y: "${ln_brv}" # 150
+             - x: 479
+               y: "${ln_brv}" # 150
+             # - 5, 5
+             # - 70, 70
+             # - 120, 10
+             # - x: !lambda return random_uint32() % 100;
+             #   y: !lambda return random_uint32() % 100;
+             # - 230, 15
+            line_width: 1
+            line_color: 0x0000ff
+            line_rounded: true
+       # cell_voltage 
+        - obj:  # num 01
+            id: cell_voltage_num_01
+            x: "${ps_x1}" # start X
+            y: "${ps_y1}" # start Y
+            styles: style_cell_voltage_num_obj
+            scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+            scrollable: "false" #'true'       #'false'            
+            widgets:
+            - label: # 01
+                x: "${ps_xn}"
+                y: "${ps_yn}"
+                styles: style_cell_voltage_num
+                text: '01'                
+        - obj:  # num 02
+            id: cell_voltage_num_02
+            align_to:  
+              id: cell_voltage_num_01
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_cv}"            
+            styles: style_cell_voltage_num_obj
+            scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+            scrollable: "false" #'true'       #'false'             
+            widgets:
+            - label: # 02
+                x: "${ps_xn}"
+                y: "${ps_yn}"
+                styles: style_cell_voltage_num
+                text: '02'          
+        - obj:  # num 03
+            id: cell_voltage_num_03
+            align_to:  
+              id: cell_voltage_num_02
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_cv}"            
+            styles: style_cell_voltage_num_obj
+            scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+            scrollable: "false" #'true'       #'false'             
+            widgets:
+            - label: # 03
+                x: "${ps_xn}"
+                y: "${ps_yn}"
+                styles: style_cell_voltage_num
+                text: '03'
+        - obj:  # num 04
+            id: cell_voltage_num_04
+            align_to:  
+              id: cell_voltage_num_03
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_cv}"            
+            styles: style_cell_voltage_num_obj
+            scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+            scrollable: "false" #'true'       #'false'             
+            widgets:
+            - label: # 04
+                x: "${ps_xn}"
+                y: "${ps_yn}"
+                styles: style_cell_voltage_num
+                text: '04'
+        - obj:  # num 05
+            id: cell_voltage_num_05
+            align_to:  
+              id: cell_voltage_num_01
+              align: OUT_BOTTOM_LEFT # выравние вниз  
+              y: "${dy_cv}"         
+              x: 0            
+            styles: style_cell_voltage_num_obj
+            scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+            scrollable: "false" #'true'       #'false'             
+            widgets:
+            - label: # 05
+                x: "${ps_xn}"
+                y: "${ps_yn}"
+                styles: style_cell_voltage_num
+                text: '05'
+        - obj:  # num 06
+            id: cell_voltage_num_06
+            align_to:  
+              id: cell_voltage_num_05
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_cv}"            
+            styles: style_cell_voltage_num_obj
+            scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+            scrollable: "false" #'true'       #'false'             
+            widgets:
+            - label: # 06
+                x: "${ps_xn}"
+                y: "${ps_yn}"
+                styles: style_cell_voltage_num
+                text: '06'
+        - obj:  # num 07
+            id: cell_voltage_num_07
+            align_to:  
+              id: cell_voltage_num_06
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_cv}"            
+            styles: style_cell_voltage_num_obj
+            scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+            scrollable: "false" #'true'       #'false'             
+            widgets:
+            - label: # 07
+                x: "${ps_xn}"
+                y: "${ps_yn}"
+                styles: style_cell_voltage_num
+                text: '07'
+        - obj:  # num 08
+            id: cell_voltage_num_08
+            align_to:  
+              id: cell_voltage_num_07
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_cv}"            
+            styles: style_cell_voltage_num_obj
+            scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+            scrollable: "false" #'true'       #'false'             
+            widgets:
+            - label: # 08
+                x: "${ps_xn}"
+                y: "${ps_yn}"
+                styles: style_cell_voltage_num
+                text: '08'
+        - obj:  # num 09
+            id: cell_voltage_num_09
+            align_to:  
+              id: cell_voltage_num_05
+              align: OUT_BOTTOM_LEFT # выравние вниз  
+              y: "${dy_cv}"         
+              x: 0            
+            styles: style_cell_voltage_num_obj
+            scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+            scrollable: "false" #'true'       #'false'             
+            widgets:
+            - label: # 09
+                x: "${ps_xn}"
+                y: "${ps_yn}"
+                styles: style_cell_voltage_num
+                text: '09'
+        - obj:  # num 10
+            id: cell_voltage_num_10
+            align_to:  
+              id: cell_voltage_num_09
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_cv}"            
+            styles: style_cell_voltage_num_obj
+            scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+            scrollable: "false" #'true'       #'false'             
+            widgets:
+            - label: # 10
+                x: "${ps_xn}"
+                y: "${ps_yn}"
+                styles: style_cell_voltage_num
+                text: '10'
+        - obj:  # num 11
+            id: cell_voltage_num_11
+            align_to:  
+              id: cell_voltage_num_10
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_cv}"            
+            styles: style_cell_voltage_num_obj
+            scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+            scrollable: "false" #'true'       #'false'             
+            widgets:
+            - label: # 11
+                x: "${ps_xn}"
+                y: "${ps_yn}"
+                styles: style_cell_voltage_num
+                text: '11'
+        - obj:  # num 12
+            id: cell_voltage_num_12
+            align_to:  
+              id: cell_voltage_num_11
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_cv}"            
+            styles: style_cell_voltage_num_obj
+            scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+            scrollable: "false" #'true'       #'false'             
+            widgets:
+            - label: # 12
+                x: "${ps_xn}"
+                y: "${ps_yn}"
+                styles: style_cell_voltage_num
+                text: '12'
+        - obj:  # num 13
+            id: cell_voltage_num_13
+            align_to:  
+              id: cell_voltage_num_09
+              align: OUT_BOTTOM_LEFT # выравние вниз  
+              y: "${dy_cv}"         
+              x: 0            
+            styles: style_cell_voltage_num_obj
+            scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+            scrollable: "false" #'true'       #'false'             
+            widgets:
+            - label: # 13
+                x: "${ps_xn}"
+                y: "${ps_yn}"
+                styles: style_cell_voltage_num
+                text: '13'
+        - obj:  # num 14
+            id: cell_voltage_num_14
+            align_to:  
+              id: cell_voltage_num_13
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_cv}"            
+            styles: style_cell_voltage_num_obj
+            scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+            scrollable: "false" #'true'       #'false'             
+            widgets:
+            - label: # 14
+                x: "${ps_xn}"
+                y: "${ps_yn}"
+                styles: style_cell_voltage_num
+                text: '14'
+        - obj:  # num 15
+            id: cell_voltage_num_15
+            align_to:  
+              id: cell_voltage_num_14
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_cv}"            
+            styles: style_cell_voltage_num_obj
+            scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+            scrollable: "false" #'true'       #'false'             
+            widgets:
+            - label: # 15
+                x: "${ps_xn}"
+                y: "${ps_yn}"
+                styles: style_cell_voltage_num
+                text: '15'
+        - obj:  # num 16
+            id: cell_voltage_num_16
+            align_to:  
+              id: cell_voltage_num_15
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_cv}"            
+            styles: style_cell_voltage_num_obj
+            scrollbar_mode: 'off'    # прокрутка показывать ползунок "ACTIVE" / "off" 
+            scrollable: "false" #'true'       #'false'             
+            widgets:
+            - label: # 16
+                x: "${ps_xn}"
+                y: "${ps_yn}"
+                styles: style_cell_voltage_num
+                text: '16'
+
+        - label: # cell_voltage_1_lab
+            id: cell_voltage_1_lab
+            align_to:  
+              id: cell_voltage_num_01
+              align: OUT_RIGHT_TOP  # выравние 
+              y: 0          
+              x: "${dx_n}"
+            styles: style_cell_voltage
+            text: "-.---"
+        - label: # cell_voltage_2_lab
+            id: cell_voltage_2_lab
+            align_to:  
+              id: cell_voltage_num_02
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_n}"
+            styles: style_cell_voltage
+            text: "-.---"
+        - label: # cell_voltage_3_lab
+            id: cell_voltage_3_lab
+            align_to:  
+              id: cell_voltage_num_03
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_n}"
+            styles: style_cell_voltage
+            text: "-.---"
+        - label: # cell_voltage_4_lab
+            id: cell_voltage_4_lab
+            align_to:  
+              id: cell_voltage_num_04
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_n}"
+            styles: style_cell_voltage
+            text: "-.---"
+        - label: # cell_vlt_05
+            id: cell_voltage_5_lab
+            align_to:  
+              id: cell_voltage_num_05
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_n}"
+            styles: style_cell_voltage
+            text: "-.---"
+        - label: # cell_vlt_06
+            id: cell_voltage_6_lab
+            align_to:  
+              id: cell_voltage_num_06
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_n}"
+            styles: style_cell_voltage
+            text: "-.---"
+        - label: # cell_vlt_07
+            id: cell_voltage_7_lab
+            align_to:  
+              id: cell_voltage_num_07
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_n}"
+            styles: style_cell_voltage
+            text: "-.---"
+        - label: # cell_vlt_08
+            id: cell_voltage_8_lab
+            align_to:  
+              id: cell_voltage_num_08
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_n}"
+            styles: style_cell_voltage
+            text: "-.---"
+        - label: # cell_vlt_09
+            id: cell_voltage_9_lab
+            align_to:  
+              id: cell_voltage_num_09
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_n}"
+            styles: style_cell_voltage
+            text: "-.---"
+        - label: # cell_vlt_10
+            id: cell_voltage_10_lab
+            align_to:  
+              id: cell_voltage_num_10
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_n}"
+            styles: style_cell_voltage
+            text: "-.---"
+        - label: # cell_vlt_11
+            id: cell_voltage_11_lab
+            align_to:  
+              id: cell_voltage_num_11
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_n}"
+            styles: style_cell_voltage
+            text: "-.---"
+        - label: # cell_vlt_12
+            id: cell_voltage_12_lab
+            align_to:  
+              id: cell_voltage_num_12
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_n}"
+            styles: style_cell_voltage
+            text: "-.---"
+        - label: # cell_vlt_13
+            id: cell_voltage_13_lab
+            align_to:  
+              id: cell_voltage_num_13
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_n}"
+            styles: style_cell_voltage
+            text: "-.---"
+        - label: # cell_vlt_14
+            id: cell_voltage_14_lab
+            align_to:  
+              id: cell_voltage_num_14
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_n}"
+            styles: style_cell_voltage
+            text: "-.---"
+        - label: # cell_vlt_15
+            id: cell_voltage_15_lab
+            align_to:  
+              id: cell_voltage_num_15
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_n}"
+            styles: style_cell_voltage
+            text: "-.---"
+        - label: # cell_vlt_16
+            id: cell_voltage_16_lab
+            align_to:  
+              id: cell_voltage_num_16
+              align: OUT_RIGHT_TOP  # выравние вниз
+              y: 0          
+              x: "${dx_n}"
+            styles: style_cell_voltage
+            text: "-.---"     
+       #  meter:
+        - meter: # pw
+            id: power_metr
+            height: 120
+            width: 120
+            bg_color: 0x000000
+            border_width: 0          
+            border_color: 0x000000
+            bg_opa: TRANSP
+            align: TOP_MID
+            x: 20
+            y: 30
+            scales:
+              - range_from: 0 # min
+                range_to: 100    # max
+                angle_range: 180 # sets the total angle to 180 = starts mid left and ends mid right
+                ticks:
+                  count: 0                                  
+                indicators:   
+                  #- line:
+                  #    id: val_needle
+                  #    width: 8
+                  #    r_mod: 12 # sets line length by this much difference from the scale default radius
+                  #    value: -2
+                  
+                  - arc: # first half of the scale background                                       
+                      color: 0x00b000
+                      r_mod: 10 # radius difference from the scale default radius
+                      width: 15
+                      start_value: 0
+                      end_value: 25
+                  - arc: # second half of the scale background
+                      color: 0x80FF00
+                      r_mod: 10
+                      width: 15
+                      start_value: 25
+                      end_value: 75                
+                  - arc: # second half of the scale background
+                      color: 0xFF0000
+                      r_mod: 10
+                      width: 15
+                      start_value: 75
+                      end_value: 100
+                  - arc: # second half of the scale background
+                      id: arc_1
+                      color: 0x000000
+                      r_mod: 8 #7
+                      width: 14 #13
+                      start_value: 0
+                      end_value: 100
+        - label: # "W"
+            align: TOP_MID
+            x: 20
+            y: 42
+            text_font: RobotoCondensed_Regular_40
+            text_color: 0xb0b060 
+            text: "w"
+        - label: #   id: power
+            id: power_lab
+            align: TOP_MID
+            x: 20
+            y: 85
+            text_font: RobotoCondensed_Regular_40
+            text_color: 0x00b000 
+            text: "1500"
+       # jk_bms info
+
+        - label: # t1
+            id: bms_t1
+            x: 150
+            y: 500
+            styles: style_serv1
+            text: "${jk_bms_t1}:"
+        - label: # s1
+            id: bms_s1
+            align_to:
+              id: bms_t1
+              align: OUT_RIGHT_TOP
+              x: 5
+              y: 0
+            styles: style_serv2
+            text: "-"
+
+        - label: # t2
+            id: bms_t2
+            align_to:
+              id: bms_t1
+              align: OUT_BOTTOM_RIGHT
+              x: 0
+              y: 5
+            styles: style_serv1
+            text: "${jk_bms_t2}:"
+        - label: # s2
+            id: bms_s2
+            align_to:
+              id: bms_t2
+              align: OUT_RIGHT_TOP
+              x: 5
+              y: 0
+            styles: style_serv2
+            text: "-"
+
+        - label: # t3
+            id: bms_t3
+            align_to:
+              id: bms_t2
+              align: OUT_BOTTOM_RIGHT
+              x: 0
+              y: 5
+            styles: style_serv1
+            text: "${jk_bms_t3}:"
+        - label: # s3
+            id: bms_s3
+            align_to:
+              id: bms_t3
+              align: OUT_RIGHT_TOP
+              x: 5
+              y: 0
+            styles: style_serv2
+            text: "-"
+
+        - label: # t4
+            id: bms_t4
+            align_to:
+              id: bms_t3
+              align: OUT_BOTTOM_RIGHT
+              x: 0
+              y: 5
+            styles: style_serv1
+            text: "${jk_bms_t4}:"
+        - label: # s4
+            id: bms_s4
+            align_to:
+              id: bms_t4
+              align: OUT_RIGHT_TOP
+              x: 5
+              y: 0
+            styles: style_serv2
+            text: "-"
+
+        - label: # t5
+            id: bms_t5
+            align_to:
+              id: bms_t4
+              align: OUT_BOTTOM_RIGHT
+              x: 0
+              y: 5
+            styles: style_serv1
+            text: "${jk_bms_t5}:"
+        - label: # s5
+            id: bms_s5
+            align_to:
+              id: bms_t5
+              align: OUT_RIGHT_TOP
+              x: 5
+              y: 0
+            styles: style_serv2
+            text: "-"
+
+        - label: # t6
+            id: bms_t6
+            align_to:
+              id: bms_t5
+              align: OUT_BOTTOM_RIGHT
+              x: 0
+              y: 5
+            styles: style_serv1
+            text: "${jk_bms_t6}:"
+        - label: # s6
+            id: bms_s6
+            align_to:
+              id: bms_t6
+              align: OUT_RIGHT_TOP
+              x: 5
+              y: 0
+            styles: style_serv2
+            text: "-"
+
+        - label: # t7
+            id: bms_t7
+            align_to:
+              id: bms_t6
+              align: OUT_BOTTOM_RIGHT
+              x: 0
+              y: 5
+            styles: style_serv1
+            text: "${jk_bms_t7}:"
+        - label: # s7
+            id: bms_s7
+            align_to:
+              id: bms_t7
+              align: OUT_RIGHT_TOP
+              x: 5
+              y: 0
+            styles: style_serv2
+            text: "-"
+
+        - label: # t8
+            id: bms_t8
+            align_to:
+              id: bms_t7
+              align: OUT_BOTTOM_RIGHT
+              x: 0
+              y: 5
+            styles: style_serv1
+            text: "${jk_bms_t8}:"
+        - label: # s8
+            id: bms_s8
+            align_to:
+              id: bms_t8
+              align: OUT_RIGHT_TOP
+              x: 5
+              y: 0
+            styles: style_serv2
+            text: "-"
+
+        - label: # t9
+            id: bms_t9
+            align_to:
+              id: bms_t8
+              align: OUT_BOTTOM_RIGHT
+              x: 0
+              y: 5
+            styles: style_serv1
+            text: "${jk_bms_t9}:"
+        - label: # s9
+            id: bms_s9
+            align_to:
+              id: bms_t9
+              align: OUT_RIGHT_TOP
+              x: 5
+              y: 0
+            styles: style_serv2
+            text: "-"
+
+        - label: # t10
+            id: bms_t10
+            align_to:
+              id: bms_t9
+              align: OUT_BOTTOM_RIGHT
+              x: 0
+              y: 5
+            styles: style_serv1
+            text: "${jk_bms_t10}:"
+        - label: # s10
+            id: bms_s10
+            align_to:
+              id: bms_t10
+              align: OUT_RIGHT_TOP
+              x: 5
+              y: 0
+            styles: style_serv2
+            text: "-"
+
+        - label: # t11
+            id: bms_t11
+            align_to:
+              id: bms_t10
+              align: OUT_BOTTOM_RIGHT
+              x: 0
+              y: 5
+            styles: style_serv1
+            text: "${jk_bms_t11}:"
+        - label: # s11
+            id: bms_s11
+            align_to:
+              id: bms_t11
+              align: OUT_RIGHT_TOP
+              x: 5
+              y: 0
+            styles: style_serv2
+            text: "-"
+
+        - label: # t12
+            id: bms_t12
+            align_to:
+              id: bms_t11
+              align: OUT_BOTTOM_RIGHT
+              x: 0
+              y: 5
+            styles: style_serv1
+            text: "${jk_bms_t12}:"
+        - label: # s12
+            id: bms_s12
+            align_to:
+              id: bms_t12
+              align: OUT_RIGHT_TOP
+              x: 5
+              y: 0
+            styles: style_serv2
+            text: "-"
+
+        - label: # t13
+            id: bms_t13
+            align_to:
+              id: bms_t12
+              align: OUT_BOTTOM_RIGHT
+              x: 0
+              y: 5
+            styles: style_serv1
+            text: "${jk_bms_t13}:"
+        - label: # s13
+            id: bms_s13
+            align_to:
+              id: bms_t13
+              align: OUT_RIGHT_TOP
+              x: 5
+              y: 0
+            styles: style_serv2
+            text: "-"
+
+        - label: # t14
+            id: bms_t14
+            align_to:
+              id: bms_t13
+              align: OUT_BOTTOM_RIGHT
+              x: 0
+              y: 5
+            styles: style_serv1
+            text: "${jk_bms_t14}:"
+        - label: # s14
+            id: bms_s14
+            align_to:
+              id: bms_t14
+              align: OUT_RIGHT_TOP
+              x: 5
+              y: 0
+            styles: style_serv2
+            text: "-"
+
+        - label: # t15
+            id: bms_t15
+            align_to:
+              id: bms_t14
+              align: OUT_BOTTOM_RIGHT
+              x: 0
+              y: 5
+            styles: style_serv1
+            text: "${jk_bms_t15}:"
+        - label: # s15
+            id: bms_s15
+            align_to:
+              id: bms_t15
+              align: OUT_RIGHT_TOP
+              x: 5
+              y: 0
+            styles: style_serv2
+            text: "-" 
+
+        - label: # t1a 
+            id: bms_t1a
+            align_to:
+              id: bms_t15
+              align: OUT_BOTTOM_RIGHT
+              x: 0
+              y: 5
+            styles: style_serv1
+            text: "${jk_bms_t1a}:"
+        - label: # s1a
+            id: bms_s1a
+            align_to:
+              id: bms_t1a
+              align: OUT_RIGHT_TOP
+              x: 5
+              y: 0
+            styles: style_serv2
+            text: "-"
+
+        - label: # t2a 
+            id: bms_t2a
+            align_to:
+              id: bms_t1a
+              align: OUT_BOTTOM_RIGHT
+              x: 0
+              y: 5
+            styles: style_serv1
+            text: "${jk_bms_t2a}:"
+        - label: # s2a
+            id: bms_s2a
+            align_to:
+              id: bms_t2a
+              align: OUT_RIGHT_TOP
+              x: 5
+              y: 0
+            styles: style_serv2
+            text: "-"
+
+        - label: # t3a 
+            id: bms_t3a
+            align_to:
+              id: bms_t2a
+              align: OUT_BOTTOM_RIGHT
+              x: 0
+              y: 5
+            styles: style_serv1
+            text: "${jk_bms_t3a}:"
+        - label: # s3a
+            id: bms_s3a
+            align_to:
+              id: bms_t3a
+              align: OUT_RIGHT_TOP
+              x: 5
+              y: 0
+            styles: style_serv2
+            text: "-"
+
+        - label: # t4a 
+            id: bms_t4a
+            align_to:
+              id: bms_t3a
+              align: OUT_BOTTOM_RIGHT
+              x: 0
+              y: 5
+            styles: style_serv1
+            text: "${jk_bms_t4a}:"
+        - label: # s3a
+            id: bms_s4a
+            align_to:
+              id: bms_t4a
+              align: OUT_RIGHT_TOP
+              x: 5
+              y: 0
+            styles: style_serv2
+            text: "-"
+
+        - label: # t5a 
+            id: bms_t5a
+            align_to:
+              id: bms_t4a
+              align: OUT_BOTTOM_RIGHT
+              x: 0
+              y: 5
+            styles: style_serv1
+            text: "${jk_bms_t5a}:"
+        - label: # s5a
+            id: bms_s5a
+            align_to:
+              id: bms_t5a
+              align: OUT_RIGHT_TOP
+              x: 5
+              y: 0
+            styles: style_serv2
+            text: "-"
+
+        - label: # t6a 
+            id: bms_t6a
+            align_to:
+              id: bms_t5a
+              align: OUT_BOTTOM_RIGHT
+              x: 0
+              y: 5
+            styles: style_serv1
+            text: "${jk_bms_t6a}:"
+        - label: # s6a
+            id: bms_s6a
+            align_to:
+              id: bms_t5a
+              align: OUT_RIGHT_TOP
+              x: 5
+              y: 0
+            styles: style_serv2
+            text: "-"
+
+
+script:
+  - id: update_main         # переменные для редактирования виджетов
+    then:
+      - lambda: |-
+          // 
+           if(!id(f_total_v)){return;}
+           ESP_LOGI("tag", "----------- updata display ");
+            
+           id(f_total_v) = false;
+           // setup variable
+            lv_color_t color_okk       = lv_color_make(0,  240,   0); // gren 
+            lv_color_t color_max       = lv_color_make(0,    0, 240); // blue
+            lv_color_t color_min       = lv_color_make(240,  0,   0); // red          
+            lv_color_t color_change    = lv_color_make(0,  240,   0); // red  
+            lv_color_t color_dischange = lv_color_make(255, 128,   64); //   
+            lv_color_t color_cell_v;           // = lv_color_make(240,  0, 0); // red 
+            lv_color_t color_cur;//
+            
+            static char buf[16];
+            static float p,vs ;        //               
+            static int s_v, s;         //
+           
+            static bool sdv = true;
+            static bool dv = false;
+            //static bool change = true;
+           
+           dv = (id(delta_cell_voltage).state > id(balance_opening_pressure_difference).state ); // разбег больше стартаового разбега для баланса
+           if(!dv && sdv){ 
+              dv = true;
+              sdv= false;
+             ESP_LOGI("tag", "----------- красим  ostanij raz");
+             }
+           else if(dv && !sdv){ sdv = true;ESP_LOGI("tag", "-----------  budem красиn");} //  
+              
+           // Vmin Vmax   - id: max_cell_voltage_lab , id: min_dell_voltage_lab , id: 
+            if(id(f_min_v) or id(f_max_v)){
+               id(f_min_v) = false;
+               id(f_max_v) = false;
+                
+               vs = (id(min_cell_voltage).state + id(max_cell_voltage).state)/2;
+               p = id(min_cell_voltage).state;
+               snprintf(buf, sizeof(buf), "%.3f", p);
+               lv_label_set_text(id(min_cell_voltage_lab), buf);             
+               p = id(max_cell_voltage).state;
+               snprintf(buf, sizeof(buf), "%.3f", p);
+               lv_label_set_text(id(max_cell_voltage_lab), buf);            
+               p = id(delta_cell_voltage).state;
+               snprintf(buf, sizeof(buf), "%.3f", p);
+               lv_label_set_text(id(delta_cell_voltage_lab), buf);
+            }
+           // 1         cell_voltage_1 
+              static float c_v1 = 0;  // last value
+              static int   s_v1 = 0;  // 0-ok 1-min 2- max
+            if(id(f_cell_v1)){
+               id(f_cell_v1) = false;
+               //ESP_LOGI("tag", "----------- печатаем 1   ");
+               p = id(cell_voltage_1).state;
+               if(c_v1 != p){
+                  c_v1 = p;
+                  snprintf(buf, sizeof(buf), "%.3f", p);
+                  lv_label_set_text(id(cell_voltage_1_lab), buf);    
+                  s = int(50+1000*(p-vs));
+                  lv_bar_set_value(  id(cell_voltage_1_bar), s, LV_ANIM_OFF);                         
+                  ESP_LOGI("tag", "----------- печатаем 1 ok  ");
+               }
+            }   
+            if(dv){ s_v=0 ;
+                   if(sdv){ if(id(cell_voltage_1).state == id(min_cell_voltage).state ){ s_v = 1;}                            
+                       else if(id(cell_voltage_1).state == id(max_cell_voltage).state ){ s_v = 2;}   
+                    }
+              //ESP_LOGI("tag", "----------- красим   ");
+              if(s_v1 != s_v){
+                 s_v1 =  s_v;
+                      if(s_v == 0){color_cell_v = color_okk;}
+                 else if(s_v == 1){color_cell_v = color_min;}
+                 else if(s_v == 2){color_cell_v = color_max;}              
+                 lv_obj_set_style_text_color(id(cell_voltage_1_lab), color_cell_v, LV_PART_MAIN);
+                 ESP_LOGI("tag", "----------- красим  1 ok");
+              }
+            }          
+           // 2         cell_voltage_2 
+              static float c_v2 = 0;
+              static int   s_v2 = 0;            
+            if(id(f_cell_v2)){
+               id(f_cell_v2) = false;
+               p = id(cell_voltage_2).state;
+               if(c_v2 != p){
+                  c_v2 = p;               
+                  snprintf(buf, sizeof(buf), "%.3f", p);
+                  lv_label_set_text(id(cell_voltage_2_lab), buf);    
+                  s = int(50+1000*(p-vs));
+                  lv_bar_set_value(  id(cell_voltage_2_bar), s, LV_ANIM_OFF); 
+                  ESP_LOGI("tag", "----------- печатаем 2 ok  ");
+               }
+            } 
+            if(dv){ s_v=0 ;
+                   if(sdv){if(id(cell_voltage_2).state == id(min_cell_voltage).state ){ s_v = 1;}
+                      else if(id(cell_voltage_2).state == id(max_cell_voltage).state ){ s_v = 2;}   
+                   }
+              if(s_v2 != s_v){
+                 s_v2 =  s_v;
+                      if(s_v == 0){color_cell_v = color_okk;}
+                 else if(s_v == 1){color_cell_v = color_min;}
+                 else if(s_v == 2){color_cell_v = color_max;}              
+                 lv_obj_set_style_text_color(id(cell_voltage_2_lab), color_cell_v, LV_PART_MAIN);
+                 ESP_LOGI("tag", "----------- красим  2 ok");
+              }
+            }           
+           // 3         cell_voltage_3            
+              static float c_v3 = 0;
+              static int   s_v3 = 0;
+            //if(id(f_cell_v3)){
+               id(f_cell_v3) = false;
+               p = id(cell_voltage_3).state;
+               if(c_v3 != p){
+                  c_v3 = p;               
+                  snprintf(buf, sizeof(buf), "%.3f", p);
+                  lv_label_set_text(id(cell_voltage_3_lab), buf);    
+                  s = int(50+1000*(p-vs));
+                  lv_bar_set_value(  id(cell_voltage_3_bar), s, LV_ANIM_OFF);
+                  ESP_LOGI("tag", "----------- печатаем 3 ok  ");
+               }
+            //}   
+            if(dv){ s_v=0 ;
+                   if(sdv){if(id(cell_voltage_3).state == id(min_cell_voltage).state ){ s_v = 1;}
+                      else if(id(cell_voltage_3).state == id(max_cell_voltage).state ){ s_v = 2;}   
+                   } 
+              if(s_v3 != s_v){
+                 s_v3 =  s_v;
+                      if(s_v == 0){color_cell_v = color_okk;}
+                 else if(s_v == 1){color_cell_v = color_min;}
+                 else if(s_v == 2){color_cell_v = color_max;}              
+                 lv_obj_set_style_text_color(id(cell_voltage_3_lab), color_cell_v, LV_PART_MAIN);
+                 ESP_LOGI("tag", "----------- красим  3 ok");
+              }
+            }           
+           // 4         cell_voltage_4
+              static float c_v4 = 0;
+              static int   s_v4 = 0;
+            //if(id(f_cell_v4)){
+               id(f_cell_v4) = false;
+               p = id(cell_voltage_4).state;
+               if(c_v4 != p){
+                  c_v4 = p;                
+                  snprintf(buf, sizeof(buf), "%.3f", p);
+                  lv_label_set_text(id(cell_voltage_4_lab), buf);    
+                  s = int(50+1000*(p-vs));
+                  lv_bar_set_value(  id(cell_voltage_4_bar), s, LV_ANIM_OFF); 
+                  ESP_LOGI("tag", "----------- печатаем 4 ok  ");
+               }
+            // } 
+            if(dv){ s_v=0 ;
+                   if(sdv){if(id(cell_voltage_4).state == id(min_cell_voltage).state ){ s_v = 1;}
+                      else if(id(cell_voltage_4).state == id(max_cell_voltage).state ){ s_v = 2;}   
+                   }
+              if(s_v4 != s_v){
+                 s_v4 =  s_v;
+                      if(s_v == 0){color_cell_v = color_okk;}
+                 else if(s_v == 1){color_cell_v = color_min;}
+                 else if(s_v == 2){color_cell_v = color_max;}              
+                 lv_obj_set_style_text_color(id(cell_voltage_4_lab), color_cell_v, LV_PART_MAIN);
+                 ESP_LOGI("tag", "----------- красим  4 ok");
+              }
+            }           
+           // 5         cell_voltage_5 
+              static float c_v5 = 0;
+              static int   s_v5 = 0;
+            if(id(f_cell_v5)){
+               id(f_cell_v5) = false;
+               p = id(cell_voltage_5).state;
+               snprintf(buf, sizeof(buf), "%.3f", p);
+               lv_label_set_text(id(cell_voltage_5_lab), buf);    
+               s = int(50+1000*(p-vs));
+               lv_bar_set_value(  id(cell_voltage_5_bar), s, LV_ANIM_OFF);   
+               ESP_LOGI("tag", "----------- печатаем 5 ok  ");
+             } 
+            if(dv){ s_v=0 ;
+                   if(sdv){if(id(cell_voltage_5).state == id(min_cell_voltage).state ){ s_v = 1;}
+                      else if(id(cell_voltage_5).state == id(max_cell_voltage).state ){ s_v = 2;}   
+                   }
+              if(s_v5 != s_v){
+                 s_v5 =  s_v;
+                      if(s_v == 0){color_cell_v = color_okk;}
+                 else if(s_v == 1){color_cell_v = color_min;}
+                 else if(s_v == 2){color_cell_v = color_max;}              
+                 lv_obj_set_style_text_color(id(cell_voltage_5_lab), color_cell_v, LV_PART_MAIN);
+                 ESP_LOGI("tag", "----------- красим  5 ok");
+              }
+            }           
+           // 6         cell_voltage_6 
+              static float c_v6 = 0;
+              static int   s_v6 = 0;
+            if(id(f_cell_v6)){
+               id(f_cell_v6) = false;
+               p = id(cell_voltage_6).state;
+               snprintf(buf, sizeof(buf), "%.3f", p);
+               lv_label_set_text(id(cell_voltage_6_lab), buf);    
+               s = int(50+1000*(p-vs));
+               lv_bar_set_value(  id(cell_voltage_6_bar), s, LV_ANIM_OFF); 
+               ESP_LOGI("tag", "----------- печатаем 6 ok  ");
+             } 
+            if(dv){ s_v=0 ;
+                   if(sdv){if(id(cell_voltage_6).state == id(min_cell_voltage).state ){ s_v = 1;}
+                      else if(id(cell_voltage_6).state == id(max_cell_voltage).state ){ s_v = 2;}   
+                   }
+              if(s_v6 != s_v){
+                 s_v6 =  s_v;
+                      if(s_v == 0){color_cell_v = color_okk;}
+                 else if(s_v == 1){color_cell_v = color_min;}
+                 else if(s_v == 2){color_cell_v = color_max;}              
+                 lv_obj_set_style_text_color(id(cell_voltage_6_lab), color_cell_v, LV_PART_MAIN);
+                 ESP_LOGI("tag", "----------- красим  6 ok");
+              }
+            }           
+           // 7         cell_voltage_7 
+              static float c_v7 = 0;
+              static int   s_v7 = 0;
+            if(id(f_cell_v7)){
+               id(f_cell_v7) = false;
+               p = id(cell_voltage_7).state;
+               snprintf(buf, sizeof(buf), "%.3f", p);
+               lv_label_set_text(id(cell_voltage_7_lab), buf);    
+               s = int(50+1000*(p-vs));
+               lv_bar_set_value(  id(cell_voltage_7_bar), s, LV_ANIM_OFF); 
+               ESP_LOGI("tag", "----------- печатаем 7 ok  ");
+             } 
+            if(dv){ s_v=0 ;
+                   if(sdv){if(id(cell_voltage_7).state == id(min_cell_voltage).state ){ s_v = 1;}
+                      else if(id(cell_voltage_7).state == id(max_cell_voltage).state ){ s_v = 2;}   
+                   }
+              if(s_v7 != s_v){
+                 s_v7 =  s_v;
+                      if(s_v == 0){color_cell_v = color_okk;}
+                 else if(s_v == 1){color_cell_v = color_min;}
+                 else if(s_v == 2){color_cell_v = color_max;}              
+                 lv_obj_set_style_text_color(id(cell_voltage_7_lab), color_cell_v, LV_PART_MAIN);
+                 ESP_LOGI("tag", "----------- красим  7 ok");
+              }
+            }           
+           // 8         cell_voltage_8 
+              static float c_v8 = 0;
+              static int   s_v8 = 0;
+            if(id(f_cell_v8)){
+               id(f_cell_v8) = false;
+               p = id(cell_voltage_8).state;
+               snprintf(buf, sizeof(buf), "%.3f", p);
+               lv_label_set_text(id(cell_voltage_8_lab), buf);    
+               s = int(50+1000*(p-vs));
+               lv_bar_set_value(  id(cell_voltage_8_bar), s, LV_ANIM_OFF); 
+               ESP_LOGI("tag", "----------- печатаем 8 ok  ");
+             } 
+            if(dv){ s_v=0 ;
+                   if(sdv){if(id(cell_voltage_8).state == id(min_cell_voltage).state ){ s_v = 1;}
+                      else if(id(cell_voltage_8).state == id(max_cell_voltage).state ){ s_v = 2;}   
+                   }
+              if(s_v8 != s_v){
+                 s_v8 =  s_v;
+                      if(s_v == 0){color_cell_v = color_okk;}
+                 else if(s_v == 1){color_cell_v = color_min;}
+                 else if(s_v == 2){color_cell_v = color_max;}              
+                 lv_obj_set_style_text_color(id(cell_voltage_8_lab), color_cell_v, LV_PART_MAIN);
+                 ESP_LOGI("tag", "----------- красим  8 ok");
+              }
+            }           
+           // 9         cell_voltage_9
+              static float c_v9 = 0;
+              static int   s_v9 = 0;
+            if(id(f_cell_v9)){
+               id(f_cell_v9) = false;
+               p = id(cell_voltage_9).state;
+               snprintf(buf, sizeof(buf), "%.3f", p);
+               lv_label_set_text(id(cell_voltage_9_lab), buf);    
+               s = int(50+1000*(p-vs));
+               lv_bar_set_value(  id(cell_voltage_9_bar), s, LV_ANIM_OFF); 
+               ESP_LOGI("tag", "----------- печатаем 9 ok  ");
+             } 
+            if(dv){ s_v=0 ;
+                   if(sdv){if(id(cell_voltage_9).state == id(min_cell_voltage).state ){ s_v = 1;}
+                      else if(id(cell_voltage_9).state == id(max_cell_voltage).state ){ s_v = 2;}   
+                   }
+              if(s_v9 != s_v){
+                 s_v9 =  s_v;
+                      if(s_v == 0){color_cell_v = color_okk;}
+                 else if(s_v == 1){color_cell_v = color_min;}
+                 else if(s_v == 2){color_cell_v = color_max;}              
+                 lv_obj_set_style_text_color(id(cell_voltage_9_lab), color_cell_v, LV_PART_MAIN);
+                 ESP_LOGI("tag", "----------- красим  9 ok");
+              }
+            }           
+           // 10        cell_voltage_10
+              static float c_v10 = 0;
+              static int   s_v10 = 0;
+            if(id(f_cell_v10)){
+               id(f_cell_v10) = false;
+               p = id(cell_voltage_10).state;
+               snprintf(buf, sizeof(buf), "%.3f", p);
+               lv_label_set_text(id(cell_voltage_10_lab), buf);    
+               s = int(50+1000*(p-vs));
+               lv_bar_set_value(  id(cell_voltage_10_bar), s, LV_ANIM_OFF); 
+               ESP_LOGI("tag", "----------- печатаем 10 ok  ");
+            } 
+            if(dv){ s_v=0 ;
+                   if(sdv){if(id(cell_voltage_10).state == id(min_cell_voltage).state ){ s_v = 1;}
+                      else if(id(cell_voltage_10).state == id(max_cell_voltage).state ){ s_v = 2;}   
+                   }
+              if(s_v10 != s_v){
+                 s_v10 =  s_v;
+                      if(s_v == 0){color_cell_v = color_okk;}
+                 else if(s_v == 1){color_cell_v = color_min;}
+                 else if(s_v == 2){color_cell_v = color_max;}              
+                 lv_obj_set_style_text_color(id(cell_voltage_10_lab), color_cell_v, LV_PART_MAIN);
+                 ESP_LOGI("tag", "----------- красим  10 ok");
+              }
+            }           
+           // 11        cell_voltage_11 
+              static float c_v11 = 0;
+              static int   s_v11 = 0;
+            if(id(f_cell_v11)){
+               id(f_cell_v11) = false;
+               p = id(cell_voltage_11).state;
+               snprintf(buf, sizeof(buf), "%.3f", p);
+               lv_label_set_text(id(cell_voltage_11_lab), buf);    
+               s = int(50+1000*(p-vs));
+               lv_bar_set_value(  id(cell_voltage_11_bar), s, LV_ANIM_OFF); 
+               ESP_LOGI("tag", "----------- печатаем 11 ok  ");
+            } 
+            if(dv){ s_v=0 ;
+                   if(sdv){if(id(cell_voltage_11).state == id(min_cell_voltage).state ){ s_v = 1;}
+                      else if(id(cell_voltage_11).state == id(max_cell_voltage).state ){ s_v = 2;}   
+                   }
+              if(s_v11 != s_v){
+                 s_v11 =  s_v;
+                      if(s_v == 0){color_cell_v = color_okk;}
+                 else if(s_v == 1){color_cell_v = color_min;}
+                 else if(s_v == 2){color_cell_v = color_max;}              
+                 lv_obj_set_style_text_color(id(cell_voltage_11_lab), color_cell_v, LV_PART_MAIN);
+                 ESP_LOGI("tag", "----------- красим  11 ok");
+              }
+            }           
+           // 12        cell_voltage_12 
+              static float c_v12 = 0;
+              static int   s_v12 = 0;
+            if(id(f_cell_v12)){
+               id(f_cell_v12) = false;
+               p = id(cell_voltage_12).state;
+               snprintf(buf, sizeof(buf), "%.3f", p);
+               lv_label_set_text(id(cell_voltage_12_lab), buf);    
+               s = int(50+1000*(p-vs));
+               lv_bar_set_value(  id(cell_voltage_12_bar), s, LV_ANIM_OFF); 
+               ESP_LOGI("tag", "----------- печатаем 12 ok  ");
+            } 
+            if(dv){ s_v=0 ;
+                   if(sdv){if(id(cell_voltage_12).state == id(min_cell_voltage).state ){ s_v = 1;}
+                      else if(id(cell_voltage_12).state == id(max_cell_voltage).state ){ s_v = 2;}   
+                   }
+              if(s_v12 != s_v){
+                 s_v12 =  s_v;
+                      if(s_v == 0){color_cell_v = color_okk;}
+                 else if(s_v == 1){color_cell_v = color_min;}
+                 else if(s_v == 2){color_cell_v = color_max;}              
+                 lv_obj_set_style_text_color(id(cell_voltage_12_lab), color_cell_v, LV_PART_MAIN);
+                 ESP_LOGI("tag", "----------- красим  12 ok");
+              }
+            }           
+           // 13        cell_voltage_13
+              static float c_v13 = 0;
+              static int   s_v13 = 0;
+            if(id(f_cell_v13)){
+               id(f_cell_v13) = false;
+               p = id(cell_voltage_13).state;
+               snprintf(buf, sizeof(buf), "%.3f", p);
+               lv_label_set_text(id(cell_voltage_13_lab), buf);    
+               s = int(50+1000*(p-vs));
+               lv_bar_set_value(  id(cell_voltage_13_bar), s, LV_ANIM_OFF); 
+               ESP_LOGI("tag", "----------- печатаем 13 ok  ");
+            } 
+            if(dv){ s_v=0 ;
+                   if(sdv){if(id(cell_voltage_13).state == id(min_cell_voltage).state ){ s_v = 1;}
+                      else if(id(cell_voltage_13).state == id(max_cell_voltage).state ){ s_v = 2;}   
+                   }
+              if(s_v13 != s_v){
+                 s_v13 =  s_v;
+                      if(s_v == 0){color_cell_v = color_okk;}
+                 else if(s_v == 1){color_cell_v = color_min;}
+                 else if(s_v == 2){color_cell_v = color_max;}              
+                 lv_obj_set_style_text_color(id(cell_voltage_13_lab), color_cell_v, LV_PART_MAIN);
+                 ESP_LOGI("tag", "----------- красим  13 ok");
+              }
+            }           
+           // 14        cell_voltage_14 
+              static float c_v14 = 0;
+              static int   s_v14 = 0;
+            if(id(f_cell_v14)){
+               id(f_cell_v14) = false;
+               p = id(cell_voltage_14).state;
+               snprintf(buf, sizeof(buf), "%.3f", p);
+               lv_label_set_text(id(cell_voltage_14_lab), buf);    
+               s = int(50+1000*(p-vs));
+               lv_bar_set_value(  id(cell_voltage_14_bar), s, LV_ANIM_OFF); 
+               ESP_LOGI("tag", "----------- печатаем 14 ok  ");
+            } 
+            if(dv){ s_v=0 ;
+                   if(sdv){if(id(cell_voltage_14).state == id(min_cell_voltage).state ){ s_v = 1;}
+                      else if(id(cell_voltage_14).state == id(max_cell_voltage).state ){ s_v = 2;}   
+                   }
+              if(s_v14 != s_v){
+                 s_v14 =  s_v;
+                      if(s_v == 0){color_cell_v = color_okk;}
+                 else if(s_v == 1){color_cell_v = color_min;}
+                 else if(s_v == 2){color_cell_v = color_max;}              
+                 lv_obj_set_style_text_color(id(cell_voltage_14_lab), color_cell_v, LV_PART_MAIN);
+                 ESP_LOGI("tag", "----------- красим  14 ok");
+              }
+            }           
+           // 15        cell_voltage_15 
+              static float c_v15 = 0;
+              static int   s_v15 = 0;
+            if(id(f_cell_v15)){
+               id(f_cell_v15) = false;
+               p = id(cell_voltage_15).state;
+               snprintf(buf, sizeof(buf), "%.3f", p);
+               lv_label_set_text(id(cell_voltage_15_lab), buf);    
+               s = int(50+1000*(p-vs));
+               lv_bar_set_value(  id(cell_voltage_15_bar), s, LV_ANIM_OFF); 
+               ESP_LOGI("tag", "----------- печатаем 15 ok  ");
+            } 
+            if(dv){ s_v=0 ;
+                   if(sdv){if(id(cell_voltage_15).state == id(min_cell_voltage).state ){ s_v = 1;}
+                      else if(id(cell_voltage_15).state == id(max_cell_voltage).state ){ s_v = 2;}   
+                   }
+              if(s_v15 != s_v){
+                 s_v15 =  s_v;
+                      if(s_v == 0){color_cell_v = color_okk;}
+                 else if(s_v == 1){color_cell_v = color_min;}
+                 else if(s_v == 2){color_cell_v = color_max;}              
+                 lv_obj_set_style_text_color(id(cell_voltage_15_lab), color_cell_v, LV_PART_MAIN);
+                 ESP_LOGI("tag", "----------- красим  15 ok");
+              }
+            }           
+           // 16        cell_voltage_16 
+              static float c_v16 = 0;
+              static int   s_v16 = 0;
+            if(id(f_cell_v16)){
+               id(f_cell_v16) = false;
+               p = id(cell_voltage_16).state;
+               snprintf(buf, sizeof(buf), "%.3f", p);
+               lv_label_set_text(id(cell_voltage_16_lab), buf);    
+               s = int(50+1000*(p-vs));
+               lv_bar_set_value(  id(cell_voltage_16_bar), s, LV_ANIM_OFF); 
+               ESP_LOGI("tag", "----------- печатаем 16 ok  ");
+            } 
+            if(dv){ s_v=0 ;
+                   if(sdv){if(id(cell_voltage_16).state == id(min_cell_voltage).state ){ s_v = 1;}
+                      else if(id(cell_voltage_16).state == id(max_cell_voltage).state ){ s_v = 2;}   
+                   }
+              if(s_v16 != s_v){
+                 s_v16 =  s_v;
+                      if(s_v == 0){color_cell_v = color_okk;}
+                 else if(s_v == 1){color_cell_v = color_min;}
+                 else if(s_v == 2){color_cell_v = color_max;}              
+                 lv_obj_set_style_text_color(id(cell_voltage_16_lab), color_cell_v, LV_PART_MAIN);
+                 ESP_LOGI("tag", "----------- красим  16 ok");
+              }
+            }
+           // bat_t1
+             static float bt_t1 = -100;
+             p = id(temperature_sensor_1).state;
+                    //if( fabs(bt_ - last_value) > 0.001
+             if(bt_t1 != p){
+                bt_t1 = p;
+                snprintf(buf, sizeof(buf), "%.0f", p);
+                lv_label_set_text(id(bat_t1), buf);
+                ESP_LOGI("tag", "----------- печатаем bat_t1 ok  ");
+             }
+           // bat_t2
+             static float bt_t2 = -100;
+             p = id(temperature_sensor_1).state;
+             if(bt_t2 != p){
+                bt_t2 = p;
+                snprintf(buf, sizeof(buf), "%.0f", p);
+                lv_label_set_text(id(bat_t2), buf);
+                ESP_LOGI("tag", "----------- печатаем bat_t2 ok  ");
+             }
+           // mos_t        id: power_tube_temperature
+             static float ms_t = -100;
+             p = id(power_tube_temperature).state;
+             if(ms_t != p){
+                ms_t = p;
+                snprintf(buf, sizeof(buf), "%.0f", p);
+                lv_label_set_text(id(mos_t), buf);
+                ESP_LOGI("tag", "----------- печатаем mos_t ok  ");
+             }
+           // jk_bms name  id: manufacturer
+              static   std::string c_jk_bms = "";              
+              std::string jk_bms = id(manufacturer).state; // text sensor
+             if(c_jk_bms != jk_bms){
+                c_jk_bms = jk_bms;
+                std::string prefix = "Input Userda";
+                 jk_bms = c_jk_bms.substr(prefix.length());  // Удаляем префикс
+                lv_label_set_text(id(manufacturer_lab), jk_bms.c_str());             
+                ESP_LOGI("tag", "----------- печатаем name ok  ");
+             }
+           // btype      battery_type
+              static   std::string c_btype = "";              
+              std::string btype = id(battery_type).state; // text sensor
+             if(c_btype != btype){
+                c_btype = btype;
+                if(c_btype =="Lithium Iron Phosphate"){lv_label_set_text(id(battery_type_lab), "LiFePo");}
+                else{lv_label_set_text(id(battery_type_lab), "WARNING");}
+            }
+           
+           // S           - id: battery_strings_lab  
+             static float c_bats = 1000;
+             p = id(battery_strings).state;
+                    //if( fabs(s_vlt - p) > 0.01){
+             if(c_bats != p){
+                c_bats = p;
+                snprintf(buf, sizeof(buf), "%.0f", p);
+                lv_label_set_text(id(battery_strings_lab), buf);
+                ESP_LOGI("tag", "----------- печатаем bat S ok  ");
+             }
+           // A  max A    - id: discharging_overcurrent_protection_lab  
+             static float c_maxcur = 1000;
+             p = id(discharging_overcurrent_protection).state;
+                    //if( fabs(s_vlt - p) > 0.01){
+             if(c_maxcur != p){
+                c_maxcur = p;
+                snprintf(buf, sizeof(buf), "%.0f", p);
+                lv_label_set_text(id(discharging_overcurrent_protection_lab), buf);
+                ESP_LOGI("tag", "----------- печатаем battary set Ah ok  ");
+             }                      
+           // Ah set      - id: total_battery_capacity_setting_lab      
+             static float c_batah = 1000;
+             p = id(total_battery_capacity_setting).state;
+                    //if( fabs(s_vlt - p) > 0.01){
+             if(c_batah != p){
+                c_batah = p;
+                snprintf(buf, sizeof(buf), "%.0f", p);
+                lv_label_set_text(id(total_battery_capacity_setting_lab), buf);
+                ESP_LOGI("tag", "----------- печатаем battary set Ah ok  ");
+             }           
+           // V volt      - id: total_voltage_lab               
+             static float c_batvolt = 1000;
+             p = id(total_voltage).state;
+                    //if( fabs(s_vlt - p) > 0.01){
+             if(c_batvolt != p){
+                c_batvolt = p;
+                snprintf(buf, sizeof(buf), "%.2f", p);
+                lv_label_set_text(id(total_voltage_lab), buf);
+                ESP_LOGI("tag", "----------- печатаем total_volt ok  ");
+             }    
+           // A  cur      - id: current_lab                     
+             static float c_batcur = 1000;
+             static bool change = true; // + -
+             p = id(current).state;
+                    //if( fabs(s_cur - p) > 0.01){
+             if(c_batcur != p){
+                c_batcur = p;
+                p = fabs (p);
+                if(p > 99.99){snprintf(buf, sizeof(buf), "%.0f", p);}
+                else if(p > 9.99){snprintf(buf, sizeof(buf), "%.1f",p);}
+                else {snprintf(buf, sizeof(buf), "%.2f", p);}
+                
+                lv_label_set_text(id(current_lab), buf);
+                ESP_LOGI("tag", "----------- печатаем total_cur ok  ");
+                if(c_batcur > 0 && !change || c_batcur < 0 && change ){
+                 change = !change;
+                 if(change){color_cur = color_change;}    //
+                 else{      color_cur = color_dischange;} //
+                 lv_obj_set_style_text_color(id(current_lab), color_cur, LV_PART_MAIN);
+                 ESP_LOGI("tag", "----------- красим  curr ok");
+                }
+             }    
+           // W power
+             static float c_power = 1000;
+             static bool s_power = true; // + -
+             p = id(power).state;
+                    //if( fabs(s_cur - p) > 0.01){
+             if(c_power != p){
+                c_power = p;
+                p = fabs (p);
+                if(p > 99.99){snprintf(buf, sizeof(buf), "%.0f", p);}
+                else if(p > 9.99){snprintf(buf, sizeof(buf), "%.1f",p);}
+                else {snprintf(buf, sizeof(buf), "%.2f", p);}
+                
+                lv_label_set_text(id(power_lab), buf);
+                ESP_LOGI("tag", "----------- печатаем power ok  ");
+                if(c_power > 0 && !s_power || c_power < 0 && s_power ){
+                   s_power = !s_power;
+                   if(s_power){color_cur = color_change;}    //
+                   else{      color_cur = color_dischange;} //
+                   lv_obj_set_style_text_color(id(power_lab), color_cur, LV_PART_MAIN);
+                   ESP_LOGI("tag", "----------- красим  power ok");
+                }
+                // meter power
+                p = p * 100 / (id(discharging_overcurrent_protection).state * id(total_voltage).state);  
+                lv_meter_set_indicator_start_value(id(power_metr), id(arc_1), p);
+                  //lv_meter_set_indicator_end_value(  id(power_metr), id(arc_1), 99); 
+                  
+             }           
+           
+           
+           // Ah %        - id: capacity_remaining_lab          
+             static float c_batahp = 1000;
+             p = id(capacity_remaining).state;
+                    //if( fabs(s_vlt - p) > 0.01){
+             if(c_batahp != p){
+                c_batahp = p;
+                snprintf(buf, sizeof(buf), "%.0f", p);
+                lv_label_set_text(id(capacity_remaining_lab), buf);
+                ESP_LOGI("tag", "----------- печатаем Ah % ok  ");
+             }     
+           // Ah real     - id: capacity_remaining_derived_lab  
+             static float c_batahr = 1000;
+             p = id(capacity_remaining_derived).state;
+                    //if( fabs(s_vlt - p) > 0.01){
+             if(c_batahr != p){
+                c_batahr = p;
+                snprintf(buf, sizeof(buf), "%.0f", p);
+                lv_label_set_text(id(capacity_remaining_derived_lab), buf);
+                ESP_LOGI("tag", "----------- печатаем Ah  ok  ");
+             }     
+                  
+             
+    #----------------------------------------------------
+  - id: wifi_control
+    then:
+      - lambda: |-
+         //
+          static bool s_wifi = false;
+              if (WiFi.isConnected()) {
+                 if(!s_wifi){
+                     s_wifi= true; 
+                     lv_label_set_text(id(wifi_status), "${i_wifi_on}");
+                     lv_obj_set_style_text_color( id(wifi_status),lv_color_make(0, 160,  240), LV_PART_MAIN);} // on  
+              } else {
+                 if(s_wifi){
+                    s_wifi = false;
+                    lv_label_set_text(id(wifi_status), "${i_wifi_off}");
+                    lv_obj_set_style_text_color( id(wifi_status),lv_color_make(255, 128, 64 ), LV_PART_MAIN);} // off  
+              }
+              
+    
+    # -----------------------------------
+  - id: jk_bms_info
+    then:
+      - lambda: |-
+          //
+          std::string txt;
+          char buf[16];
+          float p;
+          // s1 name manufacturer                       * имя бмс
+           static   std::string c_jk_bms = " ";              
+             txt = id(manufacturer).state; // text sensor
+             if(c_jk_bms != txt){
+                c_jk_bms =  txt;
+                std::string prefix = "Input Userda";
+                 txt = c_jk_bms.substr(prefix.length());  // Удаляем префикс
+                lv_label_set_text(id(bms_s1), txt.c_str());
+                ESP_LOGI("tag", "----------- печатаем s1 ok  ");
+             }   
+          // s2 password                                * пароль
+           static   std::string c_pasw = " ";              
+             txt = id(password).state; // text sensor
+             if(c_pasw != txt){
+                c_pasw =  txt;
+                lv_label_set_text(id(bms_s2), txt.c_str());
+                ESP_LOGI("tag", "----------- печатаем s2 ok  ");
+             }          
+          // s3 total_runtime                           * время работы в часах
+           static   float c_tr = -555555;              
+             p = id(total_runtime).state;  
+             if(c_tr != p){
+                c_tr =  p;    
+                snprintf(buf, sizeof(buf), "%.0f", p);
+                lv_label_set_text(id(bms_s3), buf);
+                ESP_LOGI("tag", "----------- печатаем s3 ok  ");
+             } 
+          // s4 total_runtime_formatted                 * время работы в d
+           static   std::string c_trfd ="f";              
+             txt = id(total_runtime_formatted).state;  
+             if(c_trfd != txt){
+                c_trfd =  txt;                     
+                lv_label_set_text(id(bms_s4), txt.c_str());
+                ESP_LOGI("tag", "----------- печатаем s4 ok  ");
+             }                   
+          // s5 charging_cycles                         * кол циклов
+           static   float c_cycle = -555555;                
+             p = id(charging_cycles).state;  
+             if(c_cycle != p){
+                c_cycle =  p;    
+                snprintf(buf, sizeof(buf), "%.0f", p);
+                lv_label_set_text(id(bms_s5), buf);
+                ESP_LOGI("tag", "----------- печатаем s5 ok  ");
+             }           
+          // s6 total_charging_cycle_capacity           * общее кол заряда принято
+           static   float c_tccc = -555555; //std::string c_time = " ";              
+             p = id(total_charging_cycle_capacity).state; // text sensor
+             if(c_tccc != p){
+                c_tccc =  p;    
+                snprintf(buf, sizeof(buf), "%.0f", p);
+                lv_label_set_text(id(bms_s6), buf);
+                ESP_LOGI("tag", "----------- печатаем s6 ok  ");
+             } 
+          // s7 battery_type                            * тип батареи
+           static   std::string c_bty = " ";              
+             txt = id(battery_type).state; // text sensor
+             if(c_bty != txt){
+                c_bty =  txt;
+                lv_label_set_text(id(bms_s7), txt.c_str());
+                ESP_LOGI("tag", "----------- печатаем s7 ok  ");
+             }
+          // s8 balance_opening_pressure_difference     * дельта напряжение для стаота баланса       
+           static   float c_bop = -555555; //std::string c_time = " ";              
+             p = id(balance_opening_pressure_difference).state; // text sensor
+             if(c_bop != p){
+                c_bop =  p;    
+                snprintf(buf, sizeof(buf), "%.3f", p);
+                lv_label_set_text(id(bms_s8), buf);
+                ESP_LOGI("tag", "----------- печатаем s8 ok  ");
+             } 
+          // s9 balance_starting_voltage                * напр начала бал      
+           static   float c_bsv = -555555; //std::string c_time = " ";              
+             p = id(balance_starting_voltage).state; // text sensor
+             if(c_bsv != p){
+                c_bsv =  p;    
+                snprintf(buf, sizeof(buf), "%.3f", p);
+                lv_label_set_text(id(bms_s9), buf);
+                ESP_LOGI("tag", "----------- печатаем s9 ok  ");
+             }                            
+          // s10 cell_voltage_overvoltage_protection    * MAX напряжение отключения       
+           static   float c_cvop = -555555; //std::string c_time = " ";              
+             p = id(cell_voltage_overvoltage_protection).state; // text sensor
+             if(c_cvop != p){
+                c_cvop =  p;    
+                snprintf(buf, sizeof(buf), "%.3f", p);
+                lv_label_set_text(id(bms_s10), buf);
+                ESP_LOGI("tag", "----------- печатаем s10 ok  ");
+             } 
+          // s11 cell_voltage_overvoltage_recovery      * max Напряжение рестарта      
+           static   float c_cvor = -555555;              
+             p = id(cell_voltage_overvoltage_recovery).state; // text sensor
+             if(c_cvor != p){
+                c_cvor =  p;    
+                snprintf(buf, sizeof(buf), "%.3f", p);
+                lv_label_set_text(id(bms_s11), buf);
+                ESP_LOGI("tag", "----------- печатаем s11 ok  ");
+             }               
+          // s12 cell_voltage_undervoltage_protection   * Мин напряжения откл        
+           static   float c_cvup = -555555;               
+             p = id(cell_voltage_undervoltage_protection).state; // text sensor
+             if(c_cvup != p){
+                c_cvup =  p;    
+                snprintf(buf, sizeof(buf), "%.3f", p);
+                lv_label_set_text(id(bms_s12), buf);
+                ESP_LOGI("tag", "----------- печатаем s12 ok  ");
+             }                  
+          // s13 cell_voltage_undervoltage_recovery     * min Напряжение рестарта     
+           static   float c_cvur = -555555;                
+             p = id(cell_voltage_undervoltage_recovery).state; // text sensor
+             if(c_cvur != p){
+                c_cvur =  p;    
+                snprintf(buf, sizeof(buf), "%.3f", p);
+                lv_label_set_text(id(bms_s13), buf);
+                ESP_LOGI("tag", "----------- печатаем s13 ok  ");
+             }                     
+          // s14 charging_overcurrent_protection         * min Напряжение рестарта     
+           static   float c_cop = -555555;                
+             p = id(charging_overcurrent_protection).state; // text sensor
+             if(c_cop != p){
+                c_cop =  p;    
+                snprintf(buf, sizeof(buf), "%.0f", p);
+                lv_label_set_text(id(bms_s14), buf);
+                ESP_LOGI("tag", "----------- печатаем s14 ok  ");
+             }                         
+          // s15 discharging_overcurrent_protection      * min Напряжение рестарта     
+           static   float c_dop = -555555;                
+             p = id(discharging_overcurrent_protection).state; // text sensor
+             if(c_dop != p){
+                c_dop =  p;    
+                snprintf(buf, sizeof(buf), "%.0f", p);
+                lv_label_set_text(id(bms_s15), buf);
+                ESP_LOGI("tag", "----------- печатаем s15 ok  ");
+             }     
+           
+          // s1a wifi_signal_db      * wifi db     
+           static   float c_wsd = -555555;                
+             p = id(wifi_signal_db).state; // text sensor
+             if(c_wsd != p){
+                c_wsd =  p;    
+                snprintf(buf, sizeof(buf), "%.0f", p);
+                lv_label_set_text(id(bms_s1a), buf);
+                ESP_LOGI("tag", "----------- печатаем s1a ok  ");
+             }     
+          // s2a ip_adress                            * ip
+           static   std::string c_ipa = " ";              
+             txt = id(ip_adress).state; // text sensor
+             if(c_ipa != txt){
+                c_ipa =  txt;
+                lv_label_set_text(id(bms_s2a), txt.c_str());
+                ESP_LOGI("tag", "----------- печатаем s2a ok  ");
+             }     
+          // s3a ssid                           * ssid
+           static   std::string c_css = " ";              
+             txt = id(connected_ssid).state; // text sensor
+             if(c_css != txt){
+                c_css =  txt;
+                lv_label_set_text(id(bms_s3a), txt.c_str());
+                ESP_LOGI("tag", "----------- печатаем s3a ok  ");
+             }          
+          
+          // s4a пароль                           * pass
+           static   std::string c_cpw = " ";              
+             txt ="Rdy9oSw7";                // id(connected_ssid).state; // text sensor
+             if(c_cpw != txt){
+                c_cpw =  txt;
+                lv_label_set_text(id(bms_s4a), txt.c_str());
+                ESP_LOGI("tag", "----------- печатаем s4a ok  ");
+             }     
+          
+          // s5a bssid                           * bssid
+           static   std::string c_bss = " ";              
+             txt = id(bssid).state; // text sensor
+             if(c_bss != txt){
+                c_bss =  txt;
+                lv_label_set_text(id(bms_s5a), txt.c_str());
+                ESP_LOGI("tag", "----------- печатаем s5a ok  ");
+             } 
+          // s6a host name:                           * bssid
+           //static   std::string c_hn= " ";              
+            // txt = App.get_name(); // text sensor
+            // if(c_hn != txt){
+             //   c_hn =  txt;
+             //   lv_label_set_text(id(bms_s6a), txt.c_str());
+             //   ESP_LOGI("tag", "----------- печатаем s6a ok  ");
+            // } 
+
+
+     #---------------------------------------   
+  - id: update_edit
+    then:
+      - lambda: |-
+            float val = id(dp_1).state;
+             //lv_meter_set_indicator_start_value(id(power_metr), id(arc_1), val);
+             //lv_meter_set_indicator_end_value(id(power_metr), id(arc_1), 99);     
+    #-------------------
+
+interval:
+  - interval: 3s  
+    then:
+       - lambda: |-
+           id(update_main).execute();  
+           id(wifi_control).execute();  
+           id(jk_bms_info).execute();
+
+uart:
+  - id: uart_0
+    baud_rate: 115200
+    rx_buffer_size: 384
+    tx_pin: ${tx_pin}
+    rx_pin: ${rx_pin}
+
+jk_modbus:
+  - id: modbus0
+    uart_id: uart_0
+    rx_timeout: 50ms
+
+jk_bms:
+  - id: bms0
+    jk_modbus_id: modbus0
+    update_interval: 30s
+
+binary_sensor:
+  - platform: jk_bms
+    balancing:
+      name: "balancing"
+    balancing_switch:
+      name: "balancing switch"
+    charging:
+      name: "charging"
+    discharging:
+      name: "discharging"
+    dedicated_charger_switch:
+      name: "dedicated charger switch"
+    online_status:
+      name: "online status"
+
+sensor:
+  - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
+    name: "WiFi Signal dB"
+    id: wifi_signal_db
+    update_interval: 30s
+    entity_category: "diagnostic"
+ #-edit 
+  - platform: homeassistant #dp1
+    id: dp_1
+    entity_id: input_number.dp1
+    internal: true 
+    on_value:
+      then:
+        - lambda: |-                           
+            id(update_edit).execute();
+
+ # volt
+  - platform: jk_bms
+    min_cell_voltage: # voltage
+      name: "min cell voltage"
+      id: min_cell_voltage
+      on_value:
+        then:
+          - lambda: |-
+              id(f_min_v) = true;    
+    max_cell_voltage: # voltage
+      name: "max cell voltage"
+      id: max_cell_voltage
+      on_value:
+        then:
+          - lambda: |-
+              id(f_max_v) = true;     
+    min_voltage_cell: # кол-во
+      name: "min voltage cell"
+      id: min_voltage_cell
+    max_voltage_cell: # кол-во
+      name: "max voltage cell"
+    delta_cell_voltage: # voltage
+      name: "delta cell voltage"
+      id: delta_cell_voltage
+    average_cell_voltage:
+      name: "average cell voltage"
+      id: average_cell_voltage
+    cell_voltage_1:
+      name: "cell voltage 1"
+      id: cell_voltage_1
+      on_value:
+        then:
+          - lambda: |-
+              id(f_cell_v1) = true;
+    cell_voltage_2:
+      name: "cell voltage 2"
+      id: cell_voltage_2
+      on_value:
+        then:
+          - lambda: |-
+              id(f_cell_v2) = true;
+    cell_voltage_3:
+      name: "cell voltage 3"
+      id: cell_voltage_3
+      on_value:
+        then:
+          - lambda: |-
+              id(f_cell_v3) = true;
+    cell_voltage_4:
+      name: "cell voltage 4"
+      id: cell_voltage_4
+      on_value:
+        then:
+          - lambda: |-
+              id(f_cell_v4) = true;
+    cell_voltage_5:
+      name: "cell voltage 5"
+      id: cell_voltage_5    
+      on_value:
+        then:
+          - lambda: |-
+              id(f_cell_v5) = true;    
+    cell_voltage_6:
+      name: "cell voltage 6"
+      id: cell_voltage_6    
+      on_value:
+        then:
+          - lambda: |-
+              id(f_cell_v6) = true;  
+    cell_voltage_7:
+      name: "cell voltage 7"
+      id: cell_voltage_7    
+      on_value:
+        then:
+          - lambda: |-
+              id(f_cell_v7) = true;  
+    cell_voltage_8:
+      name: "cell voltage 8"
+      id: cell_voltage_8    
+      on_value:
+        then:
+          - lambda: |-
+              id(f_cell_v8) = true;    
+    cell_voltage_9:
+      name: "cell voltage 9"
+      id: cell_voltage_9   
+      on_value:
+        then:
+          - lambda: |-
+              id(f_cell_v9) = true; 
+    cell_voltage_10:
+      name: "cell voltage 10"
+      id: cell_voltage_10   
+      on_value:
+        then:
+          - lambda: |-
+              id(f_cell_v10) = true;   
+    cell_voltage_11:
+      name: "cell voltage 11"
+      id: cell_voltage_11   
+      on_value:
+        then:
+          - lambda: |-
+              id(f_cell_v11) = true;    
+    cell_voltage_12:
+      name: "cell voltage 12"
+      id: cell_voltage_12    
+      on_value:
+        then:
+          - lambda: |-
+              id(f_cell_v12) = true;   
+    cell_voltage_13:
+      name: "cell voltage 13"
+      id: cell_voltage_13   
+      on_value:
+        then:
+          - lambda: |-
+              id(f_cell_v13) = true;        
+    cell_voltage_14:
+      name: "cell voltage 14"
+      id: cell_voltage_14   
+      on_value:
+        then:
+          - lambda: |-
+              id(f_cell_v14) = true;    
+    cell_voltage_15:
+      name: "cell voltage 15"
+      id: cell_voltage_15   
+      on_value:
+        then:
+          - lambda: |-
+              id(f_cell_v15) = true;    
+    cell_voltage_16:
+      name: "cell voltage 16"
+      id: cell_voltage_16 
+      on_value:
+        then:
+          - lambda: |-
+              id(f_cell_v16) = true;
+    power_tube_temperature:
+      name: "power tube temperature"
+      id: power_tube_temperature  
+    temperature_sensor_1:
+      name: "temperature sensor 1"
+      id: temperature_sensor_1     
+    temperature_sensor_2:
+      name: "temperature sensor 2"
+      id: temperature_sensor_2   
+    total_voltage:
+      name: "total voltage"  
+      id: total_voltage
+      on_value:
+        then:        
+          - lambda: |-
+              id(f_total_v) = true;
+    current:
+      name: "current"
+      id: current
+  
+    power:
+      name: "power"
+      id: power 
+ # set   
+    charging_power:
+      name: "charging power"
+      id: charging_power
+    
+    discharging_power:
+      name: "discharging power"
+      id: discharging_power
+    
+    capacity_remaining: #  Ah%
+      name: "capacity remaining"
+      id: capacity_remaining   
+    capacity_remaining_derived: #  real Ah
+      name: "capacity remaining derived"
+      id: capacity_remaining_derived  
+    temperature_sensors:
+      name: "temperature sensors"
+    charging_cycles:
+      name: "charging cycles"
+      id: charging_cycles
+    total_charging_cycle_capacity:
+      name: "total charging cycle capacity"
+      id: total_charging_cycle_capacity
+    battery_strings:
+      name: "battery strings"
+      id: battery_strings
+    errors_bitmask:
+      name: "errors bitmask"
+    operation_mode_bitmask:
+      name: "operation mode bitmask"
+    total_voltage_overvoltage_protection:            # общее максим напяжение защита
+      name: "total voltage overvoltage protection"
+    total_voltage_undervoltage_protection:           # общее напряжение вост после макс
+      name: "total voltage undervoltage protection"
+    cell_voltage_overvoltage_protection:             # макс напряжение отключения
+      name: "cell voltage overvoltage protection"
+      id: cell_voltage_overvoltage_protection
+    cell_voltage_overvoltage_recovery:               # макс напряжение старт  после откл максим
+      name: "cell voltage overvoltage recovery"
+      id: cell_voltage_overvoltage_recovery
+    cell_voltage_overvoltage_delay:                  # время ож макс отк
+      name: "cell voltage overvoltage delay"
+    cell_voltage_undervoltage_protection:            # мин напряжение откл          
+      name: "cell voltage undervoltage protection"
+      id: cell_voltage_undervoltage_protection
+    cell_voltage_undervoltage_recovery:              # мин напряжение старт после откл мин
+      name: "cell voltage undervoltage recovery"
+      id: cell_voltage_undervoltage_recovery
+    cell_voltage_undervoltage_delay:                 # время ож мин откл
+      name: "cell voltage undervoltage delay"
+    cell_pressure_difference_protection:             # маск дельта напряжения между ячейками
+      name: "cell pressure difference protection"
+    discharging_overcurrent_protection:              # Макс ток разряда
+      name: "discharging overcurrent protection"
+      id: discharging_overcurrent_protection
+    discharging_overcurrent_delay:                   # время ож макс отк
+      name: "discharging overcurrent delay"
+      id: discharging_overcurrent_delay
+    charging_overcurrent_protection:                 # Макс ток заряда
+      name: "charging overcurrent protection"
+      id: charging_overcurrent_protection
+    charging_overcurrent_delay:                      # время ож мин откл  
+      name: "charging overcurrent delay"
+    balance_starting_voltage:                                 # Напряжение старт бал
+      name: "balance starting voltage" 
+      id: balance_starting_voltage
+    balance_opening_pressure_difference:                      # дельта напряжения для старта бал
+      name: "balance opening pressure difference"
+      id: balance_opening_pressure_difference
+    power_tube_temperature_protection:                        # макс темперадура для мосфета
+      name: "power tube temperature protection"
+      id: power_tube_temperature_protection
+    power_tube_temperature_recovery:
+      name: "power tube temperature recovery"
+    temperature_sensor_temperature_protection:
+      name: "temperature sensor temperature protection"
+    temperature_sensor_temperature_recovery:
+      name: "temperature sensor temperature recovery"
+    temperature_sensor_temperature_difference_protection:
+      name: "temperature sensor temperature difference protection"
+    charging_high_temperature_protection:
+      name: "charging high temperature protection"
+    discharging_high_temperature_protection:
+      name: "discharging high temperature protection"
+    charging_low_temperature_protection:
+      name: "charging low temperature protection"
+    charging_low_temperature_recovery:
+      name: "charging low temperature recovery"
+    discharging_low_temperature_protection:
+      name: "discharging low temperature protection"
+    discharging_low_temperature_recovery:
+      name: "discharging low temperature recovery"
+    total_battery_capacity_setting:
+      name: "total battery capacity setting"
+      id: total_battery_capacity_setting
+    current_calibration:
+      name: "current calibration"
+    device_address:
+      name: "device address"
+    sleep_wait_time:
+      name: "sleep wait time"
+    alarm_low_volume:
+      name: "alarm low volume"
+    manufacturing_date:
+      name: "manufacturing date"
+    total_runtime:                        #   время работы в часах
+      name: "total runtime"
+      id: total_runtime
+   #    start_current_calibration:
+   #      name: "${name} start current calibration"
+    actual_battery_capacity:
+      name: "actual battery capacity"
+    protocol_version:
+      name: "${name} protocol version"
+
+switch:
+  - platform: jk_bms
+    charging:
+      name: "charging"
+    discharging:
+      name: "discharging"
+
+text_sensor:
+  - platform: jk_bms
+    errors:
+      name: "errors"
+    operation_mode:
+      name: "operation mode"
+    battery_type:                      # тип батареи
+      name: "battery type"
+      id: battery_type
+    password:                          # пароль
+      name: "password"
+      id: password    
+    device_type:                       #
+      name: "device type"
+    software_version:
+      name: "software version"
+    manufacturer:                      # имя бмс
+      name: "manufacturer"
+      id: manufacturer   
+    total_runtime_formatted:           # время работі в днях
+      name: "total runtime formatted"
+      id: total_runtime_formatted
+
+  - platform: wifi_info
+    ip_address:
+      name: "IP Address"
+      id: ip_adress
+    ssid:
+      name: "Connected SSID"
+      id: connected_ssid
+    bssid:
+      name: "BSSID"
+      id: bssid
+
+globals:
+ # напряжения общие 
+  - id: f_total_c     # ток 
+    type: bool    
+    initial_value: 'false'  
+    restore_value: no 
+  - id: f_total_v     # напяжение всего
+    type: bool    
+    initial_value: 'false'  
+    restore_value: no 
+  - id: f_max_v     # напяжение на ячейке макс
+    type: bool    
+    initial_value: 'false'  
+  - id: f_min_v     # напяжение на ячейке мин
+    type: bool
+    initial_value: 'false'  
+  - id: f_delta_v   # разбаланс
+    type: bool
+    initial_value: 'false'  
+  - id: f_average_v # среднее значение = общее/кол-во
+    type: bool
+    initial_value: 'false' 
+    restore_value: no 
+ # напряжение по ячейкам 
+  - id: f_cell_v1
+    type: bool
+    initial_value: 'false' 
+    restore_value: no 
+  - id: f_cell_v2
+    type: bool
+    initial_value: 'false' 
+    restore_value: no
+  - id: f_cell_v3
+    type: bool
+    initial_value: 'false' 
+    restore_value: no
+  - id: f_cell_v4
+    type: bool
+    initial_value: 'false' 
+    restore_value: no
+  - id: f_cell_v5
+    type: bool
+    initial_value: 'false' 
+    restore_value: no 
+  - id: f_cell_v6
+    type: bool
+    initial_value: 'false' 
+    restore_value: no
+  - id: f_cell_v7
+    type: bool
+    initial_value: 'false' 
+    restore_value: no
+  - id: f_cell_v8
+    type: bool
+    initial_value: 'false' 
+    restore_value: no
+  - id: f_cell_v9
+    type: bool
+    initial_value: 'false' 
+    restore_value: no 
+  - id: f_cell_v10
+    type: bool
+    initial_value: 'false' 
+    restore_value: no
+  - id: f_cell_v11
+    type: bool
+    initial_value: 'false' 
+    restore_value: no
+  - id: f_cell_v12
+    type: bool
+    initial_value: 'false' 
+    restore_value: no
+  - id: f_cell_v13
+    type: bool
+    initial_value: 'false' 
+    restore_value: no 
+  - id: f_cell_v14
+    type: bool
+    initial_value: 'false' 
+    restore_value: no
+  - id: f_cell_v15
+    type: bool
+    initial_value: 'false' 
+    restore_value: no
+  - id: f_cell_v16
+    type: bool
+    initial_value: 'false' 
+    restore_value: no
+
+
+
+
+
+
+    
+
+
+font:
+  
+  
+  - file: "fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf"  # 20   - file: "gfonts://Roboto"         # s:30
+    id: RobotoCondensed_Regular_20
+    size: 20 
+    glyphs: [ " ",".","-","=",":","°","+","(",")","[","]","_",
+              "0","1","2","3","4","5","6","7","8","9",
+              a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,q,t,u,v,w,x,y,z,
+              A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z          
+           ] 
+  - file: "fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf"  # 24   - file: "gfonts://Roboto"         # s:30
+    id: RobotoCondensed_Regular_24
+    size: 24 
+    glyphs: [ " ",".","-","=",":","°","+","(",")","[","]","_",
+              "0","1","2","3","4","5","6","7","8","9",
+              #Б,Д,П,З,К,М,Н,В,Т,С,Р,Х,Ч,
+              #а,б,в,г,д,е,ж,з,и,й,к,л,м,п,н,о,т,с,р,у,ф,х,ч,ц,ш,щ,ы,ь,я,
+              a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,q,t,u,v,w,x,y,z,
+              A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z
+              #":"," ",x
+            ] 
+  - file: "fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf"  # 28   - file: "gfonts://Roboto"         # s:30
+    id: RobotoCondensed_Regular_28
+    size: 28 
+    glyphs: [ " ",".","-","=",":","°","+","(",")","[","]","_",
+              "0","1","2","3","4","5","6","7","8","9",
+              #Б,Д,П,З,К,М,Н,В,Т,С,Р,Х,Ч,
+              #а,б,в,г,д,е,ж,з,и,й,к,л,м,п,н,о,т,с,р,у,ф,х,ч,ц,ш,щ,ы,ь,я,
+              a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,q,t,u,v,w,x,y,z,
+              A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z
+              #":"," ",x
+            ]  
+  - file: "fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf"  # 45   - file: "gfonts://Roboto"         # s:30
+    id: RobotoCondensed_Regular_40
+    size: 40 
+    glyphs: [ "0","1","2","3","4","5","6","7","8","9",
+              " ",".","-","%",
+              A,h,V,W,w,
+            # "=",":","°","+","(",")","[","]","_",  
+            # Б,Д,П,З,К,М,Н,В,Т,С,Р,Х,Ч,
+            # а,б,в,г,д,е,ж,з,и,й,к,л,м,п,н,о,т,с,р,у,ф,х,ч,ц,ш,щ,ы,ь,я,
+            # a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,q,t,u,v,w,x,y,z,
+            # A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z
+            ]
+  - file: "fonts/Oswald/Oswald-SemiBold.ttf"                     # 40   - file: "gfonts://Bebas Neue@400"    # s:55    
+    id: Oswald_SemiBold_40  #bebasneue400_55             
+    #bpp: 4
+    size: 40
+    glyphs: ["-","+"]
+  - file: "fonts/Bebas_Neue/BebasNeue-Regular.ttf"                     # 45   - file: "gfonts://Bebas Neue@400"    # s:55    
+    id: BebasNeue_Regular_45               
+    #bpp: 4
+    size: 45
+    glyphs: [" ",":",".","-","=","°","+","%",
+             "0","1","2","3","4","5","6","7","8","9",
+             a,h,n,o,v,x,
+             A,I,P,U,V,W] 
+  - file: "fonts/Bebas_Neue/BebasNeue-Regular.ttf"                     # 55   - file: "gfonts://Bebas Neue@400"    # s:55    
+    id: BebasNeue_Regular_55               
+    #bpp: 4
+    size: 55
+    glyphs: [" ",":",".","-","=","°","+","%",
+             "0","1","2","3","4","5","6","7","8","9",
+             a,n,o,v,x,
+             A,I,P,U,V,W]    
+
+  - file: "fonts/materialdesignicons-webfont.ttf"  # icon_50 
+    id: icon_28      
+    #bpp: 4
+    size: 28
+    glyphs: [  
+             "${i_wifi_on}",
+             "${i_wifi_off}"
+            ] 

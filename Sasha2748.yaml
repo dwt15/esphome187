@@ -1,0 +1,1372 @@
+substitutions:
+
+
+esphome:
+  name: display2748
+  friendly_name: display2748
+  platformio_options:   
+    #build_flags: "-DBOARD_HAS_PSRAM"
+    #board_build.esp-idf.memory_type: qio_opi
+    board_build.flash_mode: dio
+    #board_upload.maximum_ram_size: 524288
+   
+  
+  on_boot:
+    priority: 600.0
+    then:
+      - lambda: |- 
+          id(led_tft).set_level(50); //  
+
+
+
+
+
+esp32:
+  board: esp32-s3-devkitc-1 #esp32-s3-devkitc-1
+  flash_size: 8MB
+  #partitions: "default_16MB.csv"
+  framework:
+    type:  esp-idf # arduino #
+    
+    version: 4.4.8    #4.4.5-yes
+    platform_version: 5.4.0
+
+    sdkconfig_options:
+      COMPILER_OPTIMIZATION_SIZE: y #
+      CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: y #
+      CONFIG_ESP32S3_DATA_CACHE_64KB: y #
+      CONFIG_SPIRAM_FETCH_INSTRUCTIONS: y
+      CONFIG_SPIRAM_RODATA: y
+      CONFIG_ESP32S3_DATA_CACHE_LINE_64B: y
+
+psram:
+  mode: octal
+  speed: 80MHz 
+ 
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "KlLeq7joNBDbRrxpDII8jssHMz5rWJoUEEwGo3OiLtE="
+
+ota:
+  - platform: esphome
+    password: "ea648e556c53cfe3aae0553287877997"
+
+wifi:
+  ssid: "Archer"
+  password: "RDy9osW7"
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Display2748 Fallback Hotspot"
+    password: "NvO1X5Z0zKFs"
+
+captive_portal:
+
+external_components:
+  - source: github://pr#8477
+    components: [psram]
+    refresh: 1h
+
+
+#external_components:
+#  - source: github://clydebarrow/esphome@lvgl_original
+#  - source: github://pr#6363
+#    refresh: 10min
+#    components: [lvgl] 
+    
+
+#external_components:
+#  - source:
+ #     type: git
+#      url: https://github.com/clydebarrow/esphome
+#      ref: fd15094c0860df23d532881df36cfd16c7da1091 #previous commit - wont be needed in the future
+#    components: [ lvgl ]
+
+
+
+#external_components:
+# - source: github://clydebarrow/esphome@lvgl_original
+#   refresh: 10min
+#   components: [ lvgl ]
+
+time:
+  - platform: sntp
+    id: sntp_time
+    timezone: "Europe/Kyiv"
+    servers:
+      - 0.pool.ntp.org
+      - 1.pool.ntp.org
+      - 2.pool.ntp.org
+    update_interval: 300s
+
+
+
+
+# Define a PWM output on the ESP32
+output:
+  - platform: ledc
+    pin: 2
+    id: led_tft
+i2c:
+  sda: 19
+  scl: 20
+#  scan: true
+#  id: bus_a
+
+touchscreen:
+  platform: gt911
+  id: my_touch
+#  i2c_id: bus_a
+  address: 0x5D
+  calibration:
+    x_min: 0  # L:200    R:200 
+    x_max: 480  # L:3830  R:3830 
+    y_min: 0  # L:170    R:170
+    y_max: 272 # L:3780   R:3780
+#  transform:
+#    swap_xy: true #  L:true  R:true
+#    mirror_x: true # L:true  R:false
+#    mirror_y: true # L:true  R:false
+  on_touch:
+     - lambda: |-
+           ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
+               touch.x,
+               touch.y,
+               touch.x_raw,
+               touch.y_raw
+               );  
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+    
+display:
+  - platform: rpi_dpi_rgb
+    id: my_display
+    color_order: RGB
+    invert_colors: True
+    update_interval: never
+    auto_clear_enabled: false # takes 2.8 seconds to clear the display
+    dimensions:
+      width: 480
+      height: 272
+    de_pin: 40
+    hsync_pin: 39
+    vsync_pin: 41
+    pclk_pin: 42
+    hsync_back_porch: 39 #39
+    hsync_front_porch: 50 #50
+    hsync_pulse_width: 4 #4
+    vsync_back_porch: 9 #9
+    vsync_front_porch: 8 #8
+    vsync_pulse_width: 4 #4
+    pclk_frequency: 9MHz
+     
+    data_pins:
+      red:
+        - 45        #r1
+        - 48        #r2
+        - 47        #r3
+        - 21        #r4
+        - 14        #r5
+      green:
+        - 5         #g0
+        - 6         #g1
+        - 7         #g2
+        - 15        #g3
+        - 16        #g4
+        - 4         #g5
+      blue:
+        - 8         #b1
+        - 3         #b2
+        - 46        #b3
+        - 9         #b4
+        - 1         #b5        
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+font:
+ 
+  - file: "fonts/materialdesignicons-webfont.ttf"
+    id: icon_35     
+    size: 25
+    glyphs: [
+          "\U000F02D1", # mdi-heart
+          "\U000F05D4", # mdi-airplane-landing
+          "\U000F0D9B", # mdi-solar-panel
+          "\U000F192C", # mdi-transmission-tower-export
+          "\U000F010C", # mdi-car-battery
+          "\U000F0241", # mdi-flash          
+          "\U000F0238", # mdi-fire   
+          ]
+  - file: "fonts/materialdesignicons-webfont.ttf"
+    id: icon_50
+    size: 40
+    glyphs: [
+          "\U000F02D1", # mdi-heart
+          "\U000F05D4", # mdi-airplane-landing
+          "\U000F0D9B", # mdi-solar-panel
+          "\U000F192C", # mdi-transmission-tower-export
+          "\U000F010C", # mdi-car-battery
+          "\U000F0241", # mdi-flash          
+          "\U000F0238", # mdi-fire                   КОТЕЛ
+          "\U000F07A9", # mdi-car-hatchback          ГАРАЖ
+          "\U000F1472", # mdi-fan-speed-1            Моторчик 1 
+          "\U000F1473", # mdi-fan-speed-2            Моторчик 2
+          "\U000F03A6", # mdi-numeric-1-box-outline  Бойлер 1
+          "\U000F03A9", # mdi-numeric-2-box-outline  Бойлер 2
+          "\U000F0D81", # mdi-home-floor-2           ВХОД 2
+          "\U000F01DA", # mdi-download        # ПОГРЕБ2  
+          
+          ]
+  
+  
+  - file: "gfonts://Roboto"
+    id: roboto_35
+    size: 35 
+    glyphs: [" ",".","-","=","0","1","2","3","4","5","6","7","8","9",a,b,c,d,e,f,g,i,j,k,l,m,n,o,p,r,s,t,u,v,w,x,y,z,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z]
+
+  - file: "gfonts://Bebas Neue@400" # "gfonts://Rubik@400" # "gfonts://Roboto" # "gfonts://Oswald@600" #   
+    id: bebasneue400_40            # my_font2_b
+    size: 40
+    glyphs: [" ",".","-","°","0","1","2","3","4","5","6","7","8","9",a,n,o]
+
+  - file: "gfonts://Bebas Neue@400" # "gfonts://Rubik@400" # "gfonts://Roboto" # "gfonts://Oswald@600" #   
+    id: bebasneue400_50            # my_font2_b
+    size: 50
+    glyphs: [" ",".","-","°","0","1","2","3","4","5","6","7","8","9",a,n,o]
+
+
+  - file:  "gfonts://Roboto@500" #"gfonts://Oswald@500" #"gfonts://Rubik@400" # "gfonts://Rubik@400" #  "gfonts://Oswald@600" #  
+    id: roboto500_60          # my_font1_b
+    size: 60  
+    glyphs: [" ",".","-","0","1","2","3","4","5","6","7","8","9",a,n,o]
+
+  - file:  "gfonts://Roboto@500" #"gfonts://Oswald@500" #"gfonts://Rubik@400" # "gfonts://Rubik@400" #  "gfonts://Oswald@600" #  
+    id: roboto500_120          # my_font1_b
+    size: 120  
+    glyphs: [" ",".","-",":","/","0","1","2","3","4","5","6","7","8","9",a,n,o,б,в,п,н,р,с,ч,т]
+
+  - file:  "gfonts://Bebas Neue@400" # Bebas Neue@400" #"gfonts://Oswald@500" #"gfonts://Rubik@400" # "gfonts://Rubik@400" #  "gfonts://Oswald@600" #  Saira Extra Condensed@300
+    id: bebasneue400_120 
+    size: 120  
+    glyphs: [" ",".","-",":","/","0","1","2","3","4","5","6","7","8","9"]
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+binary_sensor:
+ 
+ # rz switch
+  - platform: homeassistant  # rz1 бойлер 1   
+    id: rz01_switch
+    entity_id: switch.z2_rz01
+ 
+  - platform: homeassistant  # rz2 бойлер 2   
+    id: rz02_switch
+    entity_id: switch.z2_rz02
+
+  - platform: homeassistant  # rz4 serg   
+    id: rz4_switch
+    entity_id: switch.z2_rz04
+
+  - platform: homeassistant  # rz12 КОТЕЛ   
+    id: rz12_switch
+    entity_id: switch.z2_rz12
+
+  - platform: homeassistant  # rz12 моторчик 1   
+    id: rz13_switch
+    entity_id: switch.z2_rz13
+
+  - platform: homeassistant  # rz14 моторчик 2   
+    id: rz14_switch
+    entity_id: switch.z2_rz14
+ 
+ # sw switch
+
+  - platform: homeassistant  # sw1 сарай улица  
+    id: sw1_switch
+    entity_id: switch.z2_sw1
+
+  - platform: homeassistant  # sw2 погреб   
+    id: sw2_switch
+    entity_id: switch.z2_sw2
+
+  - platform: homeassistant  # sw6 гараж 
+    id: sw6_switch
+    entity_id: switch.z2_sw6
+
+  - platform: homeassistant  # sw7 вход 2 
+    id: sw7_switch
+    entity_id: switch.z2_sw7
+
+     
+  - platform: lvgl
+    widget: but_inf_1
+    name: "butinf1"   
+  - platform: lvgl
+    widget: but_inf_2
+    name: "butinf2"
+  - platform: lvgl
+    widget: but_inf_3
+    name: "butinf3"
+  - platform: lvgl
+    widget: but_inf_4
+    name: "butinf4"   
+  - platform: lvgl
+    widget: but_inf_5
+    name: "butinf5"
+  - platform: lvgl
+    widget: but_inf_6
+    name: "butinf6"
+  - platform: lvgl
+    widget: but_inf_7
+    name: "butinf7"
+  - platform: lvgl
+    widget: but_inf_8
+    name: "butinf8"
+
+sensor: 
+
+
+
+  - platform: template
+    name: "Slider Value"
+    id: slider_value
+    unit_of_measurement: "l"
+    accuracy_decimals: 2
+    update_interval: never
+    on_value:
+      then:
+ 
+
+  - platform: homeassistant
+    id: dp_1
+    entity_id: input_number.dp1
+    name: "dp_1"
+    internal: true 
+    on_value:
+       then:
+         - lambda: |-                
+             int a=1;
+             id(update_dp1).execute();
+             //id(led_tft).set_level(id(dp_1).state/100);
+
+  - platform: homeassistant
+    id: r_1
+    entity_id: input_number.r1
+    name: "red1"
+    internal: true 
+    on_value:
+       then:
+         - lambda: |-              
+             id(update_color1).execute();
+  - platform: homeassistant
+    id: g_1
+    entity_id: input_number.g1
+    name: "green1"
+    internal: true 
+    on_value:
+       then:
+         - lambda: |-             
+             id(update_color1).execute();          
+  - platform: homeassistant
+    id: b_1
+    entity_id: input_number.b1
+    name: "blue1"
+    internal: true 
+    on_value:
+       then:
+         - lambda: |- 
+            id(update_color1).execute();
+             
+  - platform: homeassistant
+    id: r_2 
+    entity_id: input_number.r2
+    name: "red2"
+    internal: true
+    on_value:
+       then:
+         - lambda: |- 
+            id(update_color1).execute(); 
+  - platform: homeassistant
+    id: g_2
+    entity_id: input_number.g2
+    name: "green2"
+    internal: true 
+    on_value:
+       then:
+         - lambda: |- 
+            id(update_color1).execute();  
+  - platform: homeassistant
+    id: b_2 
+    entity_id: input_number.b2
+    name: "blue2"
+    internal: true
+    on_value:
+       then:
+         - lambda: |- 
+            id(update_color1).execute(); 
+ 
+ #~~~ ТЕКУЩИЕ ~~~~
+ # мощность генерации панель
+  - platform: homeassistant
+    id: dc_power 
+    entity_id: sensor.dc_power
+ 
+ # потребление с внешней сети
+  - platform: homeassistant
+    entity_id: sensor.z2_ph0_power # потребление с внешней сети
+    id: z2_ph0_power    
+ 
+ # мощность батареи SOLARMAN
+  - platform: homeassistant
+    id: solarman_battery_power # мощность батареи
+    entity_id: sensor.solarman_battery_power
+ 
+ #  мощность батареи JKBMS power total
+  - platform: homeassistant
+    id: bat_power
+    entity_id: sensor.bat_power
+          
+ # мощность дом потребление
+  - platform: homeassistant
+    entity_id: sensor.z2_ph1_power # мощность дом потребление
+    id: z2_ph1_power    
+ 
+ #~~~ СУТОЧНЫЕ ~~~~~~~~~~~~
+  # сутки генерация
+  - platform: homeassistant
+    id: solarman_daily_production  # сутки генерация
+    entity_id: sensor.solarman_daily_production
+ 
+ # сутки потребление сети
+  - platform: homeassistant
+    id: solarman_daily_energy_bought # сутки потребление с сети
+    entity_id: sensor.solarman_daily_energy_bought
+      
+ # Ah total Kwh
+  - platform: homeassistant
+    id: bat_energy
+    entity_id: sensor.but_energy
+ 
+ # сутки дом потребление
+  - platform: homeassistant
+    id: solarman_daily_load_consumption # сутки потребление
+    entity_id: sensor.solarman_daily_load_consumption
+ 
+ # температур от homeassistant 
+  - platform: homeassistant # d6t_1 холодильник
+    id: d6t_1
+    entity_id: sensor.display6_temperature1
+  - platform: homeassistant # d6t_2 холодильник морозилка
+    id: d6t_2
+    entity_id: sensor.display6_temperature2
+  - platform: homeassistant # d7t_1 
+    id: d7t_1
+    entity_id: sensor.display7_temperature1
+  - platform: homeassistant # d7t_2 котел горелка
+    id: d7t_2
+    entity_id: sensor.display7_temperature2
+  - platform: homeassistant # d7t_3 вода
+    id: d7t_3
+    entity_id: sensor.display7_temperature3
+  - platform: homeassistant # d7t_4 камера морозильная
+    id: d7t_4
+    entity_id: sensor.display7_temperature4
+  - platform: homeassistant # d7t_5 котел віход
+    id: d7t_5
+    entity_id: sensor.display7_temperature5
+  - platform: homeassistant # d7t_6 котел вхлод
+    id: d7t_6
+    entity_id: sensor.display7_temperature6
+  - platform: homeassistant # d7t_7 бойлер 1
+    id: d7t_7
+    entity_id: sensor.display7_temperature7
+  - platform: homeassistant # d7t_8 бойлер 2
+    id: d7t_8
+    entity_id: sensor.display7_temperature8
+
+  - platform: homeassistant # бойлер 1  
+    id: rz01_power
+    entity_id: sensor.z2_rz01_power
+  - platform: homeassistant #  бойлер 2
+    id: rz02_power
+    entity_id: sensor.z2_rz02_power
+  - platform: homeassistant #  КОТЕЛ
+    id: rz12_power
+    entity_id: sensor.z2_rz12_power
+  - platform: homeassistant #  моторчик 1
+    id: rz13_power
+    entity_id: sensor.z2_rz13_power
+  - platform: homeassistant #  моторчик 2
+    id: rz14_power
+    entity_id: sensor.z2_rz14_power
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~
+lvgl:
+  
+  displays:
+    - my_display
+  touchscreens:
+    - my_touch
+  style_definitions:
+
+    - id: tempatura
+      bg_color: 0x000000
+      text_font: bebasneue400_50
+      align: TOP_RIGHT
+      pad_right: 10 
+
+    - id: tempatura_k
+      bg_color: 0x0f0000
+      outline_width: 0
+     # outline_color: 0xff0000
+      border_width: 1
+      border_color: 0x008000
+      pad_all: 0
+      radius: 10 
+ 
+    - id: style_butinfo
+      bg_color: 0x00070
+ 
+           
+      outline_width: 0  
+      border_width: 1
+      border_color: 0xffff00
+      #shadow_width: 0
+      #shadow_color: 125
+      shadow_opa: TRANSP
+      #shadow_spread: 0
+      #shadow_ofs_y: 0
+      #shadow_ofs_x: 0
+      pad_all: 0
+      radius: 10 
+
+    - id: style_p2_1 
+      bg_color: 0
+      border_color: 0
+      border_width: 0
+      outline_width: 0
+      outline_color: 0
+      shadow_width: 0
+      pad_all: 0
+      radius: 0 
+ 
+    - id: style_p2_i      
+      text_font: bebasneue400_50
+      text_color: 0x00FFFF 
+      text_letter_space: 3 
+      align: TOP_RIGHT
+
+    - id: style_p2_d     
+      text_font: bebasneue400_50
+      text_color: 0x00FFFF 
+      text_letter_space: 3 
+      align: TOP_LEFT  
+
+    - id: style_p2_p     
+      text_font: roboto500_60
+      text_color: 0x00FF00    
+      align: TOP_RIGHT
+
+
+  pages:
+  
+    - id: my_page1
+      bg_color: 0
+      scrollbar_mode: "ACTIVE"  # показывать полосу прокрутки при прокрутке 
+      scrollable: 'true'        # можно прокручивать страницу
+      widgets:
+  # icon      
+       - obj:
+          x: 0
+          y: 0
+          height: 225
+          width: 30          
+          bg_color: 0          
+          border_width: 0
+          outline_width: 0
+          shadow_width: 0
+          pad_all: 0          
+          text_font: icon_35 
+          text_color: 0x0000FF       
+          scrollbar_mode: "off"
+          scrollable: 'false'          
+          widgets:
+           - label: # 
+              y: 10  
+              text: "\U000F0D9B"  # mdi-solar-panel
+           - label: #
+              y: 70             
+              text: "\U000F192C"  # mdi-transmission-tower-export            
+           - label: #  
+              y: 130
+              text: "\U000F010C"  # mdi-car-battery
+           - label: #
+              y: 190
+              text: "\U000F0241"  # mdi-flash 
+
+  # текущие показатели мощности     
+       - obj:
+           x: 30
+           y: 0  
+           height: 225
+           width: 150
+        
+           bg_color: 0
+           border_width: 0
+           outline_width: 0
+           shadow_width: 0
+           pad_all: 0
+           scrollbar_mode: "off"
+           scrollable: 'false'
+           text_font: roboto500_60
+           widgets:     
+            - label:    # мощность генерации панель            
+                y: -12 
+                align: TOP_RIGHT
+                text_color: 0x00FF00 
+                id: text1           
+                text: "----" 
+            - label:    #  мощность внешнего потребление             
+                y: 48            
+                align: TOP_RIGHT
+                text_color: 0xFF5000 
+                id: text2                     
+                text: '----'            
+            - label:    # мощность батарей
+                y: 108             
+                align: TOP_RIGHT 
+                text_color: 0x00FF00 
+                id: text3
+                text: '-----' 
+            - label:    # мощность дом потребление
+                y: 168             
+                align: TOP_RIGHT 
+                text_color: 0xA0F0F0 
+                id: text4
+                text: '----' 
+  
+ # суточные поеазатели цел
+       - obj:
+          x: 225 
+          y: 0 
+          height: 225
+          width: 55
+          bg_color: 0x000000
+          border_width: 0
+          outline_width: 0
+          shadow_width: 0
+          pad_all: 0
+          scrollbar_mode: "off"
+          scrollable: 'false'
+          text_font: bebasneue400_50
+          text_color: 0x00FFFF 
+          text_letter_space: 3
+          widgets:
+           - label:                
+              y: -1 
+              align: TOP_RIGHT
+              id: text1a           
+              text: "--." 
+           - label:                    
+              y: 59            
+              align: TOP_RIGHT
+              id: text2a                     
+              text: '--.'            
+           - label:
+              y: 119             
+              align: TOP_RIGHT 
+              id: text3a
+              text: '--.' 
+           - label:
+              y: 179             
+              align: TOP_RIGHT                      
+              id: text4a
+              text: '--.' 
+ # суточные поеазатели дроб
+       - obj:
+          x: 280
+          y: 0 
+          height: 225
+          width: 20      
+          bg_color: 0x000000
+          border_width: 0
+          outline_width: 0
+          shadow_width: 0
+          pad_all: 0
+          scrollbar_mode: "off"
+          scrollable: 'false'
+          text_font: bebasneue400_40
+          text_color: 0x00F0F0 
+          text_letter_space: 0
+          widgets:
+           - label:  # выработка да день дес       
+              y: 8                     
+              align: TOP_LEFT
+              id: text1b           
+              text: "-" 
+           - label:                   
+              y: 68            
+              align: TOP_LEFT
+              id: text2b                     
+              text: '-'            
+           - label:
+              y: 128             
+              align: TOP_LEFT 
+              id: text3b
+              text: '--' 
+           - label:
+              y: 188             
+              align: TOP_LEFT                      
+              id: text4b
+              text: '-'
+ # температура
+      #    T1 ХОЛОДЛ
+       - obj:    #    T1  ХОЛОДЛ            
+          id: obj_t1
+          x: 330
+          y: 0                        
+          height: 75
+          width: 75    
+          styles: tempatura_k
+          scrollbar_mode: "off"
+          scrollable: 'false'           
+          widgets:
+           - label:    # t1            
+              styles: tempatura
+              text_color: 0x00ff00
+              id: text_t1           
+              text: "--" 
+      #    T2 ВХОД котел
+       - obj:    #    T2 ВХОД котел             
+          id: box_t2
+          x: 405
+          y: 0              
+          height: 75
+          width: 75
+          styles: tempatura_k        
+          scrollbar_mode: "off"
+          scrollable: 'false' 
+          widgets:
+           - label:    # t2            
+              styles: tempatura
+              text_color: 0x00ff00
+              id: text_t2           
+              text: "--"                     
+
+      #    T3  Морозилка холд
+       - obj:    #    T3   Морозилка холд            
+          id: obj_t3
+          x: 330
+          y: 75                   
+          height: 75
+          width: 75
+          styles: tempatura_k     
+          scrollbar_mode: "off"
+          scrollable: 'false' 
+          widgets:
+           - label:    # t3 показатели           
+              pad_right: 10                         
+              align: TOP_RIGHT
+              text_font: bebasneue400_50
+              text_color: 0x0080ff
+              id: text_t3           
+              text: "--" 
+      #    T4 выход Котел 
+       - obj:    #    T4  выход Котел             
+          x: 405
+          y: 75              
+          height: 75
+          width: 75
+          styles: tempatura_k
+          scrollbar_mode: "off"
+          scrollable: 'false' 
+          widgets:
+           - label:    # t4            
+              pad_right: 10
+              align: TOP_RIGHT
+              text_font: bebasneue400_50
+              text_color: 0x00ff00
+              id: text_t4           
+              text: "--"
+      #    T5   КАМЕРА моро
+       - obj:    #    T5   КАМЕРА мороз          
+          id: obj_t5
+          x: 330
+          y: 150                    
+          height: 75
+          width: 75
+          styles: tempatura_k     
+          scrollbar_mode: "off"
+          scrollable: 'false' 
+          widgets:
+           
+           - label:    # t5 показатели           
+              pad_right: 10 
+              align: TOP_RIGHT
+              text_font: bebasneue400_50
+              text_color: 0x0080ff
+              id: text_t5           
+              text: "--"         
+      #    T6   КОТЕЛ 
+       - obj:   #    T6   КОТЕЛ        
+          id: obj_t6
+          x: 405
+          y: 150          
+          height: 75
+          width: 75
+          styles: tempatura_k
+          scrollbar_mode: "off"
+          scrollable: 'false' 
+          widgets:
+           - label:    # t6            
+              pad_right: 10
+              align: TOP_RIGHT
+              text_font: bebasneue400_50
+              text_color: 0xffc800
+              id: text_t6           
+              text: "--"
+
+ # info
+        # 1
+       - button:
+          id: but_inf_1
+          styles: style_butinfo
+          x: 0
+          y: 231
+          width: 52
+          height: 40
+          checkable: false
+          pressed:
+            bg_color: 0
+          widgets: 
+           - label:    # Бойлер 1
+              id: inf_1  
+              x: 5
+              y: -1
+              pad_all: 0
+              text_font: icon_50          
+              text_color: 0x00ff00
+              text: "\U000F03A6"             
+        # 2
+       - button:    # 2  Бойлер 2
+          id: but_inf_2
+          styles: style_butinfo
+          x: 60
+          y: 231
+          width: 52
+          height: 40
+          checkable: false
+          pressed:
+            bg_color: 0
+          widgets:      
+           - label:    # Бойлер 2
+              id: inf_2
+              x: 5
+              y: -1
+              text_font: icon_50
+              text_color: 0x00FF00
+              text: "\U000F03A9" 
+        # 3
+       - button:   #  3  моторчик 1
+          id: but_inf_3
+          styles: style_butinfo
+          x: 120
+          y: 231
+          width: 52
+          height: 40
+          checkable: false
+          pressed:
+            bg_color: 0
+          widgets:        
+           - label:    # моторчик 1
+              id: inf_3
+              x: 5
+              y: -1
+              text_font: icon_50
+              text_color: 0x00FF00
+              text: "\U000F1472"  # mdi-fan-speed-1  Моторчик 1
+         # 4
+       - button:   #  4 моторчик 2
+          id: but_inf_4
+          styles: style_butinfo
+          x: 180
+          y: 231
+          width: 52
+          height: 40
+          checkable: false
+          pressed:
+            bg_color: 0 
+          widgets: 
+           - label:    # моторчик 2
+              id: inf_4
+              x: 5
+              y: -1
+              text_font: icon_50
+              text_color: 0x00FF00
+              text: "\U000F1473"  # mdi-fan-speed-2  Моторчик 2
+          # 5
+       - button:   #   моторчик 2
+          id: but_inf_5
+          styles: style_butinfo
+          x: 240
+          y: 231
+          width: 52
+          height: 40
+          checkable: false
+          pressed:
+            bg_color: 0   
+          widgets:       
+           - label:    #  
+              id: inf_5
+              x: 5
+              y: -1
+              text_font: icon_50
+              text_color: 0x00FF00          
+              text: "\U000F0238" 
+          # 6
+       - button:   #   моторчик 2
+          id: but_inf_6
+          styles: style_butinfo
+          x: 300
+          y: 231
+          width: 52
+          height: 40
+          checkable: false
+          pressed:
+            bg_color: 0  
+          widgets: 
+           - label:    # 
+              id: inf_6
+              x: 5
+              y: -1
+              text_font: icon_50
+              text_color: 0x00FF00          
+              text: "\U000F01DA"  # mdi-download        # ПОГРЕБ2  
+          # 7
+       - button:   #   моторчик 2
+          id: but_inf_7
+          styles: style_butinfo
+          x: 360
+          y: 231
+          width: 52
+          height: 40
+          checkable: false
+          pressed:
+            bg_color: 0   
+          widgets:
+           - label:    # 
+              id: inf_7
+              x: 5
+              y: -1
+              text_font: icon_50
+              text_color: 0x00FF00          
+              text: "\U000F07A9" # mdi-car-hatchback   ГАРАЖ
+          # 8
+       - button:   #   мо
+          id: but_inf_8
+          styles: style_butinfo
+          x: 420
+          y: 231
+          width: 52
+          height: 40
+          checkable: false
+          pressed:
+            bg_color: 0  
+          widgets:
+           - label:    # 
+              id: inf_8
+              x: 5
+              y: -1
+              text_font: icon_50
+              text_color: 0x00FF00          
+              text: "\U000F0D81"  # mdi-home-floor-2    ВХОД 2
+
+       - led:
+            id: led_id            
+            color: 0xFF0000
+            brightness: 100%
+            x: 450
+            y: 400
+            on_press:
+              then:
+                lvgl.page.show: my_page2              
+       - switch:
+          x: 280
+          y: 400
+          id: switch_id1
+          on_value: 
+            then:
+              lvgl.page.show: my_page2
+        # Example widget:
+       - slider:
+          x: 0
+          y: 400
+          width: 250
+          id: slider1 
+          value: 45           
+          min_value: 30
+          max_value: 100
+          on_value:
+            then:
+              - lambda: |-                   
+                   id(t1) =x;
+                   // id(slider_value).publish_state(x/100);
+                    id(led_tft).set_level(id(t1)/100.0);  
+                   // lv_label_set_text(id(text4c), "It is a circularly scrolling text. "); 
+                    //lv_obj_set_style_text_color(id(text4c), lv_color_make(x, 20, 20), LV_PART_MAIN | LV_STATE_DEFAULT);
+ # время                            
+                                      
+       - obj:    #    время
+          x: 0
+          y: 273          
+          height: 120
+          width: 800
+                                          
+          bg_color: 0x000001
+          border_color: 0x00ff00  #0xF0F0F0 
+          border_width: 1
+          outline_width: 0
+          outline_color: 0xF0F0F0
+          shadow_width: 0
+          pad_all: 0
+          radius: 10 
+          scrollbar_mode: "off"
+          scrollable: 'false'
+          widgets:                         
+           - label:    # мощность генерации панель            
+   
+              text_font: bebasneue400_120  #roboto500_120
+              text_letter_space: 5
+              text_color: 0x00ff00
+              id: text_time         
+              text: "20:48 17.08 пн"   
+                    
+ 
+ # страница 2
+    - id: my_page2
+      bg_color: 0x080888
+      pad_all: 0
+      scrollbar_mode: "ACTIVE"  # показывать полосу прокрутки при прокрутке 
+      scrollable: 'false' #true' # можно прокручивать страницу
+      widgets:
+        - button:
+            id: bt1     
+            x: 0
+            y: 0
+            bg_color: 0x00FF00
+            width: 20
+            height: 20
+            checkable: false #true
+            on_click:
+              lvgl.page.show: my_page1
+        - button:
+            id: bt2     
+            x: 150
+            y: 100
+            bg_color: 0x00FF00
+            width: 150
+            height: 150
+            checkable: false #true
+ 
+
+
+
+
+
+#  lambda: |-            
+#            // Найдем метки по их id и сохраним их указатели в глобальные переменные
+#            id(label_name) = find_widget_by_id(lv_scr_act(), "text21");
+
+globals:
+  - id: t1 #
+    type: int
+    initial_value: '60' 
+    restore_value: yes
+
+  - id: ft1 #
+    type: float
+    restore_value: no
+    initial_value: '14.14'
+
+  - id: fd #
+    type: float
+    restore_value: no
+    initial_value: '0'
+
+  - id: bufd #
+    type: float
+    restore_value: no
+    initial_value: '0'
+
+  - id: colorf
+    type: int
+    initial_value: '1'
+
+  - id: r1i
+    type: int
+    initial_value: '255'   
+
+  - id: label_name 
+    type: void*  
+  
+  - id: player_old_x
+    type: int
+    initial_value: '0'
+
+  - id: player_old_y
+    type: int
+    initial_value: '0'   
+ 
+
+number:
+  - platform: lvgl
+    widget: slider1
+    name: LVGL Slider 
+#    on_value:
+#      then: 
+#        - lvgl.label.update:
+#            id: text4c
+#            text_color: 50 
+#         - lambda: |-                
+#           // id(led_tft).set_level(x/100);
+#           id(text4c).set_style_text_color(lv_color_make(x, 50, 50), LV_PART_MAIN | LV_STATE_DEFAULT);            
+#              lv_label_set_text(tex4c, "It is a circularly scrolling text. ");
+
+script:
+  - id: update_dp1
+    then:
+      - lambda: |- 
+           int dp1=id(dp_1).state;
+             // lv_style_set_radius(id(style_p2_1),  dp1);  //  Установите нужный радиус  
+
+
+  - id: update_display1 # обновление страниц
+    then:         
+      - lambda: |-                   
+             id(led_tft).set_level(id(slider_value).state);
+
+  - id: update_color1
+    then:
+      - lambda: |-                          
+           int a=0;
+           int r1=id(r_1).state;  int r2=id(r_2).state;
+           int g1=id(g_1).state;  int g2=id(g_2).state;
+           int b1=id(b_1).state;  int b2=id(b_2).state; 
+                               
+           // lv_obj_set_style_text_color( id(text1b), lv_color_make(r, g, b), LV_PART_MAIN ); //| LV_STATE_DEFAULT);
+           // lv_obj_set_style_text_color( id(text2), lv_color_make(r1, g1, b1), LV_PART_MAIN ); //| LV_STATE_DEFAULT);
+           // lv_obj_set_style_text_color( id(text3), lv_color_make(r1, g1, b1), LV_PART_MAIN ); //| LV_STATE_DEFAULT);
+           // lv_obj_set_style_text_color( id(text4b), lv_color_make(r, g, b), LV_PART_MAIN ); //| LV_STATE_DEFAULT);      ); //    
+
+           //  lv_obj_set_style_text_color(id(text_t3), lv_color_make(r1, g1, b1), LV_PART_MAIN); // Устанавливаем новый цвет 
+           //       lv_style_set_bg_color(id(style_butinfo), lv_color_make(r1, g1, b1) ); // Устанавливаем новый цвет 
+           //   lv_style_set_border_color(id(style_butinfo), lv_color_make(r2, g2, b2));
+
+
+  - id: restore_data  # восстановление параметров при перезагрузки устройства           
+    then: 
+      - lambda: |- 
+          //lv_bar_set_start_value(id(slider1), 100, LV_ANIM_ON/OFF) ;
+          lv_slider_set_value(id(slider1), id(t1), LV_ANIM_OFF);
+          
+interval:
+  - interval: 1s
+    then:
+       - lambda: |-            
+            static char buf[11]; 
+            float f=0;
+            int r,g,b;
+            int fi,fd;
+            // МОЩНОСТЬ ПАНЕЛИ  
+               if (isnan(id(dc_power).state)) {lv_label_set_text(id(text1), "----");} //
+                else{ snprintf(buf, sizeof(buf), "%i", int(id(dc_power).state));   //
+                      lv_label_set_text(id(text1), buf);    // обновление для 1 страниц
+                      
+                     }                         //
+
+            // МОЩНОСТЬ СЕТЬ
+               if (isnan(id(z2_ph0_power).state)) {lv_label_set_text(id(text2), "----");}  //  
+                else{ snprintf(buf, sizeof(buf), "%i", int(id(z2_ph0_power).state));         //
+                       lv_label_set_text(id(text2), buf);    // обновление для 1 страниц
+                      
+                     }                                //
+            
+            // МОЩНОСТЬ БАТАРЕЯ        
+               if(id(bat_power).state!=id(bat_power).state) {lv_label_set_text(id(text3), "----");} //
+                else{ fi=int(id(bat_power).state);
+                      if(fi<0) { r=255; g=80; b=0; fi=-fi; } // устанавливаем цвет рыжий   
+                           else{ r=0;   g=255; b=0; } // устанавливаем цвет зеленый
+                      lv_obj_set_style_text_color( id(text3), lv_color_make(r, g, b), LV_PART_MAIN );     // 1 
+                      
+                      snprintf(buf, sizeof(buf), "%i", abs(fi) ); 
+                      lv_label_set_text(id(text3), buf);    // обновление для 1 страниц                          
+                                       
+                     }
+
+            // МОЩНОСТЬ потребление ДОМ  sensor: z2_ph1_power
+               if(id(z2_ph1_power).state!=id(z2_ph1_power).state) {lv_label_set_text(id(text4), "----");} //
+                else{ snprintf( buf, sizeof(buf), "%i", int(id(z2_ph1_power).state) ); 
+                      lv_label_set_text( id(text4), buf );      // обновление для 1 страниц  
+                                         
+                     }
+
+            // СУТОЧНЫЕ ВЫРАБОТКА   id: solarman_daily_production
+               if(id(solarman_daily_production).state!=id(solarman_daily_production).state) {lv_label_set_text(id(text1a), "-."); lv_label_set_text(id(text1b), "-");} //
+                 else{ f=id(solarman_daily_production).state;
+                      fi=int(f);         // 
+                      fd=int(10*(f-fi)); // 
+                      snprintf( buf, sizeof(buf), "%i.", fi ); 
+                      lv_label_set_text( id(text1a), buf );        // 1           
+                     
+                      snprintf( buf, sizeof(buf), "%i", fd ); 
+                      lv_label_set_text( id(text1b), buf );        // 1
+                      
+                     }            
+
+            // СУТОЧНЫЕ ПОТРЕБЛЕНИЕ СЕТЬ  id: solarman_daily_energy_bought         
+               if(id(solarman_daily_energy_bought).state!=id(solarman_daily_energy_bought).state) {lv_label_set_text(id(text2a), "-."); lv_label_set_text(id(text2b), "-");} //
+                else{ f=id(solarman_daily_energy_bought).state;
+                      fi=int(f);
+                      fd=int(10*(f-fi));
+                      snprintf( buf, sizeof(buf), "%i.", fi ); 
+                      lv_label_set_text( id(text2a), buf );       // 1             
+                      
+                      snprintf( buf, sizeof(buf), "%i", fd ); 
+                      lv_label_set_text( id(text2b), buf );       // 1
+                   
+                     }             
+            
+            // СУТОЧНЫЕ ЕМКОСТЬ АКБ   id: bat_energy
+               if(id(bat_energy).state!=id(bat_energy).state) {lv_label_set_text(id(text3a), "-."); lv_label_set_text(id(text3b), "-");} //
+                else{ f=id(bat_energy).state/20;
+                      fi=int(f);
+                      fd=int(10*(f-fi));
+                      snprintf( buf, sizeof(buf), "%i.", fi ); 
+                      lv_label_set_text( id(text3a), buf );       // 1                
+                  
+                      snprintf( buf, sizeof(buf), "%i", fd ); 
+                      lv_label_set_text( id(text3b), buf );       // 1
+                
+                     }            
+            
+            // СУТОЧНЫЕ ПОТРЕБЛЕНИЕ ДОМ  id: solarman_daily_load_consumption
+               if(id(solarman_daily_load_consumption).state!=id(solarman_daily_load_consumption).state) {lv_label_set_text(id(text4a), "-."); lv_label_set_text(id(text4b), "-");} //
+                else{ f=id(solarman_daily_load_consumption).state;
+                      fi=int(f);
+                      fd=int(10*(f-fi));
+                      snprintf( buf, sizeof(buf), "%i.", fi ); 
+                      lv_label_set_text( id(text4a), buf );        // 1             
+                    
+                      snprintf( buf, sizeof(buf), "%i", fd ); 
+                      lv_label_set_text( id(text4b), buf );        // 1
+                     
+                     }
+            // - ТЕМПЕРАТУРА -        
+                 
+             // - t1 - холодильник id: d6t_1  ,  s: sensor.display6_temperature1 
+                if(isnan(id(d6t_1).state)){lv_label_set_text( id(text_t1), "-" );}
+                  else{ snprintf( buf, sizeof(buf), "%i", int(id(d6t_1).state) ); 
+                        lv_label_set_text( id(text_t1), buf );        
+                  }                
+            
+             // - t2 - вход котел id: d7t_1  ,  s: sensor.display7_temperature6
+                if(isnan(id(d7t_1).state))  {lv_label_set_text( id(text_t2), "-" );}
+                    else{ snprintf( buf, sizeof(buf), "%i", int(id(d7t_1).state) ); 
+                          lv_label_set_text( id(text_t2), buf );         
+                    }             
+            
+             // - t3 - морозилка  id: d6t_2  ,  s: sensor.display6_temperature2
+                if(isnan(id(d6t_2).state)) { lv_label_set_text( id(text_t3), "-" );} 
+                  else{ snprintf( buf, sizeof(buf), "%i", int(id(d6t_2).state) ); 
+                        lv_label_set_text( id(text_t3), buf );       
+                  }
+            
+             // - t4 - выход котел id: d7t_5  ,  s: sensor.display7_temperature5
+                if(isnan(id(d7t_5).state)) {lv_label_set_text( id(text_t4), "-" );} 
+                    else{ snprintf( buf, sizeof(buf), "%i", int(id(d7t_5).state) ); 
+                          lv_label_set_text( id(text_t4), buf );         
+                    }                
+            
+             // - t5 - камера id: d7t_4  ,  s: sensor.display7_temperature4
+                if(isnan(id(d7t_4).state)) {lv_label_set_text( id(text_t5), "-" );}  
+                  else{ snprintf( buf, sizeof(buf), "%i", int(id(d7t_4).state) ); 
+                        lv_label_set_text( id(text_t5), buf );          
+                  }
+              
+             // - t6 - Пламя  id: d7t_2  ,  s: sensor.display7_temperature2
+                if(isnan(id(d7t_2).state)) {lv_label_set_text( id(text_t6), "-" );} 
+                    else{ snprintf( buf, sizeof(buf), "%i", int(id(d7t_2).state) ); 
+                          lv_label_set_text( id(text_t6), buf );         
+                        } 
+
+            // - ВРЕМЯ -
+               static char time_buf[25];
+               auto time_t = id(sntp_time).now();
+               snprintf(time_buf, sizeof(time_buf), "%02d:%02d:%02d   %02d/%02d",time_t.hour, time_t.minute, time_t.second, time_t.day_of_month, time_t.month);
+               lv_label_set_text( id(text_time), time_buf );        //  
+
+             // 
+                //if (id(rz4_switch).state) {
+                //  lv_obj_set_style_bg_color(id(bt3), lv_color_make(255, 0, 0), LV_PART_MAIN ); // | LV_STATE_DEFAULT);}  // Red color when switch is on          
+                //  else{lv_obj_set_style_bg_color(id(bt3), lv_color_make(255, 0, 255), LV_PART_MAIN ); // | LV_STATE_DEFAULT);}               
+
+                 
+                 
+                //if (id(rz4_switch).state) {
+                //lv_obj_set_style_bg_color(id(box_t1), lv_color_make(255, 0, 0), LV_PART_MAIN ); // | LV_STATE_DEFAULT);}  // Red color when switch is on          
+                //else{lv_obj_set_style_bg_color(id(box_t1), lv_color_make(255, 0, 255), LV_PART_MAIN ); // | LV_STATE_DEFAULT);} 
+                //  else{ lv_color_t color = lv_color_make(0,255,0); lv_obj_set_style_bg_color(id(box_t1), color, LV_PART_MAIN ); // | LV_STATE_DEFAULT);}
+
+            //  - INFO -
+                lv_color_t color0 = lv_color_make(100,100,100);  // отключенно
+                lv_color_t color1 = lv_color_make(255,255,  0);  // включенно для розеток ожидание
+                lv_color_t color2 = lv_color_make(255,  0,  0);  // пошла нагрузка
+                lv_color_t color3 = lv_color_make(0,  255,  0);  // включено для выключателей
+                lv_color_t colori = color0;  // цвет иконки
+              // - 1 - rz01 бойлер 1
+                colori = color0;
+                if (id(rz01_switch).state)    { colori=color1;}
+                if (id(rz01_power).state >10) { colori=color2;}                
+                lv_obj_set_style_text_color(id(inf_1), colori, LV_PART_MAIN ); //                
+                lv_obj_set_style_border_color(id(but_inf_1), colori, LV_PART_MAIN ); //    
+              // - 2 - rz02 бойлер 2
+                colori = color0; 
+                if (id(rz02_switch).state)    { colori=color1;}
+                if (id(rz02_power).state >10) { colori=color2;}                
+                lv_obj_set_style_text_color(id(inf_2), colori, LV_PART_MAIN ); //   
+                lv_obj_set_style_border_color(id(but_inf_2), colori, LV_PART_MAIN ); //    
+              // - 3 - rz13 моторчик 1
+                colori = color0; 
+                if (id(rz13_switch).state)    { colori=color1;}
+                if (id(rz13_power).state >10) { colori=color2;}                
+                lv_obj_set_style_text_color(id(inf_3), colori, LV_PART_MAIN ); //  
+                lv_obj_set_style_border_color(id(but_inf_3), colori, LV_PART_MAIN ); //   
+              // - 4 - rz14 моторчик 2
+                colori = color0; 
+                if (id(rz14_switch).state)    { colori=color1;}
+                if (id(rz14_power).state >10) { colori=color2;}                
+                lv_obj_set_style_text_color(id(inf_4), colori, LV_PART_MAIN ); //  
+                lv_obj_set_style_border_color(id(but_inf_4), colori, LV_PART_MAIN ); //   
+              // - 5 - rz12  КОТЕЛ
+                colori = color0; 
+                if (id(rz12_switch).state)    { colori=color1;}
+                if (id(rz12_power).state >5) { colori=color2;}                
+                lv_obj_set_style_text_color(id(inf_5), colori, LV_PART_MAIN ); //  
+                lv_obj_set_style_border_color(id(but_inf_5), colori, LV_PART_MAIN ); //   
+              // - 6 - sw2 ПОГРЕБ
+                colori = color3; 
+                if (id(sw2_switch).state)    { colori=color2;}               
+                lv_obj_set_style_text_color(id(inf_6), colori, LV_PART_MAIN ); //  
+                lv_obj_set_style_border_color(id(but_inf_6), colori, LV_PART_MAIN ); //  
+              // - 7 - sw6 ГАРАЖ
+                colori = color3; 
+                if (id(sw6_switch).state)    { colori=color2;}                                  
+                lv_obj_set_style_text_color(id(inf_7), colori, LV_PART_MAIN ); //  
+                lv_obj_set_style_border_color(id(but_inf_7), colori, LV_PART_MAIN ); //      
+              // - 8- sw7  ВХОД 2
+                colori = color3; 
+                if (id(sw7_switch).state)    { colori=color2;}                                 
+                lv_obj_set_style_text_color(id(inf_8), colori, LV_PART_MAIN ); //  
+                lv_obj_set_style_border_color(id(but_inf_8), colori, LV_PART_MAIN ); // 

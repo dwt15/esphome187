@@ -1,0 +1,298 @@
+         obj:
+          id: obj_bat
+          hidden: true             # скрыть 
+          styles: style_srv_window  
+          height: 245              #
+          width: 670               #          
+          scrollable: 'false'      #          
+          widgets:         
+       # наименования 
+           - label: 
+              styles: style_srv_icon   
+              text: "${icn_batarey}" # bat           
+           - label: #--------------- total
+              id: obj_bat_n0
+              y: 40
+              x: 15
+              styles: style_bt_n 
+              text_color: 0xffff00
+              text: "bat.840"               
+           - label: #--------------- eva105
+              id: obj_bat_n1
+              y: 79
+              x: 15
+              styles: style_bt_n 
+              text: "eva105"
+           - label: #--------------- byd125
+              id: obj_bat_n2
+              y: 118
+              x: 15
+              styles: style_bt_n              
+              text: "byd125"               
+           - label: #--------------- env305
+              id: obj_bat_n3
+              y: 157
+              x: 15
+              styles: style_bt_n 
+              text: "env305"               
+           - label: #--------------- env3052
+              id: obj_bat_n4      
+              y: 196
+              x: 15
+              styles: style_bt_n 
+              text: "env3052"               
+       #  parametr ------------------------------------------------------------------------------------------
+           - obj:
+              id: srv_bat_p
+              x: 120         
+              y: 1
+              height: 243             #
+              width: 549              #
+              bg_color: 0x000040      #
+              border_color: 0x00f000  #
+              border_width: 0         #
+              outline_width: 0        #
+              shadow_width: 0         #                         
+              pad_all: 0              #
+              pad_right: 14
+                           
+              scrollbar_mode: "off"   # прокрутка показывать ползунок "ACTIVE" / "off"
+              scrollable: 'true'      # прокрутка разрешение 'false' / 'true'             
+              widgets:                      
+             # - A ---- srv_batx_cur                                     
+               - label:               # cx "A"  
+                  id: srv_batn_cur
+                  styles: style_bat_c   # x
+                  x: -485
+                  y: 5                                         
+                  text: "A"         
+               - label:               # <batx_cur>  {srv_batx_cur} updata in sensor
+                  id: srv_batx_cur
+                  y: 40  
+                  text_color: 0xffff00
+                  styles: style_bat_c
+                  text: "xxxx.x"
+               - label:               # <bat1_cur>  {srv_bat1_cur} updata in sensor   
+                  id: srv_bat1_cur
+                  styles: style_bat_c   # x   
+                  y: 79                                 
+                  text: "xxx.x"  
+               - label:               # <bat2_cur>  {srv_bat2_cur} updata in sensor                 
+                  id: srv_bat2_cur
+                  styles: style_bat_c   # x 
+                  y: 118
+                  text: "xxx.x"
+               - label:               # <bat3_cur>  {srv_bat3_cur} updata in sensor  
+                  id: srv_bat3_cur
+                  styles: style_bat_c   # x 
+                  y: 157
+                  text: "xxx.x"
+               - label:               # <bat4_cur>  {srv_bat4_cur} updata in sensor  
+                  id: srv_bat4_cur
+                  styles: style_bat_c   # x
+                  y: 196
+                  text: "xxx.x"
+             # - V ---- srv_batx_volt                      
+               - label:               # "V"  
+                  id: srv_batn_volt
+                  styles: style_bat_v 
+                  x: -405    # ax1
+                  y: 5
+                  text: "V"
+               - label:               # <batx_volt> {srv_batx_volt} updata in sensor  
+                  id: srv_batx_volt
+                  y: 40
+                  text_color: 0xffff00
+                  styles: style_bat_v 
+                  text: "xx.xx"
+               - label:               # <bat1_volt> {srv_bat1_volt} updata in sensor 
+                  id: srv_bat1_volt
+                  styles: style_bat_v 
+                  y: 79
+                  text: "xx.xx"
+               - label:               # <bat2_volt> {srv_bat2_volt} updata in sensor  
+                  id: srv_bat2_volt
+                  styles: style_bat_v 
+                  y: 118
+                  text: "xx.xx"                                     
+               - label:               # <bat3_volt> {srv_bat3_volt} updata in sensor  
+                  id: srv_bat3_volt
+                  styles: style_bat_v 
+                  y: 157
+                  text: "xx.xx"
+               - label:               # <bat4_volt> {srv_bat4_volt} updata in sensor 
+                  id: srv_bat4_volt
+                  styles: style_bat_v 
+                  y: 196 
+                  text: "xx.xx"    
+             # - Ah --- srv_batx_ah                              
+               - label:               # "Ah"                   
+                  id: srv_batn_ah
+                  styles: style_bat_ah 
+                  y: 5
+                  x: -330   # ax2-10 
+                  text: "Ah"                                             
+               - label:               # <batx_ah>  {srv_batx_ah} updata in sensor   
+                  id: srv_batx_ah
+                  y: 40
+                  text_color: 0xffff00
+                  styles: style_bat_ah
+                  text: "xxx" 
+               - label:               # <bat1_ah>  {srv_bat1_ah} updata in sensor     
+                  id: srv_bat1_ah
+                  styles: style_bat_ah 
+                  y: 79
+                  text: "xxx"
+               - label:               # <bat2_ah>  {srv_bat2_ah} updata in sensor    
+                  id: srv_bat2_ah
+                  styles: style_bat_ah 
+                  y: 118
+                  text: "xxx" 
+               - label:               # <bat3_ah>  {srv_bat3_ah} updata in sensor      
+                  id: srv_bat3_ah
+                  styles: style_bat_ah 
+                  y: 157
+                  text: "xxx"
+               - label:               # <bat4_ah>  {srv_bat4_ah} updata in sensor    
+                  id: srv_bat4_ah
+                  styles: style_bat_ah 
+                  y: 196
+                  text: "xxx" 
+             # - SOC -- srv_batx_soc                         
+               - label:               # "SOC"  
+                  id: srv_batn_soc 
+                  y: 5
+                  x: -260    # ax1 
+                  styles: style_bt_p 
+                  text: "%"
+               - label:               #  <batx_soc> {srv_batx_soc} updata in sensor
+                  id: srv_batx_soc 
+                  y: 40
+                  x: -259 # ay1
+                  styles: style_bt_p 
+                  text_color: 0xffff00
+                  text: "xxx"
+               - label:               #  <bat1_soc> {srv_bat1_soc} updata in sensor  
+                  id: srv_bat1_soc 
+                  y: 79
+                  x: -259 # ay1
+                  styles: style_bt_p 
+                  text: "xxx"
+               - label:               #  <bat2_soc> {srv_bat2_soc} updata in sensor  
+                  id: srv_bat2_soc 
+                  y: 118
+                  x: -259 # ay1
+                  styles: style_bt_p 
+                  text: "xxx"                                     
+               - label:               #  <bat3_soc> {srv_bat3_soc} updata in sensor  
+                  id: srv_bat3_soc
+                  y: 157
+                  x: -259 # ay1
+                  styles: style_bt_p 
+                  text: "xxx"
+               - label:               #  <bat4_soc> {srv_bat4_soc} updata in sensor 
+                  id: srv_bat4_soc 
+                  y: 196
+                  x: -259 # ay1
+                  styles: style_bt_p 
+                  text: "xxx"         
+             # - Vmin - srv_batx_vmin                        
+               - label:               # "Vmin"                   
+                  id: srv_batn_vmin
+                  styles: style_bat_vmin 
+                  y: 5
+                  x: -170   # ax3 
+                  text: "Vmin"
+               - label:               # <batx_vmin> {srv_batx_vmin} updata in sensor    
+                  id: srv_batx_vmin
+                  y: 40  
+                  styles: style_bat_vmin
+                  text_color: 0xffff00
+                  text: "x.xxx"
+               - label:               # <bat1_vmin> {srv_bat1_vmin} updata in sensor    
+                  id: srv_bat1_vmin
+                  styles: style_bat_vmin 
+                  y: 79                      
+                  text: "x.xxx" 
+               - label:               # <bat2_vmin> {srv_bat2_vmin} updata in sensor   
+                  id: srv_bat2_vmin
+                  styles: style_bat_vmin 
+                  y: 118                     
+                  text: "x.xxx"
+               - label:               # <bat3_vmin> {srv_bat3_vmin} updata in sensor    
+                  id: srv_bat3_vmin
+                  styles: style_bat_vmin 
+                  y: 157                     
+                  text: "x.xxx" 
+               - label:               # <bat4_vmin> {srv_bat4_vmin} updata in sensor    
+                  id: srv_bat4_vmin
+                  styles: style_bat_vmin  
+                  y: 196                      
+                  text: "x.xxx"
+             # - Vmax - srv_batx_vmax                        
+               - label:               # "Vmax"                  
+                  id: srv_batn_vmax
+                  styles: style_bat_vmax
+                  y: 5
+                  x: -80   # ax4                   
+                  text: "Vmax"
+               - label:               # <batx_vmax> {srv_batx_vmax} updata in sensor  
+                  id: srv_batx_vmax                 
+                  y: 40
+                  styles: style_bat_vmax
+                  text_color: 0xffff00
+                  text: "x.xxx"
+               - label:               # <bat1_vmax> {srv_bat1_vmax} updata in sensor   
+                  id: srv_bat1_vmax
+                  styles: style_bat_vmax
+                  y: 79                       
+                  text: "x.xxx"
+               - label:               # <bat2_vmax> {srv_bat2_vmax} updata in sensor   
+                  id: srv_bat2_vmax
+                  styles: style_bat_vmax
+                  y: 118                      
+                  text: "x.xxx"
+               - label:               # <bat3_vmax> {srv_bat3_vmax} updata in sensor   
+                  id: srv_bat3_vmax
+                  styles: style_bat_vmax
+                  y: 157                      
+                  text: "x.xxx"
+               - label:               # <bat4_vmax> {srv_bat4_vmax} updata in sensor    
+                  id: srv_bat4_vmax
+                  styles: style_bat_vmax
+                  y: 196                      
+                  text: "x.xxx"
+             # - dV --- srv_batx_dv                              
+               - label:               #  "dV"  
+                  id: srv_batn_dv
+                  styles: style_bat_dv
+                  x: -5
+                  y: 5
+                  text: "dV"
+               - label:               #  <batx_dv> {srv_batx_dv} updata in sensor  
+                  id: srv_batx_dv
+                  y: 40
+                  styles: style_bat_dv
+                  text_color: 0xffff00 
+                  text: ".xxx"
+               - label:               #  <bat1_dv> {srv_bat1_dv} updata in sensor 
+                  id: srv_bat1_dv
+                  styles: style_bat_dv
+                  y: 79                                      
+                  text: ".xxx"
+               - label:               #  <bat2_dv> {srv_bat2_dv} updata in sensor 
+                  id: srv_bat2_dv
+                  styles: style_bat_dv
+                  y: 118                             
+                  text: ".xxx"
+               - label:               #  <bat3_dv> {srv_bat3_dv} updata in sensor
+                  id: srv_bat3_dv
+                  styles: style_bat_dv
+                  y: 157                         
+                  text: ".xxx"
+               - label:               #  <bat4_dv> {srv_bat4_dv} updata in sensor
+                  id: srv_bat4_dv
+                  styles: style_bat_dv 
+                  y: 196                           
+                  text: ".xxx"
+             #--------------------------------------------------- 

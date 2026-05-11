@@ -1,0 +1,144 @@
+esphome:
+  name: ds4832v02
+  friendly_name: ds4832v02
+#  on_boot:
+#    priority: 600
+#    then:
+#      - output.turn_on: gpio_tft
+
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  flash_size: 4MB  
+  framework:
+    type: esp-idf
+    version: recommended
+#    platform_version:
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "pqsJKkVDlyQ15GWwTos0l57vOat3uzzcuhsyM62bf1I="
+
+ota:
+  - platform: esphome
+    password: "4f3c6ae8a7a189a4f3c2cd4fc936e7fe"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Ds4832V02 Fallback Hotspot"
+    password: "gecFgKDEDIyO"
+
+captive_portal:
+
+spi:
+  id: display_qspi
+  type: quad
+  clk_pin: 47
+  data_pins: [21,48,40,39]
+
+power_supply:
+  id: backlight_id
+  pin: 1
+  enable_on_boot: true
+
+
+#output:
+#  - platform: ledc
+#    pin: 1  # tft
+#    id: gpio_tft 
+
+i2c:
+  sda: 4
+  scl: 8
+
+
+#------------------
+display:
+  - platform: qspi_dbi
+    id: my_display1
+    model: JC4832W535
+    data_rate: 40MHz
+    rotation: 270
+    dimensions:
+      height: 480
+      width: 320
+    cs_pin:
+      number: 45
+      ignore_strapping_warning: true
+    show_test_card: true 
+     
+touchscreen:
+  platform: axs15231
+  id: my_touch
+  transform:
+    swap_xy: true
+    mirror_y: true
+
+lvgl:
+  
+
+  
+  displays:
+    - my_display1
+  
+  buffer_size: 25%
+  bg_color: 0x000080
+  text_color: 0xf0f000  
+  
+  pages:
+    - id: main_page
+      scrollbar_mode: "ACTIVE"  # показывать полосу прокрутки при прокрутке 
+      scrollable: 'true'        # можно прокручивать страницу
+      widgets:
+        - label:
+            x: 0
+            y: 0
+            text_font: montserrat_30
+            text: 'Hello World! montserrat_30'
+        - label:
+            x: 0
+            y: 40
+            text_font: montserrat_40
+            text: '123000  montserrat_40' 
+        - label:
+            x: 0
+            y: 80
+            text_font: montserrat_40
+            text: '452311  montserrat_40 ---1525  serg'         
+        - label:
+            x: 0
+            y: 130
+            text_font: montserrat_48
+            text: '12300  montserrat_48 123544'     
+        - label:
+            x: 0
+            y: 180
+            text_font: montserrat_48
+            text: '12300  montserrat_48 123544'
+        - label:
+            x: 0
+            y: 230
+            text_font: montserrat_48
+            text: '12300  montserrat_48 123544'
+        - label:
+            x: 0
+            y: 280
+            text_font: montserrat_48
+            text: '12300  montserrat_48 123544'
+        - label:
+            x: 0
+            y: 330
+            text_font: montserrat_48
+            text: '12300  montserrat_48 123544'    

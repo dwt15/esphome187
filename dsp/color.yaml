@@ -1,0 +1,133 @@
+color:
+ # иконки
+  - id: my_rgb_i1  # Серо-синий
+    red_int: 95
+    green_int: 160
+    blue_int: 160  
+  
+  - id: my_rgb_i2  # Gold
+    red_int: 255
+    green_int: 210
+    blue_int: 0 
+
+  - id: my_rgb_i3  # crimson  
+    red_int: 255
+    green_int: 20
+    blue_int: 60  
+ # показатели 
+  - id: my_rgb_v1  
+    red_int: 245
+    green_int: 245
+    blue_int: 220   
+  
+  - id: my_rgb_v2  # потребление
+    red_int:   250
+    green_int:  170
+    blue_int:  50  
+
+  - id: my_rgb_v3  
+    red_int: 50
+    green_int: 250
+    blue_int: 50 
+ #  размерность
+  - id: my_rgb_p1  
+    red_int: 150
+    green_int: 100
+    blue_int: 60      
+ # цвета
+  - id: my_red
+    red_int: 255
+    green_int: 0
+    blue_int: 0
+  - id: my_green
+    red_int: 0
+    green_int: 255
+    blue_int: 0
+  - id: my_blue
+    red_int: 0
+    green_int: 0
+    blue_int: 255
+  - id: my_white
+    red_int: 255
+    green_int: 255
+    blue_int: 255
+  - id: my_rb
+    red_int: 255
+    green_int: 0
+    blue_int: 255
+  - id: my_yellow
+    red_int: 255
+    green_int: 255
+    blue_int: 0
+  - id: my_bg
+    red_int: 0
+    green_int: 255
+    blue_int: 255
+  - id: my_50
+    red_int: 128
+    green_int: 128
+    blue_int: 128
+  - id: my_1
+    red_int: 125
+    green_int: 165
+    blue_int: 255
+  - id: my_2
+    red_int: 0
+    green_int: 115
+    blue_int: 190
+  - id: my_3
+    red_int: 0
+    green_int: 190
+    blue_int: 255
+  - id: my_4
+    red_int: 176
+    green_int: 196
+    blue_int: 222
+  - id: my_5
+    red_int: 220
+    green_int: 220
+    blue_int: 220
+  - id: my_6
+    red_int: 245
+    green_int: 245
+    blue_int: 245
+  - id: my_7
+    red_int: 100
+    green_int: 149
+    blue_int: 237
+  - id: my_8
+    red_int: 106
+    green_int: 90
+    blue_int: 205
+  - id: my_9 # orange
+    red_int: 255
+    green_int: 165
+    blue_int: 0
+  - id: my_10 # orangered
+    red_int: 255
+    green_int: 69
+    blue_int: 0
+  - id: my_11 # darkorange
+    red_int: 255
+    green_int: 140
+    blue_int: 0
+  - id: my_12 # 
+    red_int: 255
+    green_int: 100
+    blue_int: 0
+  - id: my_13 # lightsalmon
+    red_int: 255
+    green_int: 160
+    blue_int: 122
+  - id: my_14 #  lightcoral
+    red_int: 240
+    green_int: 128
+    blue_int: 128
+  - id: my_15 # tomato
+    red_int: 255
+    green_int: 100
+    blue_int: 70
+  - id: my_16 # crimson
+    red_int: 220
+    green_int: 20
+    blue_int: 60

@@ -1,0 +1,61 @@
+sensor:
+  - platform: homeassistant
+    id: r1 
+    entity_id: input_number.r1
+    name: "red1"
+    internal: true
+  - platform: homeassistant
+    id: g1 
+    entity_id: input_number.g1
+    name: "green1"
+    internal: true 
+  - platform: homeassistant
+    id: b1 
+    entity_id: input_number.b1
+    name: "blue1"
+    internal: true  
+  - platform: homeassistant
+    id: r2 
+    entity_id: input_number.r2
+    name: "red2"
+    internal: true
+  - platform: homeassistant
+    id: g2
+    entity_id: input_number.g2
+    name: "green2"
+    internal: true 
+  - platform: homeassistant
+    id: b2 
+    entity_id: input_number.b2
+    name: "blue2"
+    internal: true  
+  - platform: homeassistant
+    id: dp
+    entity_id: counter.dp
+    name: "dp"
+    internal: true 
+  - platform: homeassistant
+    id: dp_1
+    entity_id: input_number.dp1
+    name: "dp_1"
+    internal: true 
+  - platform: homeassistant
+    id: dp_2
+    entity_id: input_number.dp2
+    name: "dp_2"
+    internal: true
+  - platform: homeassistant
+    id: dp_3
+    entity_id: input_number.dp3
+    name: "dp_3"
+    internal: true
+  - platform: homeassistant
+    id: dp_4
+    entity_id: input_number.dp4
+    name: "dp_4"
+    internal: true
+  - platform: homeassistant
+    id: dp_5
+    entity_id: input_number.dp5
+    name: "dp_5"
+    internal: true

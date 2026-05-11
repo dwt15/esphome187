@@ -1,0 +1,32 @@
+esphome:
+  name: zx
+  friendly_name: zx
+
+esp32:
+  board: esp32-s3-devkitm-1
+  framework:
+    type: esp-idf
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "6V3o/5+VHTBi/QlqPJ9z82mFRTRs/n3idWwbcrZyIJI="
+
+ota:
+  - platform: esphome
+    password: "75ab333b1a42c6ff0af80eb06daafe07"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Zx Fallback Hotspot"
+    password: "HvrKqQpWJpmm"
+
+captive_portal:
+    

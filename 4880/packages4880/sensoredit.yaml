@@ -1,0 +1,285 @@
+ # edit help
+sensor:
+  - platform: homeassistant #dp0
+    id: dp_0
+    entity_id: input_number.dp0
+    internal: true 
+    on_value:
+       then:
+         - lambda: |-                           
+            id(update_dp1).execute();  
+  - platform: homeassistant #dp1
+    id: dp_1
+    entity_id: input_number.dp1
+    internal: true 
+    on_value:
+       then:
+         - lambda: |-                           
+            id(update_dp1).execute();
+  - platform: homeassistant #dp2
+    id: dp_2
+    entity_id: input_number.dp2    
+    on_value:
+       then:
+         - lambda: |-                
+            id(update_dp1).execute();
+  - platform: homeassistant #dp3
+    id: dp_3
+    entity_id: input_number.dp3   
+    on_value:
+       then:
+         - lambda: |-                
+            id(update_dp1).execute();                
+  - platform: homeassistant #dp4
+    id: dp_4
+    entity_id: input_number.dp4   
+    on_value:
+       then:
+         - lambda: |-                
+            id(update_dp1).execute();
+  - platform: homeassistant #dp5
+    id: dp_5
+    entity_id: input_number.dp5  
+    on_value:
+       then:
+         - lambda: |-                
+            id(update_dp1).execute(); 
+  #- platform: homeassistant #dp6
+  #  id: dp_6
+  #  entity_id: input_number.dp6   
+  #  on_value:
+  #     then:
+  #       - lambda: |-                
+  #          id(update_dp1).execute();
+  #- platform: homeassistant #dp7
+  #id: dp_7
+   #   entity_id: input_number.dp7  
+   #   on_value:
+    #     then:
+   #         - lambda: |-                
+   #            id(update_dp1).execute(); 
+  #- platform: homeassistant #dp8
+   #    id: dp_8
+   #    entity_id: input_number.dp8   
+   #    on_value:
+   #       then:
+    #        - lambda: |-                
+   #            id(update_dp1).execute();
+  #- platform: homeassistant #dp9
+   #    id: dp_9
+   #    entity_id: input_number.dp9  
+   #    on_value:
+   #       then:
+   #         - lambda: |-                
+   #            id(update_dp1).execute();
+  - platform: homeassistant #ax0
+    id: ax_0
+    entity_id: input_number.ax0
+    internal: true 
+    on_value:
+       then:
+         - lambda: |-                           
+            id(update_dp1).execute(); 
+  - platform: homeassistant #ax1
+    id: ax_1
+    entity_id: input_number.ax1
+    internal: true 
+    on_value:
+       then:
+         - lambda: |-                           
+            id(update_dp1).execute();
+  - platform: homeassistant #ax2
+    id: ax_2
+    entity_id: input_number.ax2    
+    on_value:
+       then:
+         - lambda: |-                
+            id(update_dp1).execute();
+  - platform: homeassistant #ax3
+    id: ax_3
+    entity_id: input_number.ax3   
+    on_value:
+       then:
+         - lambda: |-                
+            id(update_dp1).execute();                
+  - platform: homeassistant #ax4
+    id: ax_4
+    entity_id: input_number.ax4   
+    on_value:
+       then:
+         - lambda: |-                
+            id(update_dp1).execute();
+  - platform: homeassistant #ax5
+    id: ax_5
+    entity_id: input_number.ax5  
+    on_value:
+       then:
+         - lambda: |-                
+            id(update_dp1).execute();
+  #- platform: homeassistant #ax6
+  #    id: ax_6
+  #    entity_id: input_number.ax6   
+  #    on_value:
+  #       then:
+  #         - lambda: |-                
+  #            id(update_dp1).execute();
+  #- platform: homeassistant #ax7
+  #    id: ax_7
+  #    entity_id: input_number.ax7  
+  #    on_value:
+  #       then:
+  #         - lambda: |-                
+  #            id(update_dp1).execute();
+  #- platform: homeassistant #ax8
+  #    id: ax_8
+  #    entity_id: input_number.ax8   
+  #    on_value:
+  #       then:
+  #         - lambda: |-                
+  #            id(update_dp1).execute();
+  #- platform: homeassistant #ax9
+  #    id: ax_9
+  #    entity_id: input_number.ax9  
+  #    on_value:
+  #       then:
+  #         - lambda: |-                
+  #            id(update_dp1).execute(); 
+  - platform: homeassistant #ay0
+    id: ay_0
+    entity_id: input_number.ay0
+    internal: true 
+    on_value:
+       then:
+         - lambda: |-                           
+            id(update_dp1).execute();
+  - platform: homeassistant #ay1
+    id: ay_1
+    entity_id: input_number.ay1
+    internal: true 
+    on_value:
+       then:
+         - lambda: |-                           
+            id(update_dp1).execute();
+  - platform: homeassistant #ay2
+    id: ay_2
+    entity_id: input_number.ay2    
+    on_value:
+       then:
+         - lambda: |-                
+            id(update_dp1).execute();
+  - platform: homeassistant #ay3
+    id: ay_3
+    entity_id: input_number.ay3   
+    on_value:
+       then:
+         - lambda: |-                
+            id(update_dp1).execute();                
+  - platform: homeassistant #ay4
+    id: ay_4
+    entity_id: input_number.ay4   
+    on_value:
+       then:
+         - lambda: |-                
+            id(update_dp1).execute();
+  - platform: homeassistant #ay5
+    id: ay_5
+    entity_id: input_number.ay5  
+    on_value:
+       then:
+         - lambda: |-                
+            id(update_dp1).execute();
+  #- platform: homeassistant #ay6
+  #    id: ay_6
+  #    entity_id: input_number.ay6   
+  #    on_value:
+  #       then:
+  #         - lambda: |-                
+  #            id(update_dp1).execute();
+  #- platform: homeassistant #ay7
+  #    id: ay_7
+  #    entity_id: input_number.ay7  
+   #   on_value:
+  #       then:
+  #         - lambda: |-                
+  #            id(update_dp1).execute();
+  #- platform: homeassistant #ay8
+  #     id: ay_8
+  #     entity_id: input_number.ay8   
+  #     on_value:
+  #        then:
+  #          - lambda: |-                
+  #             id(update_dp1).execute();
+  #- platform: homeassistant #ay9
+  #     id: ay_9
+  #     entity_id: input_number.ay9 
+  #     on_value:
+  #        then:
+  #          - lambda: |-                
+  #            id(update_dp1).execute();
+  #
+  #
+  - platform: homeassistant # r_1
+    id: r_1
+    entity_id: input_number.r1 
+    on_value:
+       then:
+         - lambda: |-              
+             id(update_dp1).execute();
+  - platform: homeassistant # g_1
+    id: g_1
+    entity_id: input_number.g1
+    on_value:
+       then:
+         - lambda: |-             
+             id(update_dp1).execute();          
+  - platform: homeassistant # b_1
+    id: b_1
+    entity_id: input_number.b1
+    on_value:
+       then:
+         - lambda: |- 
+            id(update_dp1).execute();         
+  - platform: homeassistant # r_2
+    id: r_2 
+    entity_id: input_number.r2
+    on_value:
+       then:
+         - lambda: |- 
+            id(update_dp1).execute(); 
+  - platform: homeassistant # g_2
+    id: g_2
+    entity_id: input_number.g2
+    on_value:
+       then:
+         - lambda: |- 
+            id(update_dp1).execute();  
+  - platform: homeassistant # b_2
+    id: b_2 
+    entity_id: input_number.b2
+    on_value:
+       then:
+         - lambda: |- 
+            id(update_dp1).execute(); 
+  #- platform: homeassistant # r_3
+  #    id: r_3 
+  #    entity_id: input_number.r3
+  #    on_value:
+  #       then:
+  #         - lambda: |- 
+  #            id(update_dp1).execute(); 
+  #- platform: homeassistant # g_3
+  #    id: g_3
+  #    entity_id: input_number.g3
+   #   on_value:
+  #       then:
+  #         - lambda: |- 
+  #            id(update_dp1).execute();  
+  #- platform: homeassistant # b_3
+  #    id: b_3
+  #    entity_id: input_number.b3
+  #    on_value:
+  #       then:
+  #         - lambda: |- 
+  #            id(update_dp1).execute(); 
+  
+  

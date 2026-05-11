@@ -1,0 +1,83 @@
+# butt_xxv
+# butt_xxp
+sensor:
+   # butt_01 boiler1
+    - platform: homeassistant # <butt_01v> volt получаю от Home Assistant     [inf] {butt_01v} 
+      id: butt_01v
+      entity_id: ${butt_01v}
+    - platform: homeassistant # <butt_01p> volt получаю от Home Assistant     [inf] {butt_01p} 
+      id: butt_01p
+      entity_id: ${butt_01p}
+   # butt_02 boiler2
+    - platform: homeassistant # <butt_02v> volt получаю от Home Assistant     [inf] {butt_02v} 
+      id: butt_02v
+      entity_id: ${butt_02v}
+    - platform: homeassistant # <butt_02p> volt получаю от Home Assistant     [inf] {butt_02p} 
+      id: butt_02p
+      entity_id: ${butt_02p}
+   # butt_03 motor1
+    - platform: homeassistant # <butt_03v> volt получаю от Home Assistant     [inf] {butt_03v} 
+      id: butt_03v
+      entity_id: ${butt_03v}
+    - platform: homeassistant # <butt_03p> volt получаю от Home Assistant     [inf] {butt_03p} 
+      id: butt_03p
+      entity_id: ${butt_03p}
+   # butt_04 motor2
+    - platform: homeassistant # <butt_04v> volt получаю от Home Assistant     [inf] {butt_04v} 
+      id: butt_04v
+      entity_id: ${butt_04v}
+    - platform: homeassistant # <butt_04p> volt получаю от Home Assistant     [inf] {butt_04p} 
+      id: butt_04p
+      entity_id: ${butt_04p}
+   # butt_05 kotel gas
+    - platform: homeassistant # <butt_05v> volt получаю от Home Assistant     [inf] {butt_05v} 
+      id: butt_05v
+      entity_id: ${butt_05v}
+    - platform: homeassistant # <butt_05p> volt получаю от Home Assistant     [inf] {butt_05p} 
+      id: butt_05p
+      entity_id: ${butt_05p}
+               # butt_06 down switch
+                #- platform: homeassistant # <butt_06v> volt получаю от Home Assistant     [inf] {butt_06v} 
+                #  id: butt_06v
+                #  entity_id: ${butt_06v}
+                #- platform: homeassistant # <butt_06p> volt получаю от Home Assistant     [inf] {butt_06p} 
+                #  id: butt_06p
+                #  entity_id: ${butt_06p}
+               # butt_07 car switch
+                #- platform: homeassistant # <butt_07v> volt получаю от Home Assistant     [inf] {butt_06v} 
+                #  id: butt_07v
+                #  entity_id: ${butt_07v}
+                #- platform: homeassistant # <butt_07p> volt получаю от Home Assistant     [inf] {butt_06p} 
+                #  id: butt_07p
+                #  entity_id: ${butt_07p}
+               # butt_08 hod 2
+                #- platform: homeassistant # <butt_08v> volt получаю от Home Assistant     [inf] {butt_06v} 
+                #  id: butt_08v
+                #  entity_id: ${butt_08v}
+                #- platform: homeassistant # <butt_08p> volt получаю от Home Assistant     [inf] {butt_06p} 
+                #  id: butt_08p
+                #  entity_id: ${butt_08p}
+               # butt_09 сарай свет
+                #- platform: homeassistant # <butt_09v> volt получаю от Home Assistant     [inf] {butt_06v} 
+                #  id: butt_09v
+                #  entity_id: ${butt_09v}
+                #- platform: homeassistant # <butt_09p> volt получаю от Home Assistant     [inf] {butt_06p} 
+                #  id: butt_09p
+                #  entity_id: ${butt_09p}
+   # butt_10 test
+    - platform: homeassistant # <butt_10v> volt получаю от Home Assistant     [inf] {butt_06v} 
+      id: butt_10v
+      entity_id: ${butt_10v}
+    - platform: homeassistant # <butt_10p> volt получаю от Home Assistant     [inf] {butt_06p} 
+      id: butt_10p
+      entity_id: ${butt_10p}
+
+   # butt_11 deye fan
+    - platform: homeassistant # <butt_11v> volt получаю от Home Assistant     [inf] {butt_06v} 
+      id: butt_11v
+      entity_id: ${butt_11v}
+    - platform: homeassistant # <butt_11p> volt получаю от Home Assistant     [inf] {butt_06p} 
+      id: butt_11p
+      entity_id: ${butt_11p}
+      
+      

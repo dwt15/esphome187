@@ -1,0 +1,90 @@
+esphome:
+  name: camera10
+  friendly_name: camera10
+  on_boot: 
+    then:
+      - lambda: |-
+          id(streaming_now) = false;
+
+
+esp32:
+  board: esp32cam # Камера AI-Thinker 
+  framework:
+    type: esp-idf
+
+
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "3SrQ8V8xfuIRkBa/sk0kgFLmCxL2lp1HRm7qxqKArS0="
+
+ota:
+  - platform: esphome
+    password: "af0205675e1ddcc02b6ad46593261b48"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+
+  ap:
+    ssid: "Camera10 Fallback Hotspot"
+    password: "vVm07oh6hCf7"
+
+psram:
+  mode: quad                                # quad, octal or hex
+  speed: 80MHz   
+
+captive_portal:
+
+sensor:  
+  - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
+    name: "WiFi Signal dB"
+    id: wifi_signal_db
+    update_interval: 30s
+    entity_category: "diagnostic"
+
+esp32_camera: # Камера AI-Thinker 
+  external_clock:
+    pin: GPIO0
+    frequency: 20MHz
+  i2c_pins:
+    sda: GPIO26
+    scl: GPIO27
+  data_pins: [GPIO5, GPIO18, GPIO19, GPIO21, GPIO36, GPIO39, GPIO34, GPIO35]
+  vsync_pin: GPIO25
+  href_pin: GPIO23
+  pixel_clock_pin: GPIO22
+  power_down_pin: GPIO32
+  resolution: 1024x768
+  # Image settings
+  name: My Camera
+  # ... 
+  #
+  on_stream_start:
+    then:
+      - logger.log: "Кто-то подключился к камере"
+      - lambda: |-
+          id(streaming_now) = true;
+
+  on_stream_stop:
+    then:
+      - logger.log: "Камеру больше никто не смотрит"
+      - lambda: |-
+          id(streaming_now) = false;
+
+globals:
+  - id: streaming_now
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+binary_sensor:
+  - platform: template
+    name: "Кто-то смотрит ESP32-CAM"
+    lambda: |-
+      return id(streaming_now);      

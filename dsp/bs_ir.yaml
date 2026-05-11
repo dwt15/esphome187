@@ -1,0 +1,73 @@
+binary_sensor:
+ # remote_receiver
+ # but1
+  - platform: remote_receiver
+    name: "pult1" 
+    nec:
+      address: 0xFF00
+      command: 0xBA45
+    on_press: 
+      then:
+   #         - switch.toggle: gpio_16
+
+  - platform: remote_receiver
+    name: "pult1s" 
+    samsung:      
+      data: 0xE0E020DF
+    on_press: 
+      then:
+        #  - switch.toggle: gpio_16
+ # but2 
+  - platform: remote_receiver
+    name: "pult2" 
+    nec:
+      address: 0xFF00
+      command: 0xB946
+    on_press: 
+      then:
+   #        - switch.toggle: gpio_17
+
+  - platform: remote_receiver
+    name: "pult2s" 
+    samsung:      
+      data: 0xE0E0A05F
+    on_press: 
+      then:
+      # - switch.toggle: gpio_17
+ # but3 
+  - platform: remote_receiver
+    name: "pult3" 
+    nec:
+      address: 0xFF00
+      command: 0xB847
+    on_press: 
+      then:
+   #       - switch.toggle: gpio_4
+  - platform: remote_receiver
+    name: "pult3s" 
+    samsung:      
+      data: 0xE0E0609F
+    on_press: 
+      then:
+      #- switch.toggle: gpio_4
+ # but4 nec 0xBB44 S
+  - platform: remote_receiver
+    name: "pult4" 
+    nec:
+      address: 0xFF00
+      command: 0xBB44 
+    on_press: 
+      then:
+        - lambda: |- 
+                id(led_sv).set_level(0.1);
+ # but5 nec 0xBF40 S
+  - platform: remote_receiver
+    name: "pult5" 
+    nec:
+      address: 0xFF00
+      command: 0xBF40
+    on_press: 
+      then:
+        - lambda: |-                
+            id(led_sv).set_level(1.0);
+ 

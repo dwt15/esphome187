@@ -1,0 +1,355 @@
+color:
+ # иконки
+  - id: my_rgb_i1  # Серо-синий
+    red_int: 95
+    green_int: 160
+    blue_int: 160  
+  
+  - id: my_rgb_i2  # Gold
+    red_int: 255
+    green_int: 210
+    blue_int: 0 
+
+  - id: my_rgb_i3  # crimson  
+    red_int: 255
+    green_int: 20
+    blue_int: 60  
+ # показатели 
+  - id: my_rgb_v1  
+    red_int: 245
+    green_int: 245
+    blue_int: 220   
+  
+  - id: my_rgb_v2  # потребление
+    red_int:   250
+    green_int:  170
+    blue_int:  50  
+
+  - id: my_rgb_v3  
+    red_int: 50
+    green_int: 250
+    blue_int: 50 
+ #  размерность
+  - id: my_rgb_p1  
+    red_int: 150
+    green_int: 100
+    blue_int: 60      
+ # цвета
+  - id: my_red
+    red_int: 255
+    green_int: 0
+    blue_int: 0
+  - id: my_green
+    red_int: 0
+    green_int: 255
+    blue_int: 0
+  - id: my_blue
+    red_int: 0
+    green_int: 0
+    blue_int: 255
+  - id: my_white
+    red_int: 255
+    green_int: 255
+    blue_int: 255
+  - id: my_rb
+    red_int: 255
+    green_int: 0
+    blue_int: 255
+  - id: my_yellow
+    red_int: 255
+    green_int: 255
+    blue_int: 0
+  - id: my_bg
+    red_int: 0
+    green_int: 255
+    blue_int: 255
+  - id: my_50
+    red_int: 128
+    green_int: 128
+    blue_int: 128
+  - id: my_1
+    red_int: 125
+    green_int: 165
+    blue_int: 255
+  - id: my_2
+    red_int: 0
+    green_int: 115
+    blue_int: 190
+  - id: my_3
+    red_int: 0
+    green_int: 190
+    blue_int: 255
+  - id: my_4
+    red_int: 176
+    green_int: 196
+    blue_int: 222
+  - id: my_5
+    red_int: 220
+    green_int: 220
+    blue_int: 220
+  - id: my_6
+    red_int: 245
+    green_int: 245
+    blue_int: 245
+  - id: my_7
+    red_int: 100
+    green_int: 149
+    blue_int: 237
+  - id: my_8
+    red_int: 106
+    green_int: 90
+    blue_int: 205
+  - id: my_9 # orange
+    red_int: 255
+    green_int: 165
+    blue_int: 0
+  - id: my_10 # orangered
+    red_int: 255
+    green_int: 69
+    blue_int: 0
+  - id: my_11 # darkorange
+    red_int: 255
+    green_int: 140
+    blue_int: 0
+  - id: my_12 # 
+    red_int: 255
+    green_int: 100
+    blue_int: 0
+  - id: my_13 # lightsalmon
+    red_int: 255
+    green_int: 160
+    blue_int: 122
+  - id: my_14 #  lightcoral
+    red_int: 240
+    green_int: 128
+    blue_int: 128
+  - id: my_15 # tomato
+    red_int: 255
+    green_int: 100
+    blue_int: 70
+  - id: my_16 # crimson
+    red_int: 220
+    green_int: 20
+    blue_int: 60
+#_________________________________
+font:
+ # показатели 1 колонка my_font1
+  - file: "gfonts://Roboto"
+    id: my_font1
+    size: 25
+    glyphs: [" ",".","-","=",0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f,g,i,j,k,l,m,n,o,p,r,s,t,u,v,w,x,y,z,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z]
+ # показатели 2 колонка my_font1a
+  - file: "gfonts://Roboto"
+    id: my_font1a
+    size: 22   
+
+  #- file: "gfonts://Kosugi Maru"
+  #  id: my_font1a1
+  #  size: 22 
+  #- file: "gfonts://IBM Plex Mono"
+  #  id: my_font1a2
+  #  size: 22 
+  #- file: "gfonts://Signika Negative"
+  #  id: my_font1a3
+  #  size: 22 
+  - file: "gfonts://Reddit Mono"
+    id: my_font1a4
+    size: 22 
+  #- file: "gfonts://Source Code Pro"
+  #  id: my_font1a5
+  #  size: 22 
+  #- file: "gfonts://Sono"
+  #  id: my_font1a6
+  #  size: 22 
+  #- file: "gfonts://Azeret Mono"
+  #  id: my_font1a7
+  #  size: 22 
+  #- file: "gfonts://Martian Mono"
+  #  id: my_font1a8
+  #  size: 22 
+  - file: "gfonts://Reddit Mono"
+    id: my_font1a9
+    size: 30 
+
+
+  #    glyphs: [" ",".","-",0,1,2,3,4,5,6,7,8,9,a,n,o]
+ # размерность
+  - file: "gfonts://Roboto"
+    id: my_font2
+    size: 12
+    glyphs: [" ",".","-",0,1,2,3,4,5,6,7,8,9,
+             A,V,W,h,k,w,n,o]
+ #   my_font3
+  - file:
+      type: gfonts
+      family: Roboto
+      weight: 700
+    id: my_font3
+    size: 30
+    # glyphs: [" ",".","-",0,1,2,3,4,5,6,7,8,9,a,n,o]
+ # my_font4
+  - file: "gfonts://Roboto"
+    id: my_font4
+    size: 17
+    glyphs: [
+      1,2,3,4,5,6,7,8,9,"+","-"," ",
+      А,Б,В,Г,Д,Е,Ё,Ж,З,И,Й,К,Л,М,Н,О,П,Р,С,Т,У,Ф,Х,Ч,Ш,Щ,Ь,Ъ,Э,Ю,Я,
+      а,б,в,г,д,е,ё,ж,з,и,й,к,л,м,н,о,п,р,с,т,у,ф,х,ч,ш,щ,ь,ъ,э,ю,я]
+ # показатели мощности розеток
+  - file: "gfonts://Roboto"
+    id: my_font5
+    size: 17
+  #  glyphs: [" ",".","-",0,1,2,3,4,5,6,7,8,9,a,n,o]
+ 
+  - file:  "gfonts://Roboto@500" #"gfonts://Oswald@500" #"gfonts://Rubik@400" # "gfonts://Rubik@400" #  "gfonts://Oswald@600" #  
+    id: my_font1_a
+    size: 38  
+    glyphs: [" ",".","-",0,1,2,3,4,5,6,7,8,9,a,n,o]
+  - file: "gfonts://Bebas Neue@400" # "gfonts://Rubik@400" # "gfonts://Roboto" # "gfonts://Oswald@600" #   
+    id: my_font2_a
+    size: 35
+    glyphs: [" ",".","-",0,1,2,3,4,5,6,7,8,9,a,n,o]
+  - file:  "gfonts://Roboto@500" #"gfonts://Oswald@500" #"gfonts://Rubik@400" # "gfonts://Rubik@400" #  "gfonts://Oswald@600" #  
+    id: my_font1_b
+    size: 60  
+    glyphs: [" ",".","-",0,1,2,3,4,5,6,7,8,9,a,n,o]
+  - file: "gfonts://Bebas Neue@400" # "gfonts://Rubik@400" # "gfonts://Roboto" # "gfonts://Oswald@600" #   
+    id: my_font2_b
+    size: 50
+    glyphs: [" ",".","-",0,1,2,3,4,5,6,7,8,9,a,n,o]
+#_________________________________
+image:
+ # --- Иконки ----  
+ # солнечные панели
+  - file: mdi:solar-panel
+    id: solar_panel
+    resize: 20x20
+ # передача в город
+  - file: mdi:transmission-tower-export
+    id: grid_in
+    resize: 20x20
+ # люстра
+  - file: mdi:chandelier
+    id: chandelier
+    resize: 20x20
+ # батарея
+  - file: mdi:battery
+    id: battery
+    resize: 20x20
+ # батарея 30%
+  - file: mdi:battery-charging-30
+    id: battery_charging_30
+    resize: 20x20
+ # car battery
+  - file: mdi:car-battery
+    id: car_battery
+    resize: 20x20   
+ # молния
+  - file: mdi:flash
+    id: flash
+    resize: 20x20
+ #  ток
+  - file: mdi:current-dc
+    id: current_dc
+    resize: 20x20
+ # напряжение
+  - file: mdi:sine-wave  
+    id: sine_wave
+    resize: 20x20
+ # окно открыто
+  - file: mdi:window-open-variant
+    id: window_open
+    resize: 20x20
+ # окно закрыто
+  - file: mdi:window-closed-variant
+    id: window_closed 
+    resize: 20x20
+ # Дверь открыта
+  - file: mdi:door-open
+    id: door_open
+    resize: 20x20
+ # Дверь закрыта
+  - file: mdi:door-closed
+    id: door_closed
+    resize: 20x20
+ # Дверь 
+  - file: mdi:door
+    id: door
+    resize: 20x20
+ #
+  - file: mdi:snowflake 
+    id: snowflake
+    resize: 27x27
+
+  - file: mdi:shower-head
+    id: shower_head
+    resize: 27x27
+
+  - file: mdi:water-thermometer
+    id: water_thermometer
+    resize: 27x27
+
+  - file: mdi:water-boiler
+    id: water_boiler
+    resize: 27x27 
+
+  - file: mdi:water-boiler-alert 
+    id: water_boiler_alert
+    resize: 27x27
+
+  - file: mdi:scent
+    id: scent
+    resize: 27x27 
+
+  - file: mdi:scale-bathroom 
+    id: scale_bathroom
+    resize: 27x27
+
+  - file: mdi:account-cog 
+    id: account_cog
+    resize: 27x27
+
+  - file: mdi:account
+    id: account
+    resize: 27x27
+
+  - file: mdi:archive-outline
+    id: archive_outline
+    resize: 27x27
+
+  - file: mdi:numeric-1-box-outline
+    id: numeric_1_box_outline
+    resize: 27x27
+
+  - file: mdi:numeric-2-box-outline
+    id: numeric_2_box_outline
+    resize: 27x27  
+  
+  - file: mdi:heat-wave
+    id: heat_wave
+    resize: 27x27
+
+  - file: mdi:power-socket-eu
+    id: power_socket_eu
+    resize: 27x27
+ 
+  - file: mdi:power-plug
+    id: power_plug
+    resize: 27x27 
+  - file: mdi:solar-panel # solar-power-variant
+    id: solar_panel_1
+    resize: 28x28
+  - file: mdi:transmission-tower-export
+    id: grid_in_1
+    resize: 28x28
+  - file: mdi:car-battery #-charging
+    id: battery_1
+    resize: 28x28
+  - file: mdi:flash
+    id: flash_1
+    resize: 28x28
+ # mdi:power
+  - file: mdi:power
+    id: power
+    resize: 25x25
+#____________________________________

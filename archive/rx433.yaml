@@ -1,0 +1,46 @@
+esphome:
+  name: rx433
+  friendly_name: rx433
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "5qwJZylK6jPa7q90GPDKFVMVzSVwBvsV5oDz26JKQxs="
+
+ota:
+  - platform: esphome
+    password: "4bc4778963e343e1d73f3882b5ecd493"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Rx433 Fallback Hotspot"
+    password: "Uh8MAkycdesV"
+
+captive_portal:
+
+sensor: 
+ # погода
+  - platform: homeassistant
+    id: forecast_t
+    entity_id: weather.forecast_home
+    attribute: temperature
+    name: "Температура"   
+  
+  - platform: template
+    name: "Мой сенсор"
+    id: my_sensor
+    lambda: |-
+      return id(forecast_t).state * 2;
+    update_interval: 5s    

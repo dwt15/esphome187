@@ -1,0 +1,183 @@
+esphome:
+  name: oled1306
+  friendly_name: oled1306
+
+esp8266:
+  board: esp01_1m
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "G7BddwspP38IwdxSaPC5cFhAzxYhINXull2VvaGSB18="
+
+ota:
+  password: "167c3f6a176f97acf84ba40da87847b2"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+# Enable fallback hotspot (captive portal) in case wifi connection fails
+#  ap:
+#    ssid: "Oled Fallback Hotspot"
+#    password: "WqHwV8831hjP"
+# Example configuration entry
+# captive_portal:
+sensor:
+
+  - platform: homeassistant
+    id: eva105
+    entity_id: sensor.eva105_current
+    name: "105"
+    internal: true 
+
+  - platform: homeassistant
+    id: pv
+    entity_id: sensor.pv
+    name: "pv"
+    internal: true
+
+  - platform: dallas
+    address: 0xabdf8be908646128
+    name: "Living Room Temp"
+
+font:
+  - file: "gfonts://Roboto"
+    id: roboto
+    size: 28
+
+switch:
+  - platform: gpio
+    name: "Relay"
+    id: sw1
+    pin: 2
+
+dallas:
+  - pin: 12
+
+ 
+
+
+#remote_receiver:
+#  pin: 14
+#    mode:
+#      input: true
+#      pullup: true
+#  dump: all
+remote_receiver:
+  pin: 
+    number: 14
+    inverted: true
+    mode:
+      input: true
+      pullup: true
+  dump: all
+
+binary_sensor:
+# nec
+  - platform: remote_receiver
+    name: "pult1" # key1
+    nec:
+      address: 0xFF00
+      command: 0xBA45
+    on_press: 
+      then:
+          - switch.toggle: sw1
+# samsung
+  - platform: remote_receiver
+    name: "pult1s" # key 1
+    samsung:      
+      data: 0xE0E020DF
+    on_press: 
+      then:
+          - switch.toggle: sw1
+# pioneer
+  - platform: remote_receiver
+    name: "pult2" # key 2    
+    pioneer:
+      rc_code_1: 0x0046
+    on_press: 
+      then:
+          - switch.toggle: sw1
+# lg
+  - platform: remote_receiver
+    name: "pult3" # key 3    
+    lg:      
+       data: 0x00FFE21D
+       nbits: 32
+    on_press: 
+      then:
+          - switch.toggle: sw1
+# jvc no
+
+
+
+#    rc_switch_raw:
+#      code: [0x0045]  # Код сигнала от вашего ИК-пульта
+#      protocol: 1    # Протокол ИК-пульта (может потребоваться экспериментировать с этим значением)
+#   on_press:
+#     then:
+#        - switch.toggle: sw1  # Переключить реле при нажатии кнопки на ИК-пульте
+
+
+#binary_sensor:
+#  - platform: remote_receiver
+#    name: "Panasonic Remote Input"
+#    panasonic:
+#      address: 0x4004
+#      command: 0x100BCBD
+# Received NEC: address=0xFF00, command=0xBA45 command_repeats=1
+#binary_sensor:
+# - platform: remote_receiver
+#    name: "ha"
+#    
+#    raw:
+#      code: [0x0000, 0x0060, 0x0002, 0x0000, 0x0157, 0x0058, 0x0015, 0x0180, 0x06C3]
+#     code: [-720, 1468, -722, 1470, -2114, 1472, -722, 1470, -1416, 2218, -724, 1470, -724, 720, -698]
+#      code: [0000, 006D, 0022, 0000, 015A ,00AB, 0017, 0016, 0015, 0017, 0015, 0016, 0016, 0016, 0015, 0017, 0015, 0016, 0016, 0016, 0015, 0017, 0015, 0040, 0016, 0040, 0017, 0040, 0016, 0040, 0016, 0040, 0017, 0040, 0016, 0040, 0016, 0040, 0017, 0016, 0015, 0040, 0017, 0040, 0016, 0016 ]  # Код сигнала от вашего ИК-пульта
+#      protocol 1:    # Протокол ИК-пульта (может потребоваться экспериментировать с этим значением)
+#    on_press:
+#      then:
+#      - switch.toggle: sw1  # Переключить реле при нажатии кнопки на ИК-пульте
+
+
+i2c:
+  sda: 4
+  scl: 5
+
+
+display:
+  - platform: ssd1306_i2c
+    model: "SSD1306 128x32"
+    id: my_display 
+    #reset_pin: GPIO2
+    address: 0x3C
+    pages:
+      - id: page1
+        lambda: |-  
+          it.printf(0,0,id(roboto),"P: %.0fw",id(pv).state);
+      - id: page2
+        lambda: |- 
+           it.printf(0,0,id(roboto),"C1: %.1fA",id(eva105).state);
+      
+interval:
+  - interval: 1s
+    then:
+    # - switch.toggle: sw1
+  - interval: 11s
+    then:
+      #- switch.toggle: sw1
+      - display.page.show: page1
+      - component.update: my_display
+      
+      - delay: 5s
+      #- switch.toggle: sw1
+      - display.page.show: page2
+      - component.update: my_display
+
+# it.print(0,0,3, "Hello World!");
+# it.line(0, 0, 50, 50);
+# it.print(0,0,id(roboto),"123456789");

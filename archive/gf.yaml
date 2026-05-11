@@ -1,0 +1,249 @@
+esphome:
+  name: gf
+  friendly_name: gf
+
+esp8266:
+  board: esp01_1m
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "4XvbZvdOyYve5N57J1JOTBga6N/L2i22WpqFNmbG6fw="
+
+ota:
+  - platform: esphome
+    password: "6580e2b83ea2a692a6c6f36089f61862"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Gf Fallback Hotspot"
+    password: "DoMYRH6QnhiM"
+
+captive_portal:
+
+
+sensor:
+  - platform: template
+    name: temperature1 
+    id: temperature1 
+    unit_of_measurement: "C"
+    accuracy_decimals: 1
+  - platform: template
+    name: temperature2 
+    id: temperature2 
+    unit_of_measurement: "C"
+    accuracy_decimals: 1
+  - platform: template
+    name: temperature3 
+    id: temperature3
+    unit_of_measurement: "C"
+    accuracy_decimals: 1
+
+  - platform: template
+    name: humidity1 
+    id: humidity1  
+    unit_of_measurement: "%"
+    accuracy_decimals: 0
+  - platform: template
+    name: humidity2 
+    id: humidity2   
+    unit_of_measurement: "%"
+    accuracy_decimals: 0
+  - platform: template
+    name: humidity3 
+    id: humidity3
+    unit_of_measurement: "%"
+    accuracy_decimals: 0
+  
+  - platform: template
+    name: time1 
+    id: time1
+    unit_of_measurement: "m"
+    accuracy_decimals: 0
+    icon: mdi:clock-time-eight-outline
+  - platform: template
+    name: time2 
+    id: time2
+    unit_of_measurement: "m"
+    accuracy_decimals: 0
+    icon: mdi:clock-time-eight-outline
+  - platform: template
+    name: time3 
+    id: time3
+    unit_of_measurement: "m"
+    accuracy_decimals: 0
+    icon: mdi:clock-time-eight-outline
+
+interval:
+  - interval: 60s
+    then:
+       - lambda: |- 
+          id(time_c1) += 1;
+          id(time1).publish_state(id(time_c1));
+          id(time_c2) += 1;
+          id(time2).publish_state(id(time_c2));
+          id(time_c3) += 1;
+          id(time3).publish_state(id(time_c3));
+
+
+
+globals:
+  - id: time_c1
+    type: int
+    restore_value: yes
+    initial_value: '0'            
+  - id: time_c2
+    type: int
+    restore_value: yes
+    initial_value: '0' 
+  - id: time_c3
+    type: int
+    restore_value: yes
+    initial_value: '0' 
+
+
+
+
+remote_receiver:
+  pin: 12
+  #dump: raw #raw #all
+  # Settings to optimize recognition of RF devices
+  tolerance: 15%
+  filter: 420us #450us # 420us  #
+  idle: 6ms #7ms
+  buffer_size: 1kb # only for ESP8266    
+
+  on_raw:
+    then:
+      - lambda: |-
+          std::vector<int> binary_data;
+           float temperature_f;
+           int humidity;
+           int temperature;
+           for (auto& pulse : x) {
+            if (pulse < -1800 && pulse > -2200) { // 2 мс -> 0
+              binary_data.push_back(0);
+            } else if (pulse < -3800 && pulse > -4200) { // 4 мс -> 1
+              binary_data.push_back(1);
+            }
+          }
+          
+          // Вывод массива в лог
+          std::string binary_string;
+          int bit;
+          int ch;
+          int i=0;
+          for (auto bit : binary_data) {
+           i=i+1; binary_string += std::to_string(bit);
+          }
+          
+          if (i == 36 ){
+               //               // 0
+                int s=0;     
+                if(binary_string[0] == '1'){s=s+1;}                     
+                if(binary_string[1] == '1'){s=s+2;} 
+                if(binary_string[2] == '1'){s=s+4;} 
+                if(binary_string[3] == '1'){s=s+8;} 
+                   // 1
+                if(binary_string[4] == '1'){s=s+1;}                     
+                if(binary_string[5] == '1'){s=s+2;} 
+                if(binary_string[6] == '1'){s=s+4;} 
+                if(binary_string[7] == '1'){s=s+8;}                
+                   // 2   
+                if(binary_string[8]  == '1'){s=s+1;}                     
+                if(binary_string[9]  == '1'){s=s+2;} 
+                if(binary_string[10] == '1'){s=s+4;} 
+                if(binary_string[11] == '1'){s=s+8;} 
+                   // 3  
+                if(binary_string[12] == '1'){s=s+1;}                     
+                if(binary_string[13] == '1'){s=s+2;} 
+                if(binary_string[14] == '1'){s=s+4;} 
+                if(binary_string[15] == '1'){s=s+8;} 
+                   // 4
+                if(binary_string[16] == '1'){s=s+1;}                     
+                if(binary_string[17] == '1'){s=s+2;} 
+                if(binary_string[18] == '1'){s=s+4;} 
+                if(binary_string[19] == '1'){s=s+8;} 
+                   // 5
+                if(binary_string[20] == '1'){s=s+1;}                     
+                if(binary_string[21] == '1'){s=s+2;} 
+                if(binary_string[22] == '1'){s=s+4;} 
+                if(binary_string[23] == '1'){s=s+8;} 
+                   // 6
+                if(binary_string[24] == '1'){s=s+1;}                     
+                if(binary_string[25] == '1'){s=s+2;} 
+                if(binary_string[26] == '1'){s=s+4;} 
+                if(binary_string[27] == '1'){s=s+8;} 
+                   // 7
+                if(binary_string[28] == '1'){s=s+1;}                     
+                if(binary_string[29] == '1'){s=s+2;} 
+                if(binary_string[30] == '1'){s=s+4;} 
+                if(binary_string[31] == '1'){s=s+8;} 
+                   // 8
+                if(binary_string[32] == '1'){s=s+1;}                     
+                if(binary_string[33] == '1'){s=s+2;} 
+                if(binary_string[34] == '1'){s=s+4;} 
+                if(binary_string[35] == '1'){s=s+8;} 
+           if (s == 31 or s == 47 or s == 63 ){
+              // chanel
+               bit=binary_string[5] - '0';ch=bit;
+               bit=binary_string[4] - '0';ch=ch+bit*2; 
+               if(ch==0){ch=3;}             
+              // humidity
+               bit=binary_string[28] - '0';humidity=bit;
+               bit=binary_string[29] - '0';humidity=humidity+bit*2;
+               bit=binary_string[30] - '0';humidity=humidity+bit*4;
+               bit=binary_string[31] - '0';humidity=humidity+bit*8;
+               humidity=humidity*10;
+               bit=binary_string[24] - '0';humidity=humidity+bit;
+               bit=binary_string[25] - '0';humidity=humidity+bit*2;
+               bit=binary_string[26] - '0';humidity=humidity+bit*4;
+               bit=binary_string[27] - '0';humidity=humidity+bit*8;             
+              // temperature
+               bit=binary_string[12] - '0'; temperature=bit;
+               bit=binary_string[13] - '0'; temperature=temperature+bit*2;
+               bit=binary_string[14] - '0'; temperature=temperature+bit*4;               
+               bit=binary_string[15] - '0'; temperature=temperature+bit*8;               
+               bit=binary_string[16] - '0'; temperature=temperature+bit*16;               
+               bit=binary_string[17] - '0'; temperature=temperature+bit*32;               
+               bit=binary_string[18] - '0'; temperature=temperature+bit*64;
+               bit=binary_string[19] - '0'; temperature=temperature+bit*128; 
+               bit=binary_string[20] - '0'; temperature=temperature+bit*256;
+               
+               if(binary_string[21] - '0'){temperature=temperature-512;}
+               temperature_f = temperature;
+               temperature_f = temperature_f/10;
+               
+               if (ch==1){
+                   id(temperature1).publish_state(temperature_f);
+                   id(humidity1).publish_state(humidity);
+                   id(time_c1)=0;
+                   id(time1).publish_state(id(time_c1));
+               }
+               if (ch==2){
+                   id(temperature2).publish_state(temperature_f);  
+                   id(humidity2).publish_state(humidity);
+                   id(time_c2)=0;
+                   id(time2).publish_state(id(time_c2));               
+               }
+               if (ch==3){
+                   id(temperature3).publish_state(temperature_f); 
+                   id(humidity3).publish_state(humidity);
+                   id(time_c3)=0;
+                   id(time3).publish_state(id(time_c3));                    
+                   }
+               
+              //ESP_LOGD("RF_DECODER", "Decoded bits: %s", binary_string.c_str());
+              // ESP_LOGD("RF_DECODER", "Decoded  ch: %i , t=%.1f°C , h=%i %%%", ch,temperature_f, humidity);
+           
+             
+           }            
+           else {ESP_LOGD("RF_DECODER", "Decoded bits: %s", binary_string.c_str());}  
+          }      

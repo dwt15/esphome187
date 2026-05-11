@@ -1,0 +1,1122 @@
+substitutions:  
+  pin_r: "4"  # красный на плате
+  pin_g: "16" # зеленый на плате
+  pin_b: "17" # синий   на плате
+  pin_y: "21" # яркость экрана
+  
+  pin_433: "22"
+  pin_buz: "27"
+
+  ch1_name: "1.Дом 2"
+  ch2_name: "2.Улица"
+  ch3_name: "3.Подвал"
+
+  x0_name: "0"   # start pos_x Имя
+  y0_name: "50"  # start pos_y Имя
+  dy_name: "68"  # между сторками
+  
+  x0_433: "115"  # start pos_x данные
+  y0_433: "44"   # start pos_y данные
+  dy_433: "68"   # между сторками
+  
+  he_433: "55"   # высота блока для данных
+  wi_433: "205"  # ширина блока для данных
+ 
+  x1_433: "-120" # pos_x целые градусы
+  y1_433: "14"   # pos_y целые градусы
+ # всенкоординаты относительно х0 у0  
+  x2_433: "0"    # pos_x десятые градусы 
+  y2_433: "31"   # pos_y десятые градусы
+  
+  x3_433: "4"    # pos_x icon "C" 
+  y3_433: "10"   # pos_y icon "C" 
+  
+  x4_433: "-15"  # pos_x влажность 
+  y4_433: "9"    # pos_y влажность
+  
+  x5_433: "0"    # pos_x icon "%" 
+  y5_433: "-30"  # pos_y icon "%"
+
+
+  dx_name: "115"    # ширина для имени
+  dx_ch_data: "205" # ширина для данных
+
+  buzz_01: "mission_imp:d=16,o=6,b=95:32d,32d#,32d,32d#,32d,32d#,32d,32d#,32d,32d,32d#,32e,32f,32f#,32g,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,a#,g,2d,32p,a#,g,2c#,32p,a#,g,2c,a#5,8c,2p,32p,a#5,g5,2f#,32p,a#5,g5,2f,32p,a#5,g5,2e,d#,8d"
+  buzz_02: "Funky Town:d=8,o=4,b=125:c6,c6,a#5,c6,p,g5,p,g5,c6,f6,e6,c6,2p,c6,c6,a#5,c6,p,g5,p,g5,c6,f6,e6,c6"
+  buzz_03: "Halloween:d=8,o=5,b=180:d6,g,g,d6,g,g,d6,g,d#6,g,d6,g,g,d6,g,g,d6,g,d#6,g,c#6,f#,f#,c#6,f#,f#,c#6,f#,d6,f#,c#6,f#,f#,c#6,f#,f#,c#6,f#,d6,f#"
+  buzz_04: "Kiss:d=4,o=5,b=140:8d4,8e4,f4.,8g4,f4,e4,d4,c4,2d4,8d4,8c4,2d4,8d4,8e4,f4.,8g4,f4,e4,c4,e4,2d4."
+  buzz_05: "Popcorn:d=16,o=5,b=160:a,p,g,p,a,p,e,p,c,p,e,p,8a4,8p,a,p,g,p,a,p,e,p,c,p,e,p,8a4,8p,a,p,b,p,c6,p,b,p,c6,p,a,p,b,p,a,p,b,p,g,p,a,p,g,p,a,p,f,8a,8p,a,p,g,p,a,p,e,p,c,p,e,p,8a4,8p,a,p,g,p,a,p,e,p,c,p,e,p,8a4,8p,a,p,b,p,c6,p,b,p,c6,p,a,p,b,p,a,p,b,p,g,p,a,p,g,p,a,p,b,4c6"
+  buzz_06: "Rich Man's World:d=8,o=6,b=112:e,e,e,e,e,e,16e5,16a5,16c,16e,d#,d#,d#,d#,d#,d#,16f5,16a5,16c,16d#,4d,c,a5,c,4c,2a5,32a5,32c,32e,a6"
+  buzz_07: "Ring High:d=16,o=6,b=350:b5,d,b5,d,b5,d,b5,d,d,f,d,f,d,f,d,f,f,a,f,a,f,a,f,a."  
+  buzz_08: "Ring Low:d=16,o=5,b=355:b4,d,b4,d,b4,d,b4,d,d,f,d,f,d,f,d,f,f,a,f,a,f,a,f,a"
+  buzz_09: "Scale:d=32,o=5,b=160:c,d,e,f,g,a,b,c6,b,a,g,f,e,d,c"  
+  buzz_10: "To The Dump To The Dump To The Dump Dump Dump:d=8,o=5,b=270:c,c,4c,c,c,4c,c,c,f,p,g,p,4a,c,c,4c,c,c,4c,a,a,g,p,e,p,4c,c,c,4c,c,c,4c,c,c,f,p,g,p,4a,f,a,1c6,a,g,f,p,a.,p,f"
+  buzz_11: "Toccata:d=16,o=5,b=160:a,g,1a,g,f,e,d,2c#,p,2d,2p,a,g,1a,8e.,4f,2c#,2d"
+  buzz_12: "Tones:d=8,o=5,b=500:b,16p,b,2p,g,16p,g,2p,d6,16p,d6,2p,d,16p,d." 
+  buzz_13: "Trim Phone:d=16,o=5,b=350:a,b,a,b,a,b,a,4p,a,b,a,b,a,b,a,b,a."
+  buzz_14: "Vanessa Mae:d=16,o=5,b=140:c6,b,8c6,g,p,g,p,d#,p,d#,p,c,p,c,p,c6,b,8c6,g#,p,g#,p,f,p,8f,c,p,c,p,c6,b,8c6,g,p,g,p,d#,p,d#,p,c,p,c,p,g,f,d#,d,c,d,d#,c,d#,f,8g,8p,8d6,c6,d6,a#,d6,a,d6,g,d6,d6,p,d6,p,d6,p,8d6,c6,d6,a#,d6,a,d6,g,d6,d6,p,d6,p,d6,p,g,f,d#,d,c,d,d#,c,d#,f,4c."
+  buzz_15: ""
+  buzz_16: ""  
+  buzz_17: ""
+
+  alarm_1s: "binary_sensor.z2_se7_contact"
+  alarm_1m: "${buzz_01}" 
+  
+  alarm_2s: "binary_sensor.z2_se9_contact"
+  alarm_2m: "${buzz_02}"
+  
+  alarm_3s: "binary_sensor.z2_se5_contact"
+  alarm_3m: "${buzz_14}"
+
+esphome:
+  name: display5
+  friendly_name: display5
+  comment: "meteo433 d24x32x2.8"
+  on_boot:
+    priority: 600
+    then:
+      - output.turn_on: led_tft
+      - output.turn_on: led_b
+      - output.turn_on: led_g
+      - output.turn_on: led_r
+
+esp32:
+  board: esp32dev
+  flash_size: 4MB
+  framework:
+    #type: esp-idf
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+ # server_address: 109.95.32.19
+ # port: 6053
+  
+  encryption:
+    key: "DBYN8G/kBS+DIqz/GqaWrrXXLvF7q22fD9RNsAhzB5I="
+
+ota:
+  platform: esphome
+  password: "fb8254740bf92406ef98e1726b4b71cd"
+ 
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+captive_portal:
+#________________________________________________
+
+remote_receiver:
+  pin: ${pin_433} #22
+  #dump: raw #raw #all
+  # Settings to optimize recognition of RF devices
+  tolerance: 15%
+  filter: 420us #450us # 420us  #
+  idle: 6ms #7ms
+  buffer_size: 2kb # only for ESP8266    
+
+  on_raw:
+    then:
+      - lambda: |-
+          std::vector<int> binary_data;
+           float temperature_f;
+           int humidity;
+           int temperature;
+           for (auto& pulse : x) {
+            if (pulse < -1800 && pulse > -2200) { // 2 мс -> 0
+              binary_data.push_back(0);
+            } else if (pulse < -3800 && pulse > -4200) { // 4 мс -> 1
+              binary_data.push_back(1);
+            }
+          }
+          
+          // Вывод массива в лог
+          std::string binary_string;
+          int bit;
+          int ch;
+          int i=0;
+          for (auto bit : binary_data) {
+           i=i+1; binary_string += std::to_string(bit);
+          }
+          
+          if (i == 36 ){
+               //               // 0
+                //id(led_blue).turn_on();
+                id(led_b).turn_off();
+                int s=0;     
+                if(binary_string[0] == '1'){s=s+1;}                     
+                if(binary_string[1] == '1'){s=s+2;} 
+                if(binary_string[2] == '1'){s=s+4;} 
+                if(binary_string[3] == '1'){s=s+8;} 
+                   // 1
+                if(binary_string[4] == '1'){s=s+1;}                     
+                if(binary_string[5] == '1'){s=s+2;} 
+                if(binary_string[6] == '1'){s=s+4;} 
+                if(binary_string[7] == '1'){s=s+8;}                
+                   // 2   
+                if(binary_string[8]  == '1'){s=s+1;}                     
+                if(binary_string[9]  == '1'){s=s+2;} 
+                if(binary_string[10] == '1'){s=s+4;} 
+                if(binary_string[11] == '1'){s=s+8;} 
+                   // 3  
+                if(binary_string[12] == '1'){s=s+1;}                     
+                if(binary_string[13] == '1'){s=s+2;} 
+                if(binary_string[14] == '1'){s=s+4;} 
+                if(binary_string[15] == '1'){s=s+8;} 
+                   // 4
+                if(binary_string[16] == '1'){s=s+1;}                     
+                if(binary_string[17] == '1'){s=s+2;} 
+                if(binary_string[18] == '1'){s=s+4;} 
+                if(binary_string[19] == '1'){s=s+8;} 
+                   // 5
+                if(binary_string[20] == '1'){s=s+1;}                     
+                if(binary_string[21] == '1'){s=s+2;} 
+                if(binary_string[22] == '1'){s=s+4;} 
+                if(binary_string[23] == '1'){s=s+8;} 
+                   // 6
+                if(binary_string[24] == '1'){s=s+1;}                     
+                if(binary_string[25] == '1'){s=s+2;} 
+                if(binary_string[26] == '1'){s=s+4;} 
+                if(binary_string[27] == '1'){s=s+8;} 
+                   // 7
+                if(binary_string[28] == '1'){s=s+1;}                     
+                if(binary_string[29] == '1'){s=s+2;} 
+                if(binary_string[30] == '1'){s=s+4;} 
+                if(binary_string[31] == '1'){s=s+8;} 
+                   // 8
+                if(binary_string[32] == '1'){s=s+1;}                     
+                if(binary_string[33] == '1'){s=s+2;} 
+                if(binary_string[34] == '1'){s=s+4;} 
+                if(binary_string[35] == '1'){s=s+8;} 
+           if (s == 31 or s == 47 or s == 63 ){
+              // chanel
+               bit=binary_string[5] - '0';ch=bit;
+               bit=binary_string[4] - '0';ch=ch+bit*2; 
+               if(ch==0){ch=3;}             
+              // humidity
+               bit=binary_string[28] - '0';humidity=bit;
+               bit=binary_string[29] - '0';humidity=humidity+bit*2;
+               bit=binary_string[30] - '0';humidity=humidity+bit*4;
+               bit=binary_string[31] - '0';humidity=humidity+bit*8;
+               humidity=humidity*10;
+               bit=binary_string[24] - '0';humidity=humidity+bit;
+               bit=binary_string[25] - '0';humidity=humidity+bit*2;
+               bit=binary_string[26] - '0';humidity=humidity+bit*4;
+               bit=binary_string[27] - '0';humidity=humidity+bit*8;             
+              // temperature
+               bit=binary_string[12] - '0'; temperature=bit;
+               bit=binary_string[13] - '0'; temperature=temperature+bit*2;
+               bit=binary_string[14] - '0'; temperature=temperature+bit*4;               
+               bit=binary_string[15] - '0'; temperature=temperature+bit*8;               
+               bit=binary_string[16] - '0'; temperature=temperature+bit*16;               
+               bit=binary_string[17] - '0'; temperature=temperature+bit*32;               
+               bit=binary_string[18] - '0'; temperature=temperature+bit*64;
+               bit=binary_string[19] - '0'; temperature=temperature+bit*128; 
+               bit=binary_string[20] - '0'; temperature=temperature+bit*256;
+               
+               if(binary_string[21] - '0'){temperature=temperature-512;}
+               temperature_f = temperature;
+               temperature_f = temperature_f/10;
+               
+               if (ch==1){
+                   if(binary_string[0] == '1'){
+                        id(temperature_1a).publish_state(temperature_f);
+                        id(humidity_1a).publish_state(humidity);
+                        id(time_c1a)=0;
+                        id(time_1a).publish_state(id(time_c1a));                  
+                        id(ch1_433).execute(); 
+                   }else{                   
+                        id(temperature_1).publish_state(temperature_f);
+                        id(humidity_1).publish_state(humidity);
+                        id(time_c1)=0;
+                        id(time_1).publish_state(id(time_c1));
+               }}
+               if (ch==2){
+                   id(temperature_2).publish_state(temperature_f);  
+                   id(humidity_2).publish_state(humidity);
+                   id(time_c2)=0;
+                   id(time_2).publish_state(id(time_c2));               
+                   id(ch2_433).execute(); 
+               }
+               if (ch==3){
+                   id(temperature_3).publish_state(temperature_f); 
+                   id(humidity_3).publish_state(humidity);
+                   id(time_c3)=0;
+                   id(time_3).publish_state(id(time_c3));                    
+                   id(ch3_433).execute();
+               }
+               
+              //ESP_LOGD("RF_DECODER", "Decoded bits: '%s --", binary_string.c_str());
+              // ESP_LOGD("RF_DECODER", "Decoded  ch: %i , t=%.1f°C , h=%i %%%", ch,temperature_f, humidity);
+              //id(led_blue).turn_on();
+             
+            delay(1);  // Задержка 0.1 секунды
+            //id(led_blue).turn_off();
+             id(led_b).turn_on();
+           }            
+           else {ESP_LOGD("RF_DECODER", "Decoded bits: %s '", binary_string.c_str());}  
+          } 
+
+#one_wire: # dallas
+#  - platform: gpio
+#    pin: 27
+
+output: 
+ # объявляем пины на отдачу
+  - platform: ledc  # подсветка экрана 27
+    pin: ${pin_y} #21
+    id: led_tft 
+   
+      
+  - platform: ledc  # светодиод на плате красный 
+    pin: ${pin_r} # 4 
+    id: led_r 
+  - platform: ledc  # светодиод на плате зеленый 
+    pin: ${pin_g} #16
+    id: led_g
+  - platform: ledc  # светодиод на плате синий 
+    pin: ${pin_b} #17
+    id: led_b  
+  
+  - platform: ledc  # светодиод на плате красный 
+    pin: ${pin_buz} #27 
+    id: rtttl_out 
+
+
+
+rtttl:
+  output: rtttl_out
+  id: my_rtttl
+  gain: 90%
+
+
+spi:
+  - id: spi0 # 
+    clk_pin: 14
+    mosi_pin: 13
+  #    miso_pin: 12
+  - id: spi1 #
+    clk_pin: 25
+    mosi_pin: 32
+    miso_pin: 39
+#--------------
+touchscreen:
+  platform: xpt2046
+  id: my_touch
+  spi_id: spi1
+  cs_pin: 33
+  calibration:
+    x_min: 200  # L:200    R:200 
+    x_max: 3830  # L:3830  R:3830 
+    y_min: 170  # L:170    R:170
+    y_max: 3780 # L:3780   R:3780
+  transform:
+    swap_xy: true #  L:true  R:true
+    mirror_x: true # L:true  R:false
+    mirror_y: true # L:true  R:false
+  on_touch:
+       - lambda: |-
+           ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
+               touch.x,
+               touch.y,
+               touch.x_raw,
+               touch.y_raw
+               );  
+#---------------
+display:
+  - platform: ili9xxx
+    model:  ILI9341 #TFT 2.4
+    id: my_display1     
+    spi_id: spi0
+    cs_pin: 15   
+    dc_pin: 2  
+    invert_colors: false    
+    color_palette: 8BIT    
+    color_order: rgb
+    transform:      
+      mirror_x: true #  L:true   R:false 
+      mirror_y: false # L:false  R:true 
+      swap_xy: false # L:false   R:false
+    dimensions:
+      height: 240
+      width: 320     
+  #    update_interval: 5s 
+
+lvgl:
+  touchscreens:
+    - my_touch
+  displays:
+    - my_display1
+  buffer_size: 25%
+  bg_color: 0x000000
+  text_color: 0x000000  
+  style_definitions:  
+   # obj
+    - id: style_m433_t
+      height: ${he_433}
+      width: ${wi_433}
+      bg_color: 0x100000
+      outline_color: 0x404000  # цвет внешнего контура
+      pad_all: 0
+      border_width: 0
+      outline_width: 0         # толщина внешнего контура
+      shadow_width: 0
+   # temperature
+    - id: style_m433_ti     #  
+      align: bottom_right
+      x: ${x1_433}  #-120    #  
+      y: ${y1_433}  #14      #  
+      pad_all: 0
+      text_font: RobotoCondensed_Medium_68
+      text_letter_space: 0 # 2  # dp0
+      text_color: 0x00f000 # 0xf0f000 
+    - id: style_m433_td     # Температура десятые
+      pad_all: 0
+      text_font: roboto_35  
+      text_letter_space: 0 # 2  # dp0
+      text_color: 0x00f000 # 0xf0f000 
+   # humi
+    - id: style_m433_h     #  
+      align: bottom_right
+      x: ${x4_433} #-15    #  
+      y: ${y4_433} #9      #  
+      pad_all: 0
+      text_font: RobotoCondensed_Medium_50 
+      text_letter_space: 0 # 2  # dp0
+      text_color: 0x00f000 # 0xf0f000     
+      # %
+    - id: style_m433_hr     #  
+      align: bottom_right
+      x: ${x5_433} #0    #  
+      y: ${y5_433} #-35      #  
+      pad_all: 0
+      text_font: RobotoCondensed_Regular_25
+      text_letter_space: 0 # 2  # dp0
+      text_color: 0x000080 # 0xf0f000  
+   # name
+    - id: style_m433_ch_name  
+      pad_all: 0
+      text_font: RobotoCondensed_Regular_25
+      text_letter_space: 0 # 2  # dp0
+      text_color: 0x008000 # 0xf0f000 
+   # icon
+    - id: style_m433_i 
+      pad_all: 0
+      text_font: icon_20
+      text_letter_space: 0 # 2  # dp0
+      text_color: 0x000080 # 0xf0f000    
+
+  pages:
+    - id: m433_page
+      scrollbar_mode: "off" #"ACTIVE"  # показывать полосу прокрутки при прокрутке 
+      scrollable: 'false'        # можно прокручивать страницу
+      widgets:
+ 
+        - label: # time_sec
+            id: time_sec
+            y: 3 
+            x: 80 
+            text_font: RobotoCondensed_Regular_25
+            text_color: 0x008000
+            text: "xx"         
+        - label: # time_hour_min
+            id: time_hour_min
+            align_to:  
+              id: time_sec
+              align:  OUT_LEFT_TOP # выравние вниз
+              y: -9 
+              x: -7            
+            text_font: roboto_35
+            text_color: 0x008000
+            text: "xx:xx" 
+        
+        - label: # name ch1
+            id: ch1_n
+            x: ${x0_name}  #0
+            y: ${y0_name}  #44
+            styles: style_m433_ch_name        
+            text: "${ch1_name}"
+        - label: # name ch2
+            id: ch2_n
+            align_to:
+             id: ch1_n
+             align:  TOP_LEFT # выравние вниз
+             y: ${dy_name}
+            styles: style_m433_ch_name        
+            text: "${ch2_name}"        
+        - label: # name ch3
+            id: ch3_n
+            align_to:
+             id: ch2_n
+             align:   TOP_LEFT 
+             y: ${dy_name}
+            styles: style_m433_ch_name        
+            text: "${ch3_name}"               
+        
+        - obj:   # ch1_t 
+            id: ch1_t
+            x: ${x0_433}  #115
+            y: ${y0_433}  #44             
+            styles: style_m433_t
+            scrollable: 'false' 
+            scrollbar_mode: 'off'
+            widgets:
+              - label:  # целое
+                  id: ch1_ti
+                  styles: style_m433_ti
+                  text: "xx"
+              - label:  # десятые
+                  id: ch1_td
+                  align_to:
+                    id: ch1_ti
+                    align:  OUT_RIGHT_TOP  # выравние вниз
+                    x: ${x2_433} #0
+                    y: ${y2_433} #31
+                  styles: style_m433_td
+                  text: ".x"        
+              - label:   # temperature-celsius
+                  id: ch1_i
+                  align_to:
+                    id: ch1_ti
+                    align:  OUT_RIGHT_TOP  # выравние вниз
+                    x: ${x3_433}  #4
+                    y: ${y3_433}  #10                 
+                  styles: style_m433_i
+                  text:  "\U000F0504"    # temperature-celsius                               
+              - label:   # влажность
+                  id: ch1_h
+                  styles: style_m433_h
+                  text: "xx"         
+              - label:   # влажность %
+                  id: ch1_hr
+                  styles: style_m433_hr
+                  text: "%"         
+        - obj:   # ch2_t       
+            id: ch2_t
+            align_to:
+              id: ch1_t
+              align: TOP_LEFT # выравние вниз
+              y: ${dy_433}               
+            styles: style_m433_t
+            scrollable: 'false' 
+            scrollbar_mode: 'off'
+            widgets:        
+              - label:   # целое 
+                  id: ch2_ti
+                  styles: style_m433_ti
+                  text: "xx"
+              - label:   # десятые
+                  id: ch2_td
+                  align_to:
+                    id: ch2_ti
+                    align:  OUT_RIGHT_TOP  # выравние вниз
+                    x: ${x2_433} #0
+                    y: ${y2_433} #31                 
+                  styles: style_m433_td
+                  text: ".x"
+              - label:   # temperature-celsius
+                  id: ch2_i
+                  align_to:
+                    id: ch2_ti
+                    align:  OUT_RIGHT_TOP  # выравние вниз
+                    x: ${x3_433}  #4
+                    y: ${y3_433}  #10                 
+                  styles: style_m433_i
+                  text:  "\U000F0504"    # temperature-celsius                   
+              - label:   # влажность
+                  id: ch2_h
+                  styles: style_m433_h
+                  text: "xx"                           
+              - label:   # влажность %
+                  id: ch2_hr
+                  styles: style_m433_hr
+                  text: "%" 
+
+        - obj:   # ch3_t       
+            id: ch3_t
+            align_to:
+              id: ch2_t
+              align: TOP_LEFT  # выравние вниз
+              y: ${dy_433}                   
+            styles: style_m433_t
+            scrollable: 'false' 
+            scrollbar_mode: 'off'
+            widgets:        
+              - label:   # целое 
+                  id: ch3_ti
+                  styles: style_m433_ti
+                  text: "xx"              
+              - label:   # десятые
+                  id: ch3_td
+                  align_to:
+                    id: ch3_ti
+                    align:  OUT_RIGHT_TOP  # выравние вниз
+                    x: ${x2_433} #0
+                    y: ${y2_433} #31                  
+                  styles: style_m433_td
+                  text: ".x"
+              - label:   # temperature-celsius
+                  id: ch3_i
+                  align_to:
+                    id: ch3_ti
+                    align:  OUT_RIGHT_TOP  # выравние вниз
+                    x: ${x3_433}  #4
+                    y: ${y3_433}  #10                  
+                  styles: style_m433_i
+                  text:  "\U000F0504"    # temperature-celsius                         
+              - label:   # влажность
+                  id: ch3_h
+                  styles: style_m433_h
+                  text: "xx"   
+              - label:   # влажность %
+                  id: ch3_hr
+                  styles: style_m433_hr
+                  text: "%" 
+             
+
+        - label: # timer 1
+            id: ch1_tm
+            x: 320
+            y: 60
+            text_font: RobotoCondensed_Regular_16
+            text_color: 0xffff00
+            text: "xx"
+        - label: # timer 2
+            id: ch2_tm
+            x: 320
+            y: 120
+            text_font: RobotoCondensed_Regular_16
+            text_color: 0xffff00
+            text: "xx"
+        - label: # timer 3
+            id: ch3_tm
+            x: 320
+            y: 180
+            text_font: RobotoCondensed_Regular_16
+            text_color: 0xffff00
+            text: "xx"
+
+
+script:
+  - id: timer
+    then:
+      - lambda: |-
+          //
+    #------------------------      
+  - id: ch1_433
+    then:
+      - lambda: |-
+          //
+             static char buf[16];             
+             static float p; 
+           // температура             
+             p = id(temperature_1).state;
+             int fi=int(p);
+             int fd=int(10*(p-fi)); // fi-цел fd-дес                         
+             snprintf(buf, sizeof(buf), "%i", fi);
+             lv_label_set_text( id(ch1_ti), buf); //    целое   
+             snprintf(buf, sizeof(buf), ".%i",  fd);
+             lv_label_set_text( id(ch1_td), buf); //    десятичн
+          // влажность  
+             p =  id(humidity_1).state;                                           
+             snprintf(buf, sizeof(buf), "%0.0f", p);
+             lv_label_set_text( id(ch1_h), buf); //    целое   
+
+
+    #------------------------ 
+  - id: ch2_433
+    then:
+      - lambda: |-
+          //
+             static char buf[16];             
+             static float p; 
+             
+           // температура 
+             p = id(temperature_2).state;
+             int fi=int(p);
+             int fd=int(10*(p-fi)); // fi-цел fd-дес                         
+             snprintf(buf, sizeof(buf), "%i", fi);
+             lv_label_set_text( id(ch2_ti), buf); //    целое   
+             snprintf(buf, sizeof(buf), ".%i",  fd);
+             lv_label_set_text( id(ch2_td), buf); //    десятичн
+          // влажность  
+             p =  id(humidity_2).state;                                           
+             snprintf(buf, sizeof(buf), "%0.0f", p);
+             lv_label_set_text( id(ch2_h), buf); //    целое 
+    #------------------------ 
+  - id: ch3_433
+    then:
+      - lambda: |-
+          //
+             static char buf[16];             
+             static float p; 
+           // температура 
+             p = id(temperature_3).state;
+             int fi=int(p);
+             int fd=int(10*(p-fi)); // fi-цел fd-дес                         
+             snprintf(buf, sizeof(buf), "%i", fi);
+             lv_label_set_text( id(ch3_ti), buf); //    целое   
+             snprintf(buf, sizeof(buf), ".%i",  fd);
+             lv_label_set_text( id(ch3_td), buf); //    десятичн
+          // влажность  
+             p =  id(humidity_3).state;                                           
+             snprintf(buf, sizeof(buf), "%0.0f", p);
+             lv_label_set_text( id(ch3_h), buf); //    целое 
+    #------------------------ 
+  - id: update_dp1         # переменные для редактирования виджетов
+    then:
+      - lambda: |- 
+          //
+          //static int timer=30;
+          //if( timer > 0 ){timer=timer-1;return;}  
+           
+          //int r1=id(r_1).state; int g1=id(g_1).state; int b1=id(b_1).state;
+          //int r2=id(r_2).state; int g2=id(g_2).state; int b2=id(b_2).state;
+          //int r3=id(r_3).state; int g3=id(g_3).state; int b3=id(b_3).state;
+            
+            
+          //
+          //int dp0=id(dp_0).state; int ax0=id(ax_0).state; int ay0=id(ay_0).state;
+          int dp1=id(dp_1).state; int ax1=id(ax_1).state; int ay1=id(ay_1).state;
+          int dp2=id(dp_2).state; int ax2=id(ax_2).state; int ay2=id(ay_2).state; 
+          //int dp3=id(dp_3).state; int ax3=id(ax_3).state; int ay3=id(ay_3).state; 
+          //int dp4=id(dp_4).state; int ax4=id(ax_4).state; int ay4=id(ay_4).state;   
+          //int dp5=id(dp_5).state; int ax5=id(ax_5).state; int ay5=id(ay_5).state;   
+          //int dp6=id(dp_6).state; int ax6=id(ax_6).state; int ay6=id(ay_6).state;   
+          //int dp7=id(dp_7).state; int ax7=id(ax_7).state; int ay7=id(ay_7).state;          
+          //int dp8=id(dp_8).state; int ax8=id(ax_8).state; int ay8=id(ay_8).state;   
+          //int dp9=id(dp_9).state; int ax9=id(ax_9).state; int ay9=id(ay_9).state;            
+            
+          // dom button icon
+           
+           //lv_obj_set_size(id(butt_dom_icb), dp1,dp2 );  // ширина 100, высота 40
+           //lv_obj_set_pos(id(srv_dom_watt_sum), ax1, ay1);
+           //lv_obj_align_to(id(srv_dom_watt), id(srv_dom_watt_sum), LV_ALIGN_OUT_LEFT_MID, ax2, ay2);
+           // lv_obj_set_style_border_color(id(butt_dom_icb), lv_color_make(0, 128, 0), LV_PART_MAIN); //               
+           // lv_obj_set_style_bg_color(id(butt_dom_icb), lv_color_make(125, 0, 0), LV_PART_MAIN); //            
+           
+           //-- wifi 
+              
+              // lv_obj_set_height(id(wifi_but), r1); // height                
+              // lv_obj_set_width(id(wifi_but), g1);  // width
+              // lv_obj_set_x(id(wifi_but),  ax1); // watt data -315
+              // lv_obj_set_y(id(wifi_but),  ay1); // watt data -315
+              // lv_obj_set_x(id(wifi_st),   ax2); // watt data -315
+              // lv_obj_set_y(id(wifi_st),   ay2); // watt data -315
+              // lv_obj_set_style_border_width( id(wifi_but), 1 , LV_PART_MAIN); // толщина линии   внутренняя  
+              // lv_obj_set_style_border_color(id(wifi_but), lv_color_make(0, 128, 0), LV_PART_MAIN); //               
+              // lv_obj_set_style_bg_color(id(wifi_but), lv_color_make(125, 0, 0), LV_PART_MAIN); // 
+
+interval:
+  - interval: 60s
+    then:
+       - lambda: |- 
+            bool t_er;
+            int t_w = 15;  
+            
+            id(time_c1) += 1;
+            id(time_1).publish_state(id(time_c1));
+            static bool t_c1 = false;
+            t_er = (id(time_c1) > t_w);
+            if(t_c1 != t_er){
+               t_c1  = t_er;
+               if(t_er){lv_obj_set_style_text_color(id(ch1_td), lv_color_make(64,  48, 48), LV_PART_MAIN);  // цвет time>15 er
+                        lv_obj_set_style_text_color(id(ch1_ti), lv_color_make(64,  48, 48), LV_PART_MAIN);  // цвет time>15 er
+                        lv_obj_set_style_text_color(id(ch1_h),  lv_color_make(64,  48, 48), LV_PART_MAIN);  // цвет time>15 er
+               } else { lv_obj_set_style_text_color(id(ch1_td), lv_color_make( 0, 248,  0), LV_PART_MAIN);  // цвет time<15 ok
+                        lv_obj_set_style_text_color(id(ch1_ti), lv_color_make( 0, 248,  0), LV_PART_MAIN);  // цвет time<15 ok
+                        lv_obj_set_style_text_color(id(ch1_h),  lv_color_make( 0, 248,  0), LV_PART_MAIN);  // цвет time<15 ok   
+               }
+            }
+            
+            
+            id(time_c1a) += 1;
+            id(time_1a).publish_state(id(time_c1a));
+            
+            id(time_c2) += 1;
+            id(time_2).publish_state(id(time_c2));
+            static bool t_c2 = false;
+            t_er = (id(time_c2) > t_w);
+            if(t_c2 != t_er){
+               t_c2  = t_er;
+               if(t_er){lv_obj_set_style_text_color(id(ch2_td), lv_color_make(64,  48, 48), LV_PART_MAIN);  // цвет time>15 er
+                        lv_obj_set_style_text_color(id(ch2_ti), lv_color_make(64,  48, 48), LV_PART_MAIN);  // цвет time>15 er
+                        lv_obj_set_style_text_color(id(ch2_h),  lv_color_make(64,  48, 48), LV_PART_MAIN);  // цвет time>15 er
+               } else { lv_obj_set_style_text_color(id(ch2_td), lv_color_make( 0, 248,  0), LV_PART_MAIN);  // цвет time<15 ok
+                        lv_obj_set_style_text_color(id(ch2_ti), lv_color_make( 0, 248,  0), LV_PART_MAIN);  // цвет time<15 ok
+                        lv_obj_set_style_text_color(id(ch2_h),  lv_color_make( 0, 248,  0), LV_PART_MAIN);  // цвет time<15 ok   
+               }
+            }            
+
+
+            id(time_c3) += 1;
+            id(time_3).publish_state(id(time_c3));  
+            static bool t_c3 = false;
+            t_er = (id(time_c3) > t_w);
+            if(t_c3 != t_er){
+               t_c3  = t_er;
+               if(t_er){lv_obj_set_style_text_color(id(ch3_td), lv_color_make(64,  48, 48), LV_PART_MAIN);  // цвет time>15 er
+                        lv_obj_set_style_text_color(id(ch3_ti), lv_color_make(64,  48, 48), LV_PART_MAIN);  // цвет time>15 er
+                        lv_obj_set_style_text_color(id(ch3_h),  lv_color_make(64,  48, 48), LV_PART_MAIN);  // цвет time>15 er
+               } else { lv_obj_set_style_text_color(id(ch3_td), lv_color_make( 0, 248,  0), LV_PART_MAIN);  // цвет time<15 ok
+                        lv_obj_set_style_text_color(id(ch3_ti), lv_color_make( 0, 248,  0), LV_PART_MAIN);  // цвет time<15 ok
+                        lv_obj_set_style_text_color(id(ch3_h),  lv_color_make( 0, 248,  0), LV_PART_MAIN);  // цвет time<15 ok   
+               }
+            }
+
+sensor:
+  - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
+    name: "WiFi Signal dB"
+    id: wifi_signal_db
+    update_interval: 30s
+    entity_category: "diagnostic"
+
+ # light sensor 
+  - platform: adc  # яркость екрана
+    id: light_value
+    name: svet
+    pin: 34
+    update_interval: 2s
+    on_value:
+      then:
+        - lambda: |-                
+            if( id(light_value).state <0.1 ){ id(led_tft).set_level(0.7);}  // день
+            else if(id(light_value).state >0.15) { id(led_tft).set_level(0.4);} // ночь
+ #  температура
+  - platform: template # temperature 1
+    name: temperature_1 
+    id: temperature_1 
+    unit_of_measurement: "C"
+    accuracy_decimals: 1
+    on_value: 
+      then:
+        - lambda: |-
+            //id(ch1_433).execute(); 
+            /*
+             static char buf[16];             
+              
+             int fi=int(x);
+             int fd=int(10*(x-fi)); // fi-цел fd-дес                         
+             snprintf(buf, sizeof(buf), "%i", fi);
+             lv_label_set_text( id(ch1_ti), buf); //    целое   
+             snprintf(buf, sizeof(buf), ".%i",  fd);
+             lv_label_set_text( id(ch1_td), buf); //    десятичн
+            */
+  - platform: template # temperature 1a
+    name: temperature_1a 
+    id: temperature_1a 
+    unit_of_measurement: "C"
+    accuracy_decimals: 1  
+  - platform: template # temperature 2
+    name: temperature_2 
+    id: temperature_2 
+    unit_of_measurement: "C"
+    accuracy_decimals: 1 
+  - platform: template # temperature 3 
+    name: temperature_3 
+    id: temperature_3
+    unit_of_measurement: "C"
+    accuracy_decimals: 1
+ #  влажность 
+  - platform: template # humi 1
+    name: humidity_1 
+    id: humidity_1  
+    unit_of_measurement: "%"
+    accuracy_decimals: 0
+    #on_value: 
+    #  then:
+    #    - lambda: |-
+    #         static char buf[16];                                            
+    #         snprintf(buf, sizeof(buf), "%0.0f", x);
+    #         lv_label_set_text( id(ch1_h), buf); //    целое      
+  
+  - platform: template # humi 1a
+    name: humidity_1a 
+    id: humidity_1a 
+    unit_of_measurement: "%"
+    accuracy_decimals: 0  
+  - platform: template # humi 2
+    name: humidity_2 
+    id: humidity_2   
+    unit_of_measurement: "%"
+    accuracy_decimals: 0
+  - platform: template # humi 3
+    name: humidity_3 
+    id: humidity_3
+    unit_of_measurement: "%"
+    accuracy_decimals: 0
+ #  время между приемами данных  
+  - platform: template # wait1
+    name: time_1 
+    id: time_1
+    unit_of_measurement: "m"
+    accuracy_decimals: 0
+    icon: mdi:clock-time-eight-outline
+    on_value: 
+      then:
+        - lambda: |-
+              static char buf[16];                                     
+              snprintf(buf, sizeof(buf), "%0.0f", x);
+              lv_label_set_text( id(ch1_tm), buf); //    целое   
+  - platform: template # wait1a
+    name: time_1a 
+    id: time_1a
+    unit_of_measurement: "m"
+    accuracy_decimals: 0
+    icon: mdi:clock-time-eight-outline   
+  - platform: template # wait2 
+    name: time_2 
+    id: time_2
+    unit_of_measurement: "m"
+    accuracy_decimals: 0
+    icon: mdi:clock-time-eight-outline
+    on_value: 
+      then:
+        - lambda: |-
+             static char buf[16];                                     
+             snprintf(buf, sizeof(buf), "%0.0f", x);
+             lv_label_set_text( id(ch2_tm), buf); //    целое    
+  - platform: template # wait3 
+    name: time_3 
+    id: time_3
+    unit_of_measurement: "m"
+    accuracy_decimals: 0
+    icon: mdi:clock-time-eight-outline
+    on_value: 
+      then:
+        - lambda: |-
+             static char buf[16];                                     
+             snprintf(buf, sizeof(buf), "%0.0f", x);
+             lv_label_set_text( id(ch3_tm), buf); //    целое   
+ #-edit 
+  - platform: homeassistant #dp1
+    id: dp_1
+    entity_id: input_number.dp1
+    internal: true 
+    on_value:
+      then:
+        - lambda: |-                           
+            id(update_dp1).execute();
+  - platform: homeassistant #ax1
+    id: ax_1
+    entity_id: input_number.ax1
+    internal: true 
+    on_value:
+      then:
+        - lambda: |-                           
+            id(update_dp1).execute();
+  - platform: homeassistant #ay1
+    id: ay_1
+    entity_id: input_number.ay1
+    internal: true 
+    on_value:
+      then:
+        - lambda: |-                           
+            id(update_dp1).execute();
+  - platform: homeassistant #dp2
+    id: dp_2
+    entity_id: input_number.dp2    
+    on_value:
+      then:
+        - lambda: |-                
+            id(update_dp1).execute();
+  - platform: homeassistant #ax2
+    id: ax_2
+    entity_id: input_number.ax2    
+    on_value:
+      then:
+        - lambda: |-                
+            id(update_dp1).execute(); 
+  - platform: homeassistant #ay2
+    id: ay_2
+    entity_id: input_number.ay2    
+    on_value:
+      then:
+        - lambda: |-                
+            id(update_dp1).execute();
+
+binary_sensor:
+    - platform: homeassistant # buzzer flaf
+      id: alarm_1s
+      entity_id: ${alarm_1s}
+      on_state:
+        then:
+          - rtttl.play: "${alarm_1m}"
+        # 'mission_imp:d=16,o=6,b=95:32d,32d#,32d,32d#,32d,32d#,32d,32d#,32d,32d,32d#,32e,32f,32f#,32g,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,a#,g,2d,32p,a#,g,2c#,32p,a#,g,2c,a#5,8c,2p,32p,a#5,g5,2f#,32p,a#5,g5,2f,32p,a#5,g5,2e,d#,8d'
+    - platform: homeassistant # buzzer flaf
+      id: alarm_2s
+      entity_id: ${alarm_2s}
+      on_state:
+        then:
+          - rtttl.play: "${alarm_2m}"
+    - platform: homeassistant # buzzer flaf
+      id: alarm_3s
+      entity_id: ${alarm_3s}
+      on_state:
+        then:
+          - rtttl.play: "${alarm_3m}"
+
+globals:
+  - id: time_c1 # счетчик времени между полученными данными от rx433
+    type: int
+    restore_value: no
+    initial_value: '99'            
+  - id: time_c1a # счетчик времени между полученными данными от rx433
+    type: int
+    restore_value: no
+    initial_value: '99'
+  - id: time_c2 # счетчик времени между полученными данными от rx433
+    type: int
+    restore_value: no
+    initial_value: '99' 
+  - id: time_c3 # счетчик времени между полученными данными от rx433
+    type: int
+    restore_value: no
+    initial_value: '99' 
+
+time:
+  - platform: sntp
+    id: my_time
+    timezone: "Europe/Kyiv"
+    servers:
+      - 0.pool.ntp.org
+      - 1.pool.ntp.org
+      - 2.pool.ntp.org
+    update_interval: 3600s
+    on_time:
+      - seconds: /1  # каждую секунду
+        then:
+          - lambda: |-
+             //
+               auto now = id(my_time).now();
+               if (!now.is_valid()) return;
+               static int last_sec = -1;
+               static int last_min = -1;
+               static int last_hour = -1;
+               static int last_day = -1;
+               static int last_month = -1;
+               static int last_wday = -1;    
+               int sec = now.second;
+               int min = now.minute;
+               int hour = now.hour;
+               int day = now.day_of_month;
+               int month = now.month;
+               int wday = now.day_of_week;  // 0 = воскресенье, 1 = понедельник ...
+               char buf[20];
+             // СЕКУНДЫ   {time_t3}
+               if (sec != last_sec) {
+                 last_sec = sec;
+                 snprintf(buf, sizeof(buf), "%02d", sec);
+                 lv_label_set_text(id(time_sec), buf);
+               }
+             // МИНУТЫ + ЧАСЫ
+               
+               if (min != last_min) {
+                 last_min = min;
+                 snprintf(buf, sizeof(buf), "%2d:%02d", hour,  min);
+                 lv_label_set_text(id(time_hour_min), buf);
+               }
+             // ЧАСЫ
+               //if (hour != last_hour) {
+               //  last_hour = hour;
+               //  snprintf(buf, sizeof(buf), "%02d", hour);
+               //  lv_label_set_text(id(time_t3), buf);
+               //}
+             // день недели
+               //if (wday != last_wday) {
+               //  last_wday = wday;
+               //  const char* wday_names[] = {"ВС","ПН","ВТ","СР","ЧТ","ПТ","СБ"}; // массив наименований день недели{
+               //  lv_label_set_text(id(time_t1), wday_names[wday-1]);                      
+               //  lv_color_t colort = lv_color_make(0,200,0);  // цвет нормальный
+               //  if (wday == 1 or wday == 7 ) {colort = lv_color_make(255,150,0);}  // воскресенье суббота
+               //  lv_obj_set_style_text_color(id(time_t1), colort, LV_PART_MAIN); // цвет дня недели
+               //  colort = lv_color_make(0,200,0);  // цвет нормальный
+               //  if (wday == 1) {colort = lv_color_make(255,150,0);}  // воскресенье
+               //  lv_obj_set_style_text_color(id(time_td), colort, LV_PART_MAIN); // цвет даты  
+               //}
+             // день месяца
+               //if (day != last_day) {
+               //  last_day = day;
+               //  snprintf(buf, sizeof(buf), "%2d", day);
+               //  lv_label_set_text(id(time_td), buf);
+               //}
+             // месяц
+               //if (month != last_month) {
+               //  last_month = month;
+               // snprintf(buf, sizeof(buf), "%02d",  month); 
+               // lv_label_set_text(id(time_tm),  buf  );
+               //}   
+
+font:
+ #- icon 
+  - file: "fonts/materialdesignicons-webfont.ttf"  # icon_25  
+    id: icon_20      
+    size: 22
+    #bpp: 4
+    glyphs: [
+         "\U000F0504",    # temperature-celsius
+        ] 
+
+  - file: "fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf"  # 45   - file: "gfonts://Roboto"         # s:30
+    #bpp: 4
+    id: RobotoCondensed_Regular_16
+    size: 16 
+    glyphs: [#" ",".","-","=",":","°","+","(",")","[","]",
+             "0","1","2","3","4","5","6","7","8","9",
+             Б,Г,Д,П,З,К,М,Н,В,Т,С,Р,Х,Ч,
+             а,б,в,г,д,е,ж,з,и,й,к,л,м,п,н,о,т,с,р,у,ф,х,ч,ц,ш,щ,ы,ь,я,
+             #a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,q,t,u,v,w,x,y,z,
+             #A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z
+             ":"," ",".","-","%",x
+             ]
+  - file: "fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf"  # 25   - file: "gfonts://Roboto"         # s:30
+    #bpp: 4
+    id: RobotoCondensed_Regular_25
+    size: 25 
+    glyphs: [" ",".","-","=",":","°","+","(",")","[","]",
+             "0","1","2","3","4","5","6","7","8","9",
+             Б,Г,Д,П,З,К,М,Н,В,Т,С,Р,У,Х,Ч,
+             а,б,в,г,д,е,ж,з,и,й,к,л,м,п,н,о,т,с,р,у,ф,х,ч,ц,ш,щ,ы,ь,я,
+             #a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,q,t,u,v,w,x,y,z,
+             #A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z
+             "%",x
+             ] 
+  - file: "fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf"  # 35   - file: "gfonts://Roboto"         # s:30
+    #bpp: 4
+    id: roboto_35
+    size: 35 
+    glyphs: [#" ",".","-","=",":","°","+","(",")","[","]",
+             "0","1","2","3","4","5","6","7","8","9",
+             #Б,Д,П,З,К,М,Н,В,Т,С,Р,Х,Ч,
+             #а,б,в,г,д,е,ж,з,и,й,к,л,м,п,н,о,т,с,р,у,ф,х,ч,ц,ш,щ,ы,ь,я,
+             #a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,q,t,u,v,w,x,y,z,
+             #A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z
+             ":"," ","°",".",x
+             ]
+  - file: "fonts/Roboto_Condensed/static/RobotoCondensed-Medium.ttf"  # 50   - file: "gfonts://Roboto"         # s:30
+    #bpp: 4
+    id: RobotoCondensed_Medium_50
+    size: 50 
+    glyphs: [#" ",".","-","=",":","°","+","(",")","[","]",
+             "0","1","2","3","4","5","6","7","8","9",
+             #Б,Д,П,З,К,М,Н,В,Т,С,Р,Х,Ч,
+             #а,б,в,г,д,е,ж,з,и,й,к,л,м,п,н,о,т,с,р,у,ф,х,ч,ц,ш,щ,ы,ь,я,
+             #a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,q,t,u,v,w,x,y,z,
+             #A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z
+             ".",":"," ","-",x
+             ]
+  - file: "fonts/Roboto_Condensed/static/RobotoCondensed-Medium.ttf"  # 60   - file: "gfonts://Roboto"         # s:30
+    #bpp: 4
+    id: RobotoCondensed_Medium_68
+    size: 68 
+    glyphs: [#" ",".","-","=",":","°","+","(",")","[","]",
+             "0","1","2","3","4","5","6","7","8","9",
+             #Б,Д,П,З,К,М,Н,В,Т,С,Р,Х,Ч,
+             #а,б,в,г,д,е,ж,з,и,й,к,л,м,п,н,о,т,с,р,у,ф,х,ч,ц,ш,щ,ы,ь,я,
+             #a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s,q,t,u,v,w,x,y,z,
+             #A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,R,S,Q,T,U,V,W,X,Y,Z
+             ".",":"," ","-",x
+             ] 

@@ -1,0 +1,32 @@
+esphome:
+  name: txx
+  friendly_name: txx
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "bbaduDerytWlBW7S5C1scruYKq0IRfnWWPHTYexh+x4="
+
+ota:
+  - platform: esphome
+    password: "eb5c132d010cf5e05910231bfba59b8a"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Txx Fallback Hotspot"
+    password: "4fxTFJ8NiPr6"
+
+captive_portal:
+    

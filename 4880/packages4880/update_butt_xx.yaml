@@ -1,0 +1,92 @@
+#
+#
+ 
+ 
+
+
+script:
+    # Данные:
+    #  butt_xx    name  (lvgl id button)
+    #  butt_xxs   binary_sensor  (state)    
+    #  butt_xxv   sensor   (volt)
+    #  butt_xxw   sensor   (watt)
+    #  butt_xxx   line (status видно/невидно)
+    #
+    # Результаты:
+    #  butt_xx    button (bg_color, border_color)
+    #  butt_xxi   icon (text_color)
+    #  butt_xxx   line (status показывать/не показывать)
+    #
+    #
+  - id: update_${butt_xx}  #  бойлер1
+    then:
+      - lambda: |-
+          // 
+            lv_color_t color0 = lv_color_make(64,64,48);     // 0 серый отключенно
+            lv_color_t color1 = lv_color_make(170,160,  5);  // 1 желт  включенно для розеток   160 160 0
+            lv_color_t color2 = lv_color_make(255,  0,  0);  // 2 красн пошла нагрузка
+            lv_color_t color3 = lv_color_make(0,  0, 48);    // 3 сний  база кнопки
+            lv_color_t color4 = lv_color_make(0,  0, 0);     // 4 черн  кнопки отключенно  
+
+            int sbut;
+            int per=15;             
+            static int s_${butt_xx}=-1;  // sbut_01
+            static int t_${butt_xx} = 100;
+             
+            
+            if(t_${butt_xx} < per) {t_${butt_xx}++;}
+            else {t_${butt_xx} = 0;  s_${butt_xx}  = -1;}         
+
+          // - butt_xx - 
+
+            if( id(${butt_xx}v).state < 170 || isnan(id(${butt_xx}v).state) ) {    // 0 - не доступен               
+          // 0 - не в сети 
+              sbut = 0;                                                            // 0- нет подключения
+              if  (s_${butt_xx} != sbut ) {                                        // новое состояние
+                   s_${butt_xx} = 0;                                               // запоминаем   
+                  if( lv_obj_has_flag(id(${butt_xx}x), LV_OBJ_FLAG_HIDDEN)) {      // скрыт виджет
+                    lv_obj_clear_flag(id(${butt_xx}x), LV_OBJ_FLAG_HIDDEN); }      // показать линию                              
+              }                                              
+            } else {             
+          // 1-в сети 
+          //  проверяем зачеркнута    
+              sbut = 1;  
+              if( !lv_obj_has_flag(id(${butt_xx}x), LV_OBJ_FLAG_HIDDEN)) {         // не скрыт виджет
+                   lv_obj_add_flag(id(${butt_xx}x), LV_OBJ_FLAG_HIDDEN); }         // убрать линию  
+          //  включена/ выключена                                                    
+              if( id(${butt_xx}s).state ){                                         // ON                                               
+          // 2 - есть включенние свича   
+                sbut  = 2;                                                         // 2-включен без нагрузки                                                    
+          // 3 - нагрузка      
+                if( id(${butt_xx}p).state > 5 ){                                   // ON & POWER                
+                 sbut  = 3;                                                        // 3- работа под нагрузкой
+                } 
+              } 
+            }      
+          // вывод результатов
+            if (  s_${butt_xx}  !=  sbut  ){          // состояние кнопки поменялось все прекрашиваем                              
+                  s_${butt_xx}  =  sbut ;                 // сохраняем новое состояние кнопки
+                  t_${butt_xx} = 0;                              //       
+          // установка свича  
+             if ( sbut  ==2 ||  sbut  == 3) {lv_obj_add_state(id(${butt_xx}), LV_STATE_CHECKED);} //on
+                                   else  { lv_obj_clear_state(id(${butt_xx}), LV_STATE_CHECKED);} // off
+          // покраска
+             if( sbut == 1){ // off
+                lv_obj_set_style_text_color(  id(${butt_xx}i), color0, LV_PART_MAIN);  // цвет иконки  0 серый
+                lv_obj_set_style_bg_color(    id(${butt_xx} ), color4, LV_PART_MAIN );  // цвет конпки 4 черн          
+                lv_obj_set_style_border_color(id(${butt_xx} ), color0, LV_PART_MAIN);  // цвет контура 0серый
+             }else{
+              if (sbut ==2){ // on
+                lv_obj_set_style_text_color(  id(${butt_xx}i), color1, LV_PART_MAIN);  // цвет иконки   1 желт
+                lv_obj_set_style_bg_color(    id(${butt_xx} ), color3, LV_PART_MAIN | LV_STATE_CHECKED);  // цвет конпки   3 синий           
+                lv_obj_set_style_border_color(id(${butt_xx} ), color1, LV_PART_MAIN);  // цвет контура  1 желт
+              }else{  // power>5
+                lv_obj_set_style_text_color(  id(${butt_xx}i), color1, LV_PART_MAIN);  // цвет иконки   1 желт
+                lv_obj_set_style_bg_color(    id(${butt_xx} ), color2, LV_PART_MAIN | LV_STATE_CHECKED);  // цвет конпки  2 красн           
+                lv_obj_set_style_border_color(id(${butt_xx} ), color1, LV_PART_MAIN);  // цвет контура  1 желт              
+              }
+             }   
+             
+             //id(msg_6).execute(sbut+88800000);  //
+            } 
+    #----------------------------------------------------------------------------------  
