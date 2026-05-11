@@ -1,4 +1,4 @@
- #666666
+ #777
  #set: esphome, esp32, psram, loger, api, ota, wifi 
   esphome:
     name: display4880m
