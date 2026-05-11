@@ -7,7 +7,7 @@ esp32:
   framework:
     type: esp-idf
 
-# Enable logging cccc
+# Enable logging aaa  cccc
 logger:
 
 # Enable Home Assistant API
